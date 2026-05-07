@@ -1,11 +1,10 @@
-
-
 from openai import OpenAI
-from kubernetes import client, config
+from app.tools.kubernetes.incident_context import (
+    collect_incident_context
+)
 
-config.load_kube_config()
+import json
 
-v1 = client.CoreV1Api()
 
 client_ai = OpenAI(
     base_url="http://localhost:11434/v1",
@@ -13,45 +12,42 @@ client_ai = OpenAI(
 )
 
 
-def get_events(namespace="ai-lab"):
-    events = v1.list_namespaced_event(namespace)
-
-    output = []
-
-    for event in events.items:
-        output.append(
-            f"Type: {event.type}, "
-            f"Reason: {event.reason}, "
-            f"Message: {event.message}"
-        )
-
-    return "\n".join(output)
-
-
 def analyze_incident():
 
-    events = get_events()
+    # Collect structured Kubernetes incident data
+    incident_context = collect_incident_context()
 
+    # Convert Python object to formatted JSON
+    formatted_context = json.dumps(
+        incident_context,
+        indent=2
+    )
+
+    # Send structured operational context to local LLM
     response = client_ai.chat.completions.create(
         model="qwen2.5-coder",
         messages=[
             {
                 "role": "system",
                 "content": (
-                    "You are a senior Kubernetes SRE engineer. "
-                    "Analyze Kubernetes events and provide:\n"
-                    "- Root cause\n"
-                    "- Impact\n"
-                    "- Recommended remediation\n"
-                    "- Severity"
+                    "You are a senior Kubernetes SRE engineer.\n"
+                    "Analyze the Kubernetes incident context and provide:\n\n"
+                    "1. Incident Summary\n"
+                    "2. Root Cause\n"
+                    "3. Severity\n"
+                    "4. Impact\n"
+                    "5. Recommended Remediation\n"
+                    "6. Preventive Measures\n"
                 )
             },
             {
                 "role": "user",
-                "content": events
+                "content": formatted_context
             }
         ]
     )
+
+    print("\n===== AI INCIDENT RCA =====\n")
 
     print(response.choices[0].message.content)
 
