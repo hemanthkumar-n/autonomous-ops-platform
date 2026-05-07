@@ -28,4 +28,4 @@ def get_pods(namespace="default"):
 
 
 if __name__ == "__main__":
-    get_pods("ai-lab")
+    get_pods("*")
