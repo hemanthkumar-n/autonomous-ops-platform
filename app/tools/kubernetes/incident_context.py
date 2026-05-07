@@ -8,7 +8,7 @@ config.load_kube_config()
 v1 = client.CoreV1Api()
 
 
-def collect_incident_context(namespace="ai-lab"):
+def collect_incident_context(namespace="none"):
 
     # Fetch pods from namespace
     pods = v1.list_namespaced_pod(namespace)
