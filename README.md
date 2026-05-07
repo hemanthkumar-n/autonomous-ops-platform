@@ -1,119 +1,187 @@
 # Autonomous Ops Platform
 
-AI-powered SRE and DevOps automation platform focused on Kubernetes troubleshooting, observability, Linux operations, incident analysis, and intelligent operational workflows.
+Enterprise-grade AI-powered SRE and DevOps automation platform focused on Kubernetes troubleshooting, Linux operational intelligence, observability analysis, and future autonomous remediation workflows.
 
-## Goals
+---
 
-- AI-assisted Kubernetes troubleshooting
-- Linux operational automation
-- Observability intelligence
-- Incident RCA automation
-- Multi-agent operational workflows
-- Autonomous remediation research
+# Vision
 
+Autonomous Ops Platform is a modular AI Operations Engineering initiative designed to evolve into a unified operational intelligence system for:
 
+* Kubernetes troubleshooting
+* Linux operational automation
+* Observability intelligence
+* Incident RCA workflows
+* AI-assisted remediation
+* DevOps automation
+* Multi-agent operational orchestration
+* Platform engineering automation
+
+This project is intentionally designed using scalable enterprise architecture patterns instead of tutorial-style AI demos.
+
+---
+
+# Core Objectives
+
+## Current Focus
+
+* Local AI runtime with Ollama
+* Kubernetes operational tooling
+* AI-assisted troubleshooting workflows
+* Linux operational helper agents
+* Modular agent architecture
+* Enterprise-grade repository structure
+
+## Future Roadmap
+
+* LangGraph orchestration
+* OpenAI Agents SDK integration
+* Multi-agent collaboration
+* Operational memory systems
+* Incident history intelligence
+* AI remediation workflows
+* Splunk/Datadog integrations
+* Prometheus/Grafana intelligence
+* CloudOps automation
+* SecurityOps automation
+
+---
+
+# Technology Stack
+
+| Category                | Technologies                         |
+| ----------------------- | ------------------------------------ |
+| AI Runtime              | Ollama, OpenAI-compatible APIs       |
+| Languages               | Python, Bash                         |
+| API Framework           | FastAPI                              |
+| Containers              | Docker Desktop                       |
+| Orchestration           | Kubernetes                           |
+| Infrastructure          | Terraform                            |
+| Observability           | Prometheus, Grafana, Datadog, Splunk |
+| CI/CD                   | Jenkins, GitHub Actions              |
+| Future Agent Frameworks | LangGraph, CrewAI, OpenAI Agents SDK |
+
+---
+
+# Local Development Environment
+
+## Primary Lab
+
+* Mac Mini
+* Docker Desktop
+* Kubernetes enabled locally
+* Ollama local LLM runtime
+
+## Portable Development
+
+* Windows laptop
+* GitHub as source of truth
+* VSCode development workflow
+
+---
+
+# Day 1 Setup
+
+## 1. Install Core Dependencies
+
+```bash
+brew install python git kubectl helm make tree
+```
+
+---
+
+## 2. Install Docker Desktop
+
+Install Docker Desktop and enable Kubernetes:
+
+```text
+Docker Desktop → Settings → Kubernetes → Enable Kubernetes
+```
+
+Verify:
+
+```bash
+kubectl get nodes
+```
+
+---
+
+## 3. Install Ollama
+
+Install:
+
+[https://ollama.com/](https://ollama.com/)
+
+Pull initial model:
+
+```bash
+ollama pull qwen2.5-coder
+```
+
+Test:
+
+```bash
+ollama run qwen2.5-coder
+```
+
+---
+
+## 4. Create Python Virtual Environment
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+---
+
+## 5. Install Python Dependencies
+
+```bash
+python3 -m pip install -r requirements.txt
+```
+
+---
+
+# Recommended Python Dependencies
+
+```text
+openai
+fastapi
+uvicorn
+kubernetes
+python-dotenv
+requests
+pydantic
+```
+
+---
+
+# Repository Structure
+
+```text
 autonomous-ops-platform/
 │
 ├── app/
 │   │
 │   ├── agents/
-│   │   │
 │   │   ├── base/
-│   │   │   ├── base_agent.py
-│   │   │   ├── memory_manager.py
-│   │   │   ├── context_manager.py
-│   │   │   └── agent_registry.py
-│   │   │
 │   │   ├── sre/
-│   │   │   ├── incident_agent.py
-│   │   │   ├── remediation_agent.py
-│   │   │   ├── rca_agent.py
-│   │   │   ├── alert_agent.py
-│   │   │   └── healthcheck_agent.py
-│   │   │
 │   │   ├── kubernetes/
-│   │   │   ├── kube_agent.py
-│   │   │   ├── deployment_agent.py
-│   │   │   ├── pod_agent.py
-│   │   │   ├── namespace_agent.py
-│   │   │   └── ingress_agent.py
-│   │   │
 │   │   ├── linux/
-│   │   │   ├── linux_agent.py
-│   │   │   ├── process_agent.py
-│   │   │   ├── disk_agent.py
-│   │   │   ├── memory_agent.py
-│   │   │   ├── network_agent.py
-│   │   │   └── patching_agent.py
-│   │   │
 │   │   ├── observability/
-│   │   │   ├── splunk_agent.py
-│   │   │   ├── datadog_agent.py
-│   │   │   ├── prometheus_agent.py
-│   │   │   ├── grafana_agent.py
-│   │   │   ├── newrelic_agent.py
-│   │   │   └── dynatrace_agent.py
-│   │   │
 │   │   ├── devops/
-│   │   │   ├── cicd_agent.py
-│   │   │   ├── jenkins_agent.py
-│   │   │   ├── github_agent.py
-│   │   │   ├── terraform_agent.py
-│   │   │   ├── docker_agent.py
-│   │   │   └── release_agent.py
-│   │   │
 │   │   ├── cloud/
-│   │   │   ├── aws_agent.py
-│   │   │   ├── azure_agent.py
-│   │   │   ├── cost_agent.py
-│   │   │   ├── iam_agent.py
-│   │   │   └── backup_agent.py
-│   │   │
 │   │   ├── security/
-│   │   │   ├── vuln_agent.py
-│   │   │   ├── compliance_agent.py
-│   │   │   ├── qradar_agent.py
-│   │   │   ├── wazuh_agent.py
-│   │   │   └── secrets_agent.py
-│   │   │
 │   │   └── future/
 │   │
 │   ├── tools/
-│   │   │
 │   │   ├── kubernetes/
-│   │   │   ├── pod_tools.py
-│   │   │   ├── deployment_tools.py
-│   │   │   ├── event_tools.py
-│   │   │   ├── log_tools.py
-│   │   │   ├── namespace_tools.py
-│   │   │   └── metrics_tools.py
-│   │   │
 │   │   ├── linux/
-│   │   │   ├── shell_tools.py
-│   │   │   ├── process_tools.py
-│   │   │   ├── disk_tools.py
-│   │   │   ├── network_tools.py
-│   │   │   └── service_tools.py
-│   │   │
 │   │   ├── splunk/
-│   │   │   ├── splunk_search.py
-│   │   │   ├── splunk_alerts.py
-│   │   │   └── splunk_dashboards.py
-│   │   │
 │   │   ├── datadog/
-│   │   │   ├── datadog_metrics.py
-│   │   │   ├── datadog_alerts.py
-│   │   │   └── datadog_events.py
-│   │   │
 │   │   ├── prometheus/
-│   │   │   ├── prometheus_queries.py
-│   │   │   ├── alert_rules.py
-│   │   │   └── metrics_parser.py
-│   │   │
 │   │   ├── grafana/
-│   │   │   ├── dashboard_tools.py
-│   │   │   └── datasource_tools.py
-│   │   │
 │   │   ├── aws/
 │   │   ├── terraform/
 │   │   ├── jenkins/
@@ -133,11 +201,11 @@ autonomous-ops-platform/
 │   ├── orchestration/
 │   │   ├── workflows/
 │   │   ├── planners/
-│   │   ├── execution_engine.py
-│   │   ├── task_manager.py
 │   │   ├── langgraph/
 │   │   ├── crewai/
-│   │   └── autogen/
+│   │   ├── autogen/
+│   │   ├── execution_engine.py
+│   │   └── task_manager.py
 │   │
 │   ├── memory/
 │   │   ├── vectorstore/
@@ -194,9 +262,7 @@ autonomous-ops-platform/
 │   └── demos/
 │
 ├── scripts/
-│
 ├── tests/
-│
 ├── screenshots/
 │
 ├── .env
@@ -206,3 +272,146 @@ autonomous-ops-platform/
 ├── Makefile
 ├── setup.sh
 └── README.md
+```
+
+---
+
+# Architectural Principles
+
+## Separation of Responsibilities
+
+| Layer         | Responsibility                    |
+| ------------- | --------------------------------- |
+| agents        | AI reasoning layer                |
+| tools         | Operational execution layer       |
+| orchestration | Workflow coordination             |
+| llm           | AI provider abstraction           |
+| memory        | Operational knowledge and history |
+| prompts       | AI behavior and instructions      |
+| api           | External service exposure         |
+
+---
+
+# Initial Development Workflow
+
+## Start Local AI Runtime
+
+```bash
+ollama serve
+```
+
+---
+
+## Activate Python Environment
+
+```bash
+source venv/bin/activate
+```
+
+---
+
+## Run Initial Ollama Test
+
+```bash
+python app/llm/ollama/test_ollama.py
+```
+
+---
+
+# Git Workflow
+
+## Recommended Branch Strategy
+
+```text
+main
+develop
+feature/*
+```
+
+Examples:
+
+```text
+feature/k8s-agent
+feature/prometheus-analysis
+feature/langgraph-workflows
+```
+
+---
+
+# Recommended Commit Style
+
+```text
+feat: add kubernetes pod inspection tool
+feat: implement ollama integration layer
+feat: add prometheus metrics parser
+feat: add AI incident summarization workflow
+chore: initialize enterprise platform architecture
+```
+
+---
+
+# Important Notes
+
+## This project intentionally avoids:
+
+* tutorial-style AI demos
+* overengineered frameworks on Day 1
+* premature multi-agent complexity
+* unnecessary ML theory
+
+## Current philosophy:
+
+Build operational intelligence first.
+
+---
+
+# Planned Milestones
+
+## Phase 1
+
+* Local AI runtime
+* Kubernetes SDK integration
+* Operational tooling
+* Incident analysis workflows
+
+## Phase 2
+
+* Observability integrations
+* Linux AI helper
+* Metrics intelligence
+* AI-assisted RCA
+
+## Phase 3
+
+* LangGraph orchestration
+* Multi-agent workflows
+* Operational memory systems
+* Autonomous remediation research
+
+---
+
+# Long-Term Goal
+
+Build a modular AI-powered Operational Intelligence Platform suitable for:
+
+* Enterprise SRE workflows
+* Platform Engineering automation
+* AI-assisted infrastructure operations
+* Operational analytics
+* Autonomous troubleshooting systems
+* Future SaaS evolution
+
+---
+
+# Author
+
+Hemanth Kumar
+
+Senior SRE / DevOps / Platform Engineering
+
+Focused on:
+
+* AI for Infrastructure Operations
+* Kubernetes Automation
+* Operational Intelligence Systems
+* Autonomous Ops Engineering
