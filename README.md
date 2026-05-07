@@ -1,3 +1,8 @@
+![Python](https://img.shields.io/badge/Python-3.14-blue)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-AI%20Ops-blue)
+![Ollama](https://img.shields.io/badge/LLM-Ollama-green)
+![Status](https://img.shields.io/badge/Status-Active-success)
+
 # Autonomous Ops Platform
 
 Enterprise-grade AI-powered SRE and DevOps automation platform focused on Kubernetes troubleshooting, Linux operational intelligence, observability analysis, and future autonomous remediation workflows.
