@@ -1,25 +1,40 @@
 from kubernetes import client, config
+from app.tools.kubernetes.log_tools import (
+    get_pod_logs
+)
+
 import json
 
-# Load Kubernetes config
+# Load Kubernetes configuration
 config.load_kube_config()
 
 # Kubernetes Core API
 v1 = client.CoreV1Api()
 
 
-def collect_incident_context(namespace="none"):
+def collect_incident_context(
+    namespace=None,
+    pod_name=None
+):
 
-    # Fetch pods from namespace
-    pods = v1.list_namespaced_pod(namespace)
+    # Fetch pods
+    if namespace:
+        pods = v1.list_namespaced_pod(namespace)
+
+    else:
+        pods = v1.list_pod_for_all_namespaces()
 
     incident_data = []
 
     for pod in pods.items:
 
+        # Filter specific pod if requested
+        if pod_name and pod.metadata.name != pod_name:
+            continue
+
         pod_info = {
             "pod_name": pod.metadata.name,
-            "namespace": namespace,
+            "namespace": pod.metadata.namespace,
             "phase": pod.status.phase,
             "node": pod.spec.node_name,
             "conditions": [],
@@ -56,7 +71,9 @@ def collect_incident_context(namespace="none"):
 
                 resources = {}
 
-                # Current container state
+                logs = ""
+
+                # Current state
                 if container.state.waiting:
 
                     state = container.state.waiting.reason
@@ -73,13 +90,15 @@ def collect_incident_context(namespace="none"):
                 if container.last_state.terminated:
 
                     last_termination = {
-                        "reason": container.last_state.terminated.reason,
+                        "reason": (
+                            container.last_state.terminated.reason
+                        ),
                         "exit_code": (
                             container.last_state.terminated.exit_code
                         )
                     }
 
-                # Resource requests and limits
+                # Resource limits and requests
                 for spec_container in pod.spec.containers:
 
                     if spec_container.name == container.name:
@@ -87,11 +106,25 @@ def collect_incident_context(namespace="none"):
                         if spec_container.resources:
 
                             resources = {
-                                "limits": spec_container.resources.limits,
+                                "limits": (
+                                    spec_container.resources.limits
+                                ),
                                 "requests": (
                                     spec_container.resources.requests
                                 )
                             }
+
+                # Fetch logs
+                try:
+
+                    logs = get_pod_logs(
+                        pod.metadata.name,
+                        pod.metadata.namespace
+                    )
+
+                except Exception as e:
+
+                    logs = str(e)
 
                 # Append structured container data
                 pod_info["container_states"].append({
@@ -99,14 +132,17 @@ def collect_incident_context(namespace="none"):
                     "state": state,
                     "restart_count": restart_count,
                     "last_termination": last_termination,
-                    "resources": resources
+                    "resources": resources,
+                    "logs": logs
                 })
 
         # ---------------------------------------------------
         # Kubernetes Events
         # ---------------------------------------------------
 
-        events = v1.list_namespaced_event(namespace)
+        events = v1.list_namespaced_event(
+            pod.metadata.namespace
+        )
 
         for event in events.items:
 
@@ -118,7 +154,6 @@ def collect_incident_context(namespace="none"):
                     "message": event.message
                 })
 
-        # Append pod incident data
         incident_data.append(pod_info)
 
     return incident_data

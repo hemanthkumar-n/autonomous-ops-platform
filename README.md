@@ -3,6 +3,16 @@
 ![Ollama](https://img.shields.io/badge/LLM-Ollama-green)
 ![Status](https://img.shields.io/badge/Status-Active-success)
 
+
+
+
+------
+
+yes or no structure - no support true
+
+
+
+-------
 # Autonomous Ops Platform
 
 Enterprise-grade AI-powered SRE and DevOps automation platform focused on Kubernetes troubleshooting, Linux operational intelligence, observability analysis, and future autonomous remediation workflows.
