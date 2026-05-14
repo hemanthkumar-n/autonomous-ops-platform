@@ -187,7 +187,7 @@ def collect_incident_context(namespace=None, pod_name=None):
 
     return incident_data
 
-
+## Responsive incident context
 if __name__ == "__main__":
     data = collect_incident_context()
 
