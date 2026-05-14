@@ -1,23 +1,53 @@
 from kubernetes import client, config
-from app.tools.kubernetes.log_tools import (
-    get_pod_logs
-)
+from app.tools.kubernetes.log_tools import get_pod_logs
+from app.tools.kubernetes.event_tools import get_pod_events
 
 import json
 
-# Load Kubernetes configuration
 config.load_kube_config()
 
-# Kubernetes Core API
 v1 = client.CoreV1Api()
+
+EXCLUDED_NAMESPACES = [
+    "kube-system",
+    "kube-public",
+    "kube-node-lease"
+]
+
+
+def is_problematic_pod(pod):
+    """
+    Identify unhealthy pods only.
+    """
+
+    if pod.metadata.namespace in EXCLUDED_NAMESPACES:
+        return False
+
+    if not pod.status.container_statuses:
+        return False
+
+    for container in pod.status.container_statuses:
+
+        if container.restart_count > 0:
+            return True
+
+        if container.state.waiting:
+            return True
+
+        if container.state.terminated:
+            return True
+
+    return False
 
 
 def collect_incident_context(
     namespace=None,
     pod_name=None
 ):
+    """
+    Collect structured operational incident context.
+    """
 
-    # Fetch pods
     if namespace:
         pods = v1.list_namespaced_pod(namespace)
 
@@ -28,8 +58,10 @@ def collect_incident_context(
 
     for pod in pods.items:
 
-        # Filter specific pod if requested
         if pod_name and pod.metadata.name != pod_name:
+            continue
+
+        if not is_problematic_pod(pod):
             continue
 
         pod_info = {
@@ -42,10 +74,7 @@ def collect_incident_context(
             "events": []
         }
 
-        # ---------------------------------------------------
-        # Pod Conditions
-        # ---------------------------------------------------
-
+        # Conditions
         if pod.status.conditions:
 
             for condition in pod.status.conditions:
@@ -55,104 +84,68 @@ def collect_incident_context(
                     "status": condition.status
                 })
 
-        # ---------------------------------------------------
-        # Container States
-        # ---------------------------------------------------
+        # Container intelligence
+        for container in pod.status.container_statuses:
 
-        if pod.status.container_statuses:
+            state = "unknown"
 
-            for container in pod.status.container_statuses:
+            restart_count = container.restart_count
 
-                state = "unknown"
+            last_termination = None
 
-                restart_count = container.restart_count
+            resources = {}
 
-                last_termination = None
+            logs = ""
 
-                resources = {}
+            if container.state.waiting:
+                state = container.state.waiting.reason
 
-                logs = ""
+            elif container.state.running:
+                state = "Running"
 
-                # Current state
-                if container.state.waiting:
+            elif container.state.terminated:
+                state = container.state.terminated.reason
 
-                    state = container.state.waiting.reason
+            if container.last_state.terminated:
 
-                elif container.state.running:
+                last_termination = {
+                    "reason": container.last_state.terminated.reason,
+                    "exit_code": container.last_state.terminated.exit_code
+                }
 
-                    state = "Running"
+            for spec_container in pod.spec.containers:
 
-                elif container.state.terminated:
+                if spec_container.name == container.name:
 
-                    state = container.state.terminated.reason
+                    if spec_container.resources:
 
-                # Previous termination details
-                if container.last_state.terminated:
+                        resources = {
+                            "limits": spec_container.resources.limits,
+                            "requests": spec_container.resources.requests
+                        }
 
-                    last_termination = {
-                        "reason": (
-                            container.last_state.terminated.reason
-                        ),
-                        "exit_code": (
-                            container.last_state.terminated.exit_code
-                        )
-                    }
+            try:
+                logs = get_pod_logs(
+                    pod_name=pod.metadata.name,
+                    namespace=pod.metadata.namespace
+                )
 
-                # Resource limits and requests
-                for spec_container in pod.spec.containers:
+            except Exception as e:
+                logs = str(e)
 
-                    if spec_container.name == container.name:
+            pod_info["container_states"].append({
+                "container": container.name,
+                "state": state,
+                "restart_count": restart_count,
+                "last_termination": last_termination,
+                "resources": resources,
+                "logs": logs
+            })
 
-                        if spec_container.resources:
-
-                            resources = {
-                                "limits": (
-                                    spec_container.resources.limits
-                                ),
-                                "requests": (
-                                    spec_container.resources.requests
-                                )
-                            }
-
-                # Fetch logs
-                try:
-
-                    logs = get_pod_logs(
-                        pod.metadata.name,
-                        pod.metadata.namespace
-                    )
-
-                except Exception as e:
-
-                    logs = str(e)
-
-                # Append structured container data
-                pod_info["container_states"].append({
-                    "container": container.name,
-                    "state": state,
-                    "restart_count": restart_count,
-                    "last_termination": last_termination,
-                    "resources": resources,
-                    "logs": logs
-                })
-
-        # ---------------------------------------------------
-        # Kubernetes Events
-        # ---------------------------------------------------
-
-        events = v1.list_namespaced_event(
-            pod.metadata.namespace
+        pod_info["events"] = get_pod_events(
+            pod_name=pod.metadata.name,
+            namespace=pod.metadata.namespace
         )
-
-        for event in events.items:
-
-            if pod.metadata.name in event.involved_object.name:
-
-                pod_info["events"].append({
-                    "type": event.type,
-                    "reason": event.reason,
-                    "message": event.message
-                })
 
         incident_data.append(pod_info)
 

@@ -1,56 +1,56 @@
-from openai import OpenAI
+import json
+import requests
+
 from app.tools.kubernetes.incident_context import (
     collect_incident_context
 )
 
-import json
+OLLAMA_URL = "http://localhost:11434/api/generate"
+MODEL = "qwen2.5-coder:latest"
 
 
-client_ai = OpenAI(
-    base_url="http://localhost:11434/v1",
-    api_key="ollama"
-)
+def generate_rca(incident_context):
 
+    prompt = f"""
+You are a senior Site Reliability Engineer.
 
-def analyze_incident():
+Analyze the Kubernetes incident.
 
-    # Collect structured Kubernetes incident data
-    incident_context = collect_incident_context()
+Provide:
 
-    # Convert Python object to formatted JSON
-    formatted_context = json.dumps(
-        incident_context,
-        indent=2
+1. Incident Summary
+2. Root Cause
+3. Severity
+4. Immediate Remediation
+5. Preventive Recommendations
+
+Incident Context:
+{json.dumps(incident_context, indent=2)}
+"""
+
+    payload = {
+        "model": MODEL,
+        "prompt": prompt,
+        "stream": False
+    }
+
+    response = requests.post(
+        OLLAMA_URL,
+        json=payload
     )
 
-    # Send structured operational context to local LLM
-    response = client_ai.chat.completions.create(
-        model="qwen2.5-coder",
-        messages=[
-            {
-                "role": "system",
-                "content": (
-                    "You are a senior Kubernetes SRE engineer.\n"
-                    "Analyze the Kubernetes incident context and provide:\n\n"
-                    "1. Incident Summary\n"
-                    "2. Root Cause\n"
-                    "3. Severity\n"
-                    "4. Impact\n"
-                    "5. Recommended Remediation\n"
-                    "6. Preventive Measures\n"
-                )
-            },
-            {
-                "role": "user",
-                "content": formatted_context
-            }
-        ]
-    )
+    result = response.json()
 
-    print("\n===== AI INCIDENT RCA =====\n")
-
-    print(response.choices[0].message.content)
+    return result["response"]
 
 
 if __name__ == "__main__":
-    analyze_incident()
+
+    context = collect_incident_context(
+        pod_name="memory-stress"
+    )
+
+    rca = generate_rca(context)
+
+    print("\n===== AI RCA =====\n")
+    print(rca)
