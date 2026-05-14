@@ -4,6 +4,7 @@ from app.tools.kubernetes.incident_context import collect_incident_context
 from app.agents.sre.incident_classifier import classify_incident
 from app.agents.sre.rca_agent import generate_rca
 from app.agents.sre.remediation_agent import generate_remediation_plan
+from app.memory.incident_history.store_incident import store_incident
 
 
 def run_incident_workflow():
@@ -50,8 +51,10 @@ def run_incident_workflow():
         "classified_incidents": classified_incidents,
         "rca_analysis": rca_output,
         "remediation_plan": remediation_output
+        
     }
-
+    saved_path = store_incident(incident_report)
+    print(f"\nIncident stored at: {saved_path}\n")
     print("\n=== INCIDENT WORKFLOW COMPLETED ===\n")
 
     print(json.dumps(incident_report, indent=2))
