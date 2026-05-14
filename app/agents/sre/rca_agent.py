@@ -1,10 +1,10 @@
+from __future__ import annotations
+
 import json
-import requests
 
 from app.agents.sre.incident_classifier import classify_incident
 from app.config.logging_config import get_logger
-from app.config.settings import settings
-from app.llm.response_validator import validate_llm_response
+from app.llm.client import LLMClient
 from app.schemas.ai import RCAResponse
 from app.schemas.classification import IncidentClassification
 from app.schemas.incident import IncidentContext
@@ -13,33 +13,18 @@ from app.tools.kubernetes.incident_context import collect_incident_context
 logger = get_logger(__name__)
 
 
-def generate_rca(
-    incident_context: list[IncidentContext],
-    classified_incidents: list[IncidentClassification],
-) -> list[RCAResponse]:
+def build_rca_prompt(
+    incident: IncidentContext,
+    classification: IncidentClassification,
+) -> str:
     """
-    Generate typed RCA responses.
+    Build RCA analysis prompt.
     """
 
-    rca_results = []
-
-    for incident in classified_incidents:
-        logger.info(
-            "Generating RCA for pod=%s incident=%s",
-            incident.pod_name,
-            incident.incident_type,
-        )
-
-        relevant_context = [
-            ctx
-            for ctx in incident_context
-            if ctx.pod_name == incident.pod_name
-        ]
-
-        prompt = f"""
+    return f"""
 You are a senior Site Reliability Engineer specializing in Kubernetes incident response.
 
-Analyze this incident using ALL available operational signals.
+Analyze the incident using ALL available operational signals.
 
 Signal sources include:
 - Kubernetes pod lifecycle state
@@ -50,99 +35,118 @@ Signal sources include:
 - Kubernetes events
 - container logs
 - Prometheus observability metrics
+    - memory usage
+    - CPU usage
+    - restart telemetry
 
-Responsibilities:
-1. Identify root cause
-2. Correlate Kubernetes runtime + telemetry
-3. Assess severity
-4. Recommend ownership
-5. Suggest preventive engineering actions
+Your responsibilities:
+
+1. Identify the most likely root cause
+2. Correlate Kubernetes runtime signals with Prometheus telemetry
+3. Detect restart storms
+4. Detect memory pressure / exhaustion
+5. Detect image pull failures
+6. Detect configuration failures
+7. Assess severity
+8. Recommend ownership team
+9. Suggest preventive engineering actions
+
+Output format:
+
+### Incident Summary
+### Root Cause Analysis
+### Signal Correlation
+### Severity Assessment
+### Team Ownership Recommendation
+### Preventive Recommendations
 
 Incident Classification:
-{json.dumps(incident.model_dump(), indent=2)}
+{classification.model_dump_json(indent=2)}
 
 Incident Context:
-{json.dumps([ctx.model_dump() for ctx in relevant_context], indent=2)}
+{incident.model_dump_json(indent=2)}
 """
 
-        payload = {
-            "model": settings.MODEL_NAME,
-            "prompt": prompt,
-            "stream": False,
-        }
 
-        endpoint = f"{settings.OLLAMA_BASE_URL}/api/generate"
+def generate_rca(
+    incident: IncidentContext,
+    classification: IncidentClassification,
+    llm_client: LLMClient | None = None,
+) -> RCAResponse:
+    """
+    Generate RCA using central LLM client.
+    """
 
-        try:
-            response = requests.post(
-                endpoint,
-                json=payload,
-                timeout=settings.AI_REQUEST_TIMEOUT,
-            )
+    llm = llm_client or LLMClient()
 
-            response.raise_for_status()
+    prompt = build_rca_prompt(
+        incident=incident,
+        classification=classification,
+    )
 
-            result = response.json()
+    try:
+        logger.info(
+            "Generating RCA for pod=%s incident=%s",
+            incident.pod_name,
+            classification.incident_type,
+        )
 
-            llm_response = validate_llm_response(
-                result.get("response")
-            )
+        response = llm.generate(prompt)
 
-            rca_results.append(
-                RCAResponse(
-                    pod_name=incident.pod_name,
-                    incident_type=incident.incident_type,
-                    rca=llm_response,
-                )
-            )
+        return RCAResponse(
+            pod_name=incident.pod_name,
+            incident_type=classification.incident_type,
+            rca=response,
+        )
 
-        except requests.exceptions.RequestException:
-            logger.exception(
-                "RCA generation failed pod=%s",
-                incident.pod_name,
-            )
+    except Exception:
+        logger.exception(
+            "RCA generation failed pod=%s",
+            incident.pod_name,
+        )
 
-            rca_results.append(
-                RCAResponse(
-                    pod_name=incident.pod_name,
-                    incident_type=incident.incident_type,
-                    rca="AI RCA unavailable. Manual investigation required.",
-                )
-            )
-
-    return rca_results
+        return RCAResponse(
+            pod_name=incident.pod_name,
+            incident_type=classification.incident_type,
+            rca="AI RCA unavailable. Manual investigation required.",
+        )
 
 
-def main():
+def main() -> None:
     """
     RCA execution workflow.
     """
 
     logger.info("Collecting incident context")
 
-    incident_context = collect_incident_context()
+    incidents = collect_incident_context()
 
-    if not incident_context:
+    if not incidents:
         logger.warning("No incidents detected")
         print("No incidents detected.")
         return
 
     logger.info("Classifying incidents")
 
-    classified_incidents = classify_incident(
-        incident_context
-    )
+    classifications = classify_incident(incidents)
 
-    logger.info("Generating RCA responses")
+    results = []
 
-    rca_results = generate_rca(
-        incident_context=incident_context,
-        classified_incidents=classified_incidents,
-    )
+    for incident, classification in zip(
+        incidents,
+        classifications,
+        strict=False,
+    ):
+        results.append(
+            generate_rca(
+                incident=incident,
+                classification=classification,
+            ).model_dump()
+        )
 
     print(
         json.dumps(
-            [result.model_dump() for result in rca_results],
+            results,
             indent=2,
         )
     )

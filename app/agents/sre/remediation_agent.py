@@ -1,10 +1,10 @@
+from __future__ import annotations
+
 import json
-import requests
 
 from app.agents.sre.incident_classifier import classify_incident
 from app.config.logging_config import get_logger
-from app.config.settings import settings
-from app.llm.response_validator import validate_llm_response
+from app.llm.client import LLMClient
 from app.schemas.ai import RemediationResponse
 from app.schemas.classification import IncidentClassification
 from app.schemas.incident import IncidentContext
@@ -13,15 +13,15 @@ from app.tools.kubernetes.incident_context import collect_incident_context
 logger = get_logger(__name__)
 
 
-def generate_remediation(
-    incident: IncidentClassification,
-    relevant_context: list[IncidentContext],
-) -> RemediationResponse:
+def build_remediation_prompt(
+    incident: IncidentContext,
+    classification: IncidentClassification,
+) -> str:
     """
-    Generate typed remediation response for one incident.
+    Build remediation planning prompt.
     """
 
-    prompt = f"""
+    return f"""
 You are a senior Site Reliability Engineer responsible for SAFE incident remediation.
 
 Analyze ONE incident only.
@@ -85,139 +85,118 @@ Output format:
 ### Risk Notes
 
 Incident Classification:
-{json.dumps(incident.model_dump(), indent=2)}
+{classification.model_dump_json(indent=2)}
 
-Relevant Incident Context:
-{json.dumps([ctx.model_dump() for ctx in relevant_context], indent=2)}
+Incident Context:
+{incident.model_dump_json(indent=2)}
 """
 
-    payload = {
-        "model": settings.MODEL_NAME,
-        "prompt": prompt,
-        "stream": False,
-    }
 
-    endpoint = f"{settings.OLLAMA_BASE_URL}/api/generate"
+def generate_remediation(
+    incident: IncidentContext,
+    classification: IncidentClassification,
+    llm_client: LLMClient | None = None,
+) -> RemediationResponse:
+    """
+    Generate remediation response.
+    """
+
+    llm = llm_client or LLMClient()
+
+    prompt = build_remediation_prompt(
+        incident=incident,
+        classification=classification,
+    )
 
     try:
         logger.info(
             "Generating remediation for pod=%s incident=%s",
             incident.pod_name,
-            incident.incident_type,
+            classification.incident_type,
         )
 
-        response = requests.post(
-            endpoint,
-            json=payload,
-            timeout=settings.AI_REQUEST_TIMEOUT,
-        )
-
-        response.raise_for_status()
-
-        result = response.json()
-
-        llm_response = validate_llm_response(
-            result.get("response")
-        )
-
-        logger.info(
-            "Remediation generated pod=%s",
-            incident.pod_name,
-        )
+        response = llm.generate(prompt)
 
         return RemediationResponse(
             pod_name=incident.pod_name,
-            incident_type=incident.incident_type,
-            remediation=llm_response,
-        )
-
-    except requests.exceptions.RequestException:
-        logger.exception(
-            "Remediation LLM request failed pod=%s",
-            incident.pod_name,
-        )
-
-        return RemediationResponse(
-            pod_name=incident.pod_name,
-            incident_type=incident.incident_type,
-            remediation="AI remediation unavailable. Manual remediation required.",
+            incident_type=classification.incident_type,
+            remediation=response,
         )
 
     except Exception:
         logger.exception(
-            "Unexpected remediation generation failure pod=%s",
+            "Remediation generation failed pod=%s",
             incident.pod_name,
         )
 
         return RemediationResponse(
             pod_name=incident.pod_name,
-            incident_type=incident.incident_type,
-            remediation="AI remediation unavailable. Manual remediation required.",
+            incident_type=classification.incident_type,
+            remediation=(
+                "AI remediation unavailable. "
+                "Manual SRE intervention required."
+            ),
         )
 
 
 def generate_all_remediations(
-    classified_incidents: list[IncidentClassification],
-    incident_context: list[IncidentContext],
+    incidents: list[IncidentContext],
+    classifications: list[IncidentClassification],
 ) -> list[RemediationResponse]:
     """
-    Generate remediation responses for all incidents.
+    Generate remediation for all incidents.
     """
 
-    remediation_results = []
+    results = []
 
-    for incident in classified_incidents:
-        relevant_context = [
-            ctx
-            for ctx in incident_context
-            if ctx.pod_name == incident.pod_name
-        ]
-
-        remediation = generate_remediation(
-            incident=incident,
-            relevant_context=relevant_context,
+    for incident, classification in zip(
+        incidents,
+        classifications,
+        strict=False,
+    ):
+        results.append(
+            generate_remediation(
+                incident=incident,
+                classification=classification,
+            )
         )
 
-        remediation_results.append(remediation)
-
     logger.info(
-        "Remediation generation completed total=%s",
-        len(remediation_results),
+        "Remediation generation completed count=%s",
+        len(results),
     )
 
-    return remediation_results
+    return results
 
 
-def main():
+def main() -> None:
     """
-    Remediation execution workflow.
+    Standalone remediation execution.
     """
 
     logger.info("Collecting incident context")
 
-    incident_context = collect_incident_context()
+    incidents = collect_incident_context()
 
-    if not incident_context:
+    if not incidents:
         logger.warning("No incidents detected")
         print("No incidents detected.")
         return
 
     logger.info("Classifying incidents")
 
-    classified_incidents = classify_incident(
-        incident_context
-    )
+    classifications = classify_incident(incidents)
 
     logger.info("Generating remediation responses")
 
-    remediation_results = generate_all_remediations(
-        classified_incidents=classified_incidents,
-        incident_context=incident_context,
+    results = generate_all_remediations(
+        incidents=incidents,
+        classifications=classifications,
     )
 
     print(
         json.dumps(
-            [result.model_dump() for result in remediation_results],
+            [result.model_dump() for result in results],
             indent=2,
         )
     )

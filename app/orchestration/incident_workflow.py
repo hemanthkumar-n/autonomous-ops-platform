@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 
 from app.agents.sre.incident_classifier import classify_incident
@@ -11,71 +13,78 @@ from app.tools.kubernetes.incident_context import collect_incident_context
 logger = get_logger(__name__)
 
 
-def execute_incident_workflow() -> WorkflowExecutionResponse:
+def main() -> None:
     """
-    Execute full typed autonomous incident workflow.
+    Autonomous incident workflow orchestration.
     """
 
     logger.info("Starting autonomous incident workflow")
 
-    incident_context = collect_incident_context()
+    incidents = collect_incident_context()
 
-    if not incident_context:
+    if not incidents:
         logger.warning("No active incidents detected")
+        print("No active incidents detected.")
+        return
 
-        return WorkflowExecutionResponse(
-            incident_context=[],
-            classified_incidents=[],
-            rca_results=[],
-            remediation_results=[],
+    logger.info(
+        "Incident context collected count=%s",
+        len(incidents),
+    )
+
+    classifications = classify_incident(incidents)
+
+    logger.info(
+        "Incident classification completed count=%s",
+        len(classifications),
+    )
+
+    rca_results = []
+
+    for incident, classification in zip(
+        incidents,
+        classifications,
+        strict=False,
+    ):
+        rca_results.append(
+            generate_rca(
+                incident=incident,
+                classification=classification,
+            )
         )
 
-    logger.info("Classifying incidents")
-
-    classified_incidents = classify_incident(
-        incident_context
+    logger.info(
+        "RCA generation completed count=%s",
+        len(rca_results),
     )
-
-    logger.info("Generating RCA responses")
-
-    rca_results = generate_rca(
-        incident_context=incident_context,
-        classified_incidents=classified_incidents,
-    )
-
-    logger.info("Generating remediation responses")
 
     remediation_results = generate_all_remediations(
-        classified_incidents=classified_incidents,
-        incident_context=incident_context,
+        incidents=incidents,
+        classifications=classifications,
     )
 
-    workflow_response = WorkflowExecutionResponse(
-        incident_context=incident_context,
-        classified_incidents=classified_incidents,
+    logger.info(
+        "Remediation generation completed count=%s",
+        len(remediation_results),
+    )
+
+    workflow_execution = WorkflowExecutionResponse(
+        incident_context=incidents,
+        classified_incidents=classifications,
         rca_results=rca_results,
         remediation_results=remediation_results,
     )
 
-    logger.info("Persisting workflow execution")
+    saved_path = store_incident(workflow_execution)
 
-    store_incident(workflow_response)
-
-    logger.info("Incident workflow completed successfully")
-
-    return workflow_response
-
-
-def main():
-    """
-    CLI execution entrypoint.
-    """
-
-    workflow_output = execute_incident_workflow()
+    logger.info(
+        "Workflow persisted path=%s",
+        saved_path,
+    )
 
     print(
         json.dumps(
-            workflow_output.model_dump(),
+            workflow_execution.model_dump(),
             indent=2,
         )
     )
