@@ -1,200 +1,92 @@
-![Python](https://img.shields.io/badge/Python-3.14-blue)
-![Kubernetes](https://img.shields.io/badge/Kubernetes-AI%20Ops-blue)
-![Ollama](https://img.shields.io/badge/LLM-Ollama-green)
-![Status](https://img.shields.io/badge/Status-Active-success)
 
 # Autonomous Ops Platform
 
-AI-powered operational intelligence platform for SRE, Kubernetes, DevOps, cloud operations, observability, and future autonomous remediation workflows.
+<p align="center">
+  <strong>Enterprise AI-Powered Incident Intelligence & Autonomous Operations Platform</strong>
+</p>
+
+<p align="center">
+  Built for SRE • Platform Engineering • Kubernetes Operations • DevOps • Cloud Reliability Engineering
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.11+-blue" />
+  <img src="https://img.shields.io/badge/Kubernetes-Platform%20Engineering-326CE5" />
+  <img src="https://img.shields.io/badge/SRE-Incident%20Automation-orange" />
+  <img src="https://img.shields.io/badge/Observability-Prometheus-red" />
+  <img src="https://img.shields.io/badge/LLM-Ollama-green" />
+  <img src="https://img.shields.io/badge/Status-Day%206%20Completed-success" />
+</p>
 
 ---
 
-## Vision
+## Executive Summary
 
-Autonomous Ops Platform is an enterprise-grade engineering initiative focused on building an intelligent operational platform that assists infrastructure and platform teams in incident detection, troubleshooting, root cause analysis (RCA), remediation guidance, and eventually autonomous operational workflows.
+Autonomous Ops Platform is an enterprise-focused AI operations engineering initiative designed to transform fragmented infrastructure signals into structured operational intelligence.
 
-The goal is to evolve beyond traditional scripts, dashboards, and manual operational processes into an AI-assisted operational intelligence ecosystem.
+The platform combines Kubernetes telemetry, observability correlation, AI reasoning, incident classification, remediation guidance, and workflow orchestration into a modular architecture that evolves toward safe autonomous operations.
 
-This platform is being designed to support:
+This is not a chatbot experiment.
 
-- Kubernetes operational intelligence
-- SRE incident troubleshooting
-- DevOps failure analysis
-- Linux diagnostics automation
-- Cloud operational intelligence
-- Observability signal correlation
-- Enterprise incident workflows
-- AI-assisted RCA generation
-- multi-agent operational coordination
-- safe autonomous remediation workflows
+This is a platform engineering project focused on real operational automation.
 
 ---
 
-## Why This Project Exists
+## What Has Been Built (Through Day 6)
 
-Modern operations teams deal with:
+### Incident Context Intelligence
 
-- fragmented monitoring tools
-- disconnected runbooks
-- repetitive incident troubleshooting
-- noisy alerts
-- siloed operational knowledge
-- inconsistent remediation workflows
-- increasing infrastructure complexity
+Implemented capabilities:
 
-Traditional tooling shows signals.
-
-Engineers still perform the reasoning.
-
-Autonomous Ops Platform aims to bridge that gap.
-
-Core philosophy:
-
-```text
-Collect relevant operational signals
-        ↓
-Normalize infrastructure context
-        ↓
-Apply AI reasoning
-        ↓
-Generate RCA + remediation guidance
-        ↓
-Build operational intelligence
-        ↓
-Enable autonomous workflows
-```
-
----
-
-## Project Philosophy
-
-This project is NOT intended to be:
-
-- a generic chatbot
-- prompt engineering experimentation
-- disconnected automation scripts
-- a one-off Kubernetes troubleshooting demo
-- shallow AI wrappers around shell commands
-
-This project IS intended to become:
-
-**An operational intelligence platform for engineering teams.**
-
-Design principles:
-
-- context-first AI reasoning
-- modular architecture
-- provider independence
-- operational signal normalization
-- enterprise extensibility
-- safe automation evolution
-- domain-driven engineering
-
----
-
-## Current Capabilities
-
-### Kubernetes Operational Signal Collection
-
-Implemented:
-
-- multi-namespace pod discovery
+- Kubernetes pod discovery
 - unhealthy workload detection
-- pod lifecycle inspection
+- container lifecycle inspection
 - restart intelligence
-- container state awareness
-- resource limit inspection
-- termination history collection
+- termination reason extraction
+- pod condition analysis
+- resource requests / limits inspection
+- Kubernetes event correlation
+- container log collection
+- structured incident context normalization
 
-Example incidents supported:
+Supported incident patterns:
 
 - ImagePullBackOff
-- OOMKilled
 - CrashLoopBackOff
-
----
-
-### Event Intelligence
-
-Implemented:
-
-- Kubernetes event retrieval
-- pod-specific event correlation
-- operational event normalization
-
-Examples:
-
-- BackOff
-- Failed
-- Pulling
-- restart loop events
-
----
-
-### Log Intelligence
-
-Implemented:
-
-- container log retrieval
-- recent log sampling
-- startup-failure handling
-- operational log normalization
-
-Examples:
-
+- OOMKilled
+- restart storms
 - startup failures
-- container runtime messages
-- application crash signals
 
 ---
 
-### Incident Context Engine
+### AI Incident Classification
 
 Implemented:
 
-Structured incident context aggregation combining:
+- incident pattern classification
+- severity assignment
+- confidence scoring
+- ownership routing
 
-- pod metadata
-- namespace context
-- node placement
-- pod conditions
-- container states
-- restart counts
-- termination history
-- resource requests
-- resource limits
-- logs
-- Kubernetes events
+Example outputs:
 
-Example output:
-
-```json
-{
-  "pod_name": "memory-stress",
-  "namespace": "ai-lab",
-  "state": "OOMKilled",
-  "restart_count": 5,
-  "last_termination": {
-    "reason": "OOMKilled",
-    "exit_code": 137
-  }
-}
-```
+- Platform Engineering
+- Application Team
+- High severity
+- confidence-based classification
 
 ---
 
-### AI RCA Engine
+### AI Root Cause Analysis Engine
 
 Implemented:
 
-- local LLM integration using Ollama
-- structured incident context ingestion
-- Kubernetes incident RCA generation
-- remediation recommendation generation
-
-Current model:
-
-- qwen2.5-coder
+- LLM-driven RCA generation
+- context-aware incident reasoning
+- Kubernetes failure interpretation
+- operational signal correlation
+- ownership recommendations
+- preventive recommendations
 
 Execution:
 
@@ -204,266 +96,109 @@ python -m app.agents.sre.rca_agent
 
 ---
 
-## Current Architecture
+### AI Remediation Engine
+
+Implemented:
+
+- incident-specific remediation generation
+- Kubernetes validation commands
+- safe operational actions
+- escalation recommendations
+- preventive guidance
+
+Execution:
+
+```bash
+python -m app.agents.sre.remediation_agent
+```
+
+---
+
+### Observability Intelligence
+
+Implemented:
+
+Prometheus-backed telemetry correlation:
+
+- pod memory usage
+- CPU usage
+- restart metrics
+- observability enrichment for incidents
+
+Production improvements completed:
+
+- environment-driven Prometheus configuration
+- timeout-based query safety
+- resilient error handling
+- production-safe Prometheus client structure
+
+---
+
+### Workflow Orchestration
+
+Implemented end-to-end incident workflow:
+
+```text
+Incident Detection
+        ↓
+Context Collection
+        ↓
+Observability Correlation
+        ↓
+Incident Classification
+        ↓
+AI Root Cause Analysis
+        ↓
+AI Remediation Generation
+        ↓
+Incident Persistence
+```
+
+Execution:
+
+```bash
+python -m app.orchestration.incident_workflow
+```
+
+---
+
+### Operational Memory Foundation
+
+Implemented:
+
+- workflow result persistence
+- incident JSON storage
+- historical workflow archiving
+- operational memory foundation for future retrieval intelligence
+
+Example output:
+
+```text
+app/memory/incident_history/incidents/incident_YYYYMMDD_HHMMSS.json
+```
+
+---
+
+## Current Platform Architecture
 
 ```text
 Kubernetes Cluster
         ↓
-Operational Signal Collection
+Signal Collection Layer
         ↓
-Kubernetes Tooling Layer
+Incident Context Engine
         ↓
-Incident Context Engineering
+Prometheus Observability Correlation
         ↓
-AI Reasoning Layer
+Incident Classification Engine
         ↓
-RCA + Remediation Guidance
-```
-
----
-
-## Future Evolution
-
-Autonomous Ops Platform is being designed as a long-term operational intelligence platform that evolves in stages.
-
----
-
-### Phase 1 — Operational Signal Intelligence
-
-Current focus:
-
-Build strong infrastructure signal collection and incident context engineering.
-
-Capabilities:
-
-- Kubernetes signal collection
-- event correlation
-- restart intelligence
-- resource pressure detection
-- log intelligence
-- AI-assisted RCA
-
-Goal:
-
-```text
-Infrastructure → Context → AI Reasoning
-```
-
----
-
-### Phase 2 — Incident Intelligence
-
-Planned:
-
-- incident classification engine
-- severity scoring
-- incident prioritization
-- failure pattern recognition
-- targeted RCA routing
-- signal enrichment
-
-Examples:
-
-- OOMKilled
-- ImagePullBackOff
-- DNS failures
-- probe failures
-- CrashLoopBackOff
-- node pressure
-
-Goal:
-
-```text
-Signals → Incident Intelligence → RCA
-```
-
----
-
-### Phase 3 — Observability Intelligence
-
-Planned integrations:
-
-- Prometheus
-- Grafana
-- Datadog
-- Splunk
-- OpenTelemetry
-
-Capabilities:
-
-- metrics correlation
-- anomaly detection
-- latency intelligence
-- saturation analysis
-- deployment correlation
-- health signal enrichment
-
-Goal:
-
-```text
-Metrics + Logs + Events → Unified Observability Intelligence
-```
-
----
-
-### Phase 4 — Enterprise Knowledge Intelligence
-
-Planned integrations:
-
-- Jira incidents
-- Confluence runbooks
-- remediation history
-- operational playbooks
-- RCA history
-
-Capabilities:
-
-- runbook-aware troubleshooting
-- historical incident correlation
-- operational dashboards
-- remediation pattern analysis
-
-Goal:
-
-```text
-Operational Signals + Organizational Knowledge → Smarter RCA
-```
-
----
-
-### Phase 5 — Agentic Operations Platform
-
-Planned specialized agents:
-
-- SRE Incident Agent
-- Kubernetes Agent
-- Linux Diagnostics Agent
-- Observability Agent
-- Cloud Operations Agent
-- Security Agent
-- Remediation Agent
-- Release Intelligence Agent
-
-Capabilities:
-
-- agent specialization
-- intelligent routing
-- incident handoff workflows
-- cross-domain troubleshooting
-- coordinated reasoning
-
-Goal:
-
-```text
-Specialized Agents → Coordinated Operational Intelligence
-```
-
----
-
-### Phase 6 — MCP / Tool Ecosystem
-
-Planned:
-
-- MCP-compatible tool integrations
-- reusable operational tools
-- secure enterprise connectors
-- provider-independent tool orchestration
-- scalable agent-tool contracts
-
-Potential integrations:
-
-- Kubernetes
-- AWS
-- Azure
-- Terraform
-- Jenkins
-- GitHub
-- Slack
-- Jira
-- Confluence
-- observability platforms
-
-Goal:
-
-```text
-Standardized Tool Ecosystem → Scalable Agent Automation
-```
-
----
-
-### Phase 7 — Operational Memory
-
-Planned after platform maturity.
-
-Capabilities:
-
-- historical incident intelligence
-- RCA memory
-- remediation history
-- operational knowledge reuse
-- incident similarity retrieval
-
-Future direction:
-
-- contextual operational memory
-- knowledge-assisted RCA
-- historical reasoning support
-
-Goal:
-
-```text
-Past Incidents + Knowledge → Better Operational Decisions
-```
-
----
-
-### Phase 8 — Autonomous Operations
-
-Long-term direction:
-
-- remediation recommendations
-- approval-gated execution
-- restart workflows
-- scaling workflows
-- rollback intelligence
-- alert triage
-- operational decision support
-
-Safety model:
-
-- human approval gates
-- policy enforcement
-- audit trails
-- execution boundaries
-
-Goal:
-
-```text
-Operational Intelligence → Safe Autonomous Operations
-```
-
----
-
-## Long-Term Platform Vision
-
-```text
-Infrastructure Signals
+AI RCA Agent
         ↓
-Context Engineering
+AI Remediation Agent
         ↓
-Incident Intelligence
+Workflow Orchestrator
         ↓
-Observability Intelligence
-        ↓
-Enterprise Knowledge
-        ↓
-Specialized Agents
-        ↓
-Tool Ecosystem
-        ↓
-Operational Memory
-        ↓
-Autonomous Operations
+Operational Memory Store
 ```
 
 ---
@@ -474,44 +209,54 @@ Autonomous Operations
 autonomous-ops-platform/
 │
 ├── app/
-│   ├── agents/              # AI reasoning agents
-│   ├── tools/               # Infrastructure integrations
-│   ├── llm/                 # LLM providers
-│   ├── orchestration/       # Future workflow orchestration
-│   ├── memory/              # Future operational memory
-│   ├── prompts/             # Prompt templates
-│   ├── api/                 # Future API layer
-│   └── config/              # Shared configuration
+│   ├── agents/
+│   │   └── sre/
+│   │       ├── rca_agent.py
+│   │       └── remediation_agent.py
+│   │
+│   ├── orchestration/
+│   │   └── incident_workflow.py
+│   │
+│   ├── tools/
+│   │   ├── kubernetes/
+│   │   └── prometheus/
+│   │
+│   ├── memory/
+│   │   └── incident_history/
+│   │
+│   ├── llm/
+│   ├── prompts/
+│   └── config/
 │
-├── kubernetes/              # Incident labs / manifests
-├── infra/                   # Infrastructure automation
-├── docs/                    # Documentation
-├── scripts/                 # Utility scripts
-├── tests/                   # Test coverage
-├── screenshots/             # Demonstrations
+├── kubernetes/
+├── docs/
+├── infra/
+├── scripts/
+├── tests/
+└── screenshots/
 ```
 
 ---
 
 ## Technology Stack
 
-Current:
+Current stack:
 
 - Python
 - Kubernetes Python SDK
-- Docker Desktop
-- Kubernetes
+- Prometheus
 - Ollama
 - Qwen 2.5 Coder
-- GitHub
+- Docker Desktop Kubernetes
 - VS Code
+- GitHub
 
-Planned:
+Target ecosystem:
 
-- Prometheus
 - Grafana
-- Splunk
 - Datadog
+- Splunk
+- OpenTelemetry
 - AWS
 - Azure
 - Terraform
@@ -524,141 +269,151 @@ Planned:
 - Claude
 - LangGraph
 - MCP ecosystem
-- multi-agent orchestration
 
 ---
 
-## Current Implementation Status
+## Current Capability Matrix
 
 | Capability | Status |
 |----------|--------|
 | Kubernetes Incident Collection | ✅ Implemented |
-| Pod State Intelligence | ✅ Implemented |
-| Restart Analysis | ✅ Implemented |
+| Incident Context Engine | ✅ Implemented |
 | Event Correlation | ✅ Implemented |
 | Log Correlation | ✅ Implemented |
-| Incident Context Engine | ✅ Implemented |
+| Prometheus Correlation | ✅ Implemented |
+| Incident Classification | ✅ Implemented |
 | AI RCA Generation | ✅ Implemented |
-| Incident Classification | Planned |
-| Prometheus Integration | Planned |
-| Observability Intelligence | Planned |
-| Linux Diagnostics Agent | Planned |
-| Cloud Operations Agent | Planned |
-| Enterprise Integrations | Planned |
-| Operational Memory | Planned |
+| AI Remediation Generation | ✅ Implemented |
+| Incident Workflow Orchestration | ✅ Implemented |
+| Incident Persistence | ✅ Implemented |
+| Historical Memory Foundation | ✅ Implemented |
 | Multi-Agent Coordination | Planned |
+| Enterprise Knowledge Retrieval | Planned |
+| Approval-Gated Automation | Planned |
 | Autonomous Remediation | Planned |
 
 ---
 
-## Installation
+## Example Commands
 
-Setup guide:
-
-```text
-docs/setup/installation.md
-```
-
----
-
-## Example Execution
-
-Collect structured incident context:
+Collect incident context:
 
 ```bash
 python -m app.tools.kubernetes.incident_context
 ```
 
-Run AI RCA:
+Run classification:
+
+```bash
+python -m app.agents.sre.classifier_agent
+```
+
+Run RCA:
 
 ```bash
 python -m app.agents.sre.rca_agent
 ```
 
+Run remediation:
+
+```bash
+python -m app.agents.sre.remediation_agent
+```
+
+Run orchestrated workflow:
+
+```bash
+python -m app.orchestration.incident_workflow
+```
+
 ---
 
-## Contribution Areas
+## Long-Term Vision
 
-Contributors interested in:
+Platform evolution roadmap:
 
-- Kubernetes automation
-- SRE engineering
-- observability tooling
-- AI agent engineering
-- infrastructure automation
-- incident intelligence
-- cloud operations
-- enterprise integrations
+### Phase 1 — Incident Intelligence Foundation
+Completed foundation:
 
-are welcome.
-
-Potential contribution domains:
-
-- Prometheus integrations
-- Grafana integrations
-- Datadog tooling
-- Splunk tooling
-- Linux diagnostics
-- AWS tooling
-- Terraform tooling
-- Jenkins tooling
-- Jira / Confluence connectors
-- incident classification
-- orchestration workflows
-- agent coordination
+- Kubernetes signal intelligence
+- AI reasoning
 - remediation workflows
+- orchestration
+- incident persistence
+
+### Phase 2 — Observability Intelligence
+Planned:
+
+- Grafana intelligence
+- Datadog correlation
+- Splunk log intelligence
+- anomaly detection
+- deployment correlation
+
+### Phase 3 — Enterprise Knowledge Intelligence
+Planned:
+
+- runbook retrieval
+- incident similarity matching
+- historical RCA correlation
+- remediation pattern intelligence
+
+### Phase 4 — Multi-Agent Platform Engineering
+Planned agents:
+
+- SRE agent
+- Kubernetes agent
+- Linux diagnostics agent
+- observability agent
+- cloud operations agent
+- security agent
+- remediation execution agent
+
+### Phase 5 — Autonomous Operations
+Long-term goal:
+
+```text
+Signals → Context → Intelligence → Reasoning → Safe Automation
+```
+
+Target capabilities:
+
+- approval-gated remediation
+- restart automation
+- scaling workflows
+- rollback intelligence
+- alert triage
+- autonomous operational decision support
 
 ---
 
-## Current Scope
+## Engineering Philosophy
 
-Current implementation focuses on:
+Design principles:
 
-**Kubernetes operational intelligence foundation**
-
-The current stage emphasizes:
-
-- incident simulation
-- operational signal collection
-- structured context engineering
-- AI reasoning workflows
-
-The architecture is intentionally modular to support future expansion.
+- enterprise-first architecture
+- modular engineering
+- production-oriented evolution
+- provider independence
+- observability-aware reasoning
+- safe automation boundaries
+- context-first AI design
+- operational reliability focus
 
 ---
 
-## Final Direction
-
-Autonomous Ops Platform is being built as a long-term engineering platform for intelligent infrastructure operations.
-
-The target is not simply AI-assisted troubleshooting.
-
-The target is:
-
-**AI-powered operational intelligence for modern engineering teams.**
-
----
-
-
+## About the Builder
 
 **Hemanth Kumar**
 
-Principal SRE | Platform Engineering | DevOps | AWS | Azure | Kubernetes (CKA) | Terraform | CI/CD | Observability | Incident Response
+Principal SRE | Platform Engineering | DevOps | Kubernetes | AWS | Azure | Terraform | CI/CD | Observability | Incident Response
 
-Focused on:
+14+ years of infrastructure engineering, reliability engineering, DevOps automation, and enterprise operations leadership.
 
-- AI for Infrastructure Operations
+This platform serves as a flagship engineering initiative demonstrating enterprise AI operations architecture and autonomous platform engineering vision.
 
-- Kubernetes Automation
+LinkedIn:
+https://www.linkedin.com/in/hemanthkumarn/
 
-- Operational Intelligence Systems
-
-- Autonomous Ops Engineering
-
-Building **Autonomous Ops Platform** as a long-term engineering initiative focused on intelligent infrastructure operations, AI-assisted incident response, and future autonomous operational workflows.
-
-🔗 LinkedIn: https://www.linkedin.com/in/hemanthkumarn/
-
-🔗 GitHub: https://github.com/hemanthkumar-n
-
----
+GitHub:
+https://github.com/hemanthkumar-n
