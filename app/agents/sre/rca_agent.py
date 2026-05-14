@@ -10,31 +10,52 @@ MODEL = "qwen2.5-coder:latest"
 
 def generate_rca(incident_context, classified_incidents):
     """
-    Generate RCA using incident context + incident intelligence.
+    Generate observability-aware AI RCA.
     """
 
     prompt = f"""
-You are a senior Site Reliability Engineer and Kubernetes incident response expert.
+You are a senior Site Reliability Engineer specializing in Kubernetes incident response.
 
-Analyze the provided Kubernetes incidents.
+Analyze the incidents using ALL available operational signals.
 
-Use BOTH:
-1. Structured operational incident context
-2. Pre-classified incident intelligence
+Signal sources include:
+- Kubernetes pod lifecycle state
+- container runtime state
+- restart counts
+- last termination reasons
+- resource requests and limits
+- Kubernetes events
+- container logs
+- Prometheus observability metrics
+    - memory usage
+    - CPU usage
+    - restart telemetry
 
-Provide the following:
+Your responsibilities:
 
-1. Incident Summary
-2. Root Cause
-3. Severity Assessment
-4. Recommended Immediate Remediation
-5. Preventive Recommendations
-6. Team Ownership Recommendation
+1. Identify the most likely root cause
+2. Correlate Kubernetes runtime signals with Prometheus telemetry
+3. Detect restart storms
+4. Detect memory pressure / exhaustion
+5. Detect image pull failures
+6. Detect configuration failures
+7. Assess severity
+8. Recommend ownership team
+9. Suggest preventive engineering actions
 
-Classified Incident Intelligence:
+Output format:
+
+### Incident Summary
+### Root Cause Analysis
+### Signal Correlation
+### Severity Assessment
+### Team Ownership Recommendation
+### Preventive Recommendations
+
+Incident Classification:
 {json.dumps(classified_incidents, indent=2)}
 
-Operational Incident Context:
+Incident Context:
 {json.dumps(incident_context, indent=2)}
 """
 
@@ -59,7 +80,7 @@ Operational Incident Context:
 
 def main():
     """
-    Main RCA execution workflow.
+    RCA execution workflow.
     """
 
     print("\nCollecting incident context...\n")
@@ -67,22 +88,19 @@ def main():
     incident_context = collect_incident_context()
 
     if not incident_context:
-        print("No problematic incidents detected.")
+        print("No incidents detected.")
         return
 
     print("Classifying incidents...\n")
 
     classified_incidents = classify_incident(incident_context)
 
-    print("Generating AI RCA...\n")
+    print("Generating observability-aware RCA...\n")
 
     rca_output = generate_rca(
         incident_context=incident_context,
         classified_incidents=classified_incidents
     )
-
-    print("\n===== INCIDENT CLASSIFICATION =====\n")
-    print(json.dumps(classified_incidents, indent=2))
 
     print("\n===== AI RCA OUTPUT =====\n")
     print(rca_output)

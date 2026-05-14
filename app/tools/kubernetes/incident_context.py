@@ -1,6 +1,7 @@
 from kubernetes import client, config
 from app.tools.kubernetes.log_tools import get_pod_logs
 from app.tools.kubernetes.event_tools import get_pod_events
+from app.tools.prometheus.metrics_tools import get_pod_metrics
 
 import json
 
@@ -57,7 +58,7 @@ def collect_incident_context(
     incident_data = []
 
     for pod in pods.items:
-
+        pod_namespace = pod.metadata.namespace
         if pod_name and pod.metadata.name != pod_name:
             continue
 
@@ -65,25 +66,33 @@ def collect_incident_context(
             continue
 
         pod_info = {
-            "pod_name": pod.metadata.name,
-            "namespace": pod.metadata.namespace,
-            "phase": pod.status.phase,
-            "node": pod.spec.node_name,
-            "conditions": [],
-            "container_states": [],
-            "events": []
-        }
+                "pod_name": pod.metadata.name,
+                "namespace": pod_namespace,
+                "phase": pod.status.phase,
+                "node": pod.spec.node_name,
+                "conditions": [],
+                "container_states": [],
+                "events": [],
+                "metrics": {}
+
+                }
 
         # Conditions
+
         if pod.status.conditions:
 
-            for condition in pod.status.conditions:
+          for condition in pod.status.conditions:
+             pod_info["conditions"].append({
+            "type": condition.type,
+            "status": condition.status
+            })
 
-                pod_info["conditions"].append({
-                    "type": condition.type,
-                    "status": condition.status
-                })
+        # Prometheus metrics enrichment
 
+        pod_info["metrics"] = get_pod_metrics(
+            pod_name=pod.metadata.name,
+            namespace=pod_namespace
+        )
         # Container intelligence
         for container in pod.status.container_statuses:
 
