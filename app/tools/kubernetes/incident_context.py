@@ -2,8 +2,11 @@ from kubernetes import client, config
 from app.tools.kubernetes.log_tools import get_pod_logs
 from app.tools.kubernetes.event_tools import get_pod_events
 from app.tools.prometheus.metrics_tools import get_pod_metrics
+from app.config.settings import settings
 
 import json
+
+settings.MAX_LOG_LINES
 
 config.load_kube_config()
 

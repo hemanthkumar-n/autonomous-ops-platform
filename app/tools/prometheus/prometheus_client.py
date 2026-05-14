@@ -1,29 +1,55 @@
+import logging
 import requests
+from app.config.settings import settings
 
-PROMETHEUS_URL = "http://localhost:9090"
+logger = logging.getLogger(__name__)
 
 
-def query_prometheus(promql_query):
+def query_prometheus(promql_query: str):
     """
-    Execute PromQL query against Prometheus.
+    Execute Prometheus instant query.
+
+    Responsibility:
+    - Transport only
+    - Return raw Prometheus result list
+    - No metric parsing here
+
+    Returns:
+        list[dict] | None
     """
+
+    endpoint = f"{settings.PROMETHEUS_URL}/api/v1/query"
 
     try:
         response = requests.get(
-            f"{PROMETHEUS_URL}/api/v1/query",
+            endpoint,
             params={"query": promql_query},
-            timeout=10
+            timeout=settings.PROMETHEUS_TIMEOUT
         )
 
         response.raise_for_status()
 
-        result = response.json()
+        payload = response.json()
 
-        if result["status"] != "success":
+        if payload.get("status") != "success":
+            logger.error(
+                "Prometheus returned unsuccessful response: %s",
+                payload
+            )
             return None
 
-        return result["data"]["result"]
+        return payload.get("data", {}).get("result", [])
 
-    except Exception as error:
-        print(f"Prometheus query failed: {error}")
+    except requests.exceptions.RequestException as error:
+        logger.error("Prometheus query failed: %s", error)
         return None
+
+    except (KeyError, ValueError, TypeError) as error:
+        logger.error("Prometheus response parsing failed: %s", error)
+        return None
+
+
+if __name__ == "__main__":
+    result = query_prometheus("up")
+
+    print(result)

@@ -1,17 +1,18 @@
-def memory_usage_query(pod_name, namespace):
+def memory_usage_query(pod_name: str, namespace: str) -> str:
     """
-    PromQL query for pod memory usage.
+    Memory usage query.
+    Compatible with modern Kubernetes / cAdvisor.
     """
 
     return (
-        f'container_memory_usage_bytes'
+        f'container_memory_working_set_bytes'
         f'{{pod="{pod_name}",namespace="{namespace}"}}'
     )
 
 
-def cpu_usage_query(pod_name, namespace):
+def cpu_usage_query(pod_name: str, namespace: str) -> str:
     """
-    PromQL query for pod CPU usage.
+    CPU usage query.
     """
 
     return (
@@ -20,9 +21,9 @@ def cpu_usage_query(pod_name, namespace):
     )
 
 
-def restart_count_query(pod_name, namespace):
+def restart_count_query(pod_name: str, namespace: str) -> str:
     """
-    PromQL query for restart count.
+    Restart count query.
     """
 
     return (
