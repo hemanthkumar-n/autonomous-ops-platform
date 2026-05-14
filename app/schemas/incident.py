@@ -1,30 +1,29 @@
-from dataclasses import dataclass
-from typing import Optional
+from pydantic import BaseModel
+from typing import Optional, List, Dict, Any
+
+from app.schemas.metrics import PodMetrics
 
 
-@dataclass
-class ClassifiedIncident:
+class PodCondition(BaseModel):
+    type: str
+    status: str
+
+
+class ContainerState(BaseModel):
+    container: str
+    state: str
+    restart_count: int
+    last_termination: Optional[Dict[str, Any]] = None
+    resources: Optional[Dict[str, Any]] = None
+    logs: Optional[str] = None
+
+
+class IncidentContext(BaseModel):
     pod_name: str
     namespace: str
-    node: str
-    container: str
-    container_state: str
-    restart_count: int
-    incident_type: str
-    severity: str
-    confidence: int
-    recommended_team: str
-
-
-@dataclass
-class RCAResult:
-    pod_name: str
-    incident_type: str
-    rca: str
-
-
-@dataclass
-class RemediationResult:
-    pod_name: str
-    incident_type: str
-    remediation: str
+    phase: str
+    node: Optional[str] = None
+    conditions: List[PodCondition] = []
+    container_states: List[ContainerState] = []
+    events: List[Any] = []
+    metrics: PodMetrics
