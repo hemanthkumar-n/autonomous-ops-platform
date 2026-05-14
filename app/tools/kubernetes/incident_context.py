@@ -190,4 +190,15 @@ def collect_incident_context(namespace=None, pod_name=None):
 
 if __name__ == "__main__":
     data = collect_incident_context()
-    print(json.dumps(data, indent=2))
+
+    incident_count = len(data)
+
+    logger.info(
+        "Incident context debug execution incident_count=%s",
+        incident_count,
+    )
+
+    if not data:
+        print("No problematic incidents detected.")
+    else:
+        print(json.dumps(data, indent=2))
