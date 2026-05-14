@@ -1,24 +1,45 @@
 import json
 import requests
 
-from app.tools.kubernetes.incident_context import collect_incident_context
 from app.agents.sre.incident_classifier import classify_incident
 from app.config.logging_config import get_logger
-from app.llm.response_validator import validate_llm_response
 from app.config.settings import settings
+from app.llm.response_validator import validate_llm_response
+from app.schemas.ai import RCAResponse
+from app.schemas.classification import IncidentClassification
+from app.schemas.incident import IncidentContext
+from app.tools.kubernetes.incident_context import collect_incident_context
 
 logger = get_logger(__name__)
 
 
-def generate_rca(incident_context, classified_incidents):
+def generate_rca(
+    incident_context: list[IncidentContext],
+    classified_incidents: list[IncidentClassification],
+) -> list[RCAResponse]:
     """
-    Generate observability-aware AI RCA.
+    Generate typed RCA responses.
     """
 
-    prompt = f"""
+    rca_results = []
+
+    for incident in classified_incidents:
+        logger.info(
+            "Generating RCA for pod=%s incident=%s",
+            incident.pod_name,
+            incident.incident_type,
+        )
+
+        relevant_context = [
+            ctx
+            for ctx in incident_context
+            if ctx.pod_name == incident.pod_name
+        ]
+
+        prompt = f"""
 You are a senior Site Reliability Engineer specializing in Kubernetes incident response.
 
-Analyze the incidents using ALL available operational signals.
+Analyze this incident using ALL available operational signals.
 
 Signal sources include:
 - Kubernetes pod lifecycle state
@@ -29,74 +50,67 @@ Signal sources include:
 - Kubernetes events
 - container logs
 - Prometheus observability metrics
-    - memory usage
-    - CPU usage
-    - restart telemetry
 
-Your responsibilities:
-
-1. Identify the most likely root cause
-2. Correlate Kubernetes runtime signals with Prometheus telemetry
-3. Detect restart storms
-4. Detect memory pressure / exhaustion
-5. Detect image pull failures
-6. Detect configuration failures
-7. Assess severity
-8. Recommend ownership team
-9. Suggest preventive engineering actions
-
-Output format:
-
-### Incident Summary
-### Root Cause Analysis
-### Signal Correlation
-### Severity Assessment
-### Team Ownership Recommendation
-### Preventive Recommendations
+Responsibilities:
+1. Identify root cause
+2. Correlate Kubernetes runtime + telemetry
+3. Assess severity
+4. Recommend ownership
+5. Suggest preventive engineering actions
 
 Incident Classification:
-{json.dumps(classified_incidents, indent=2)}
+{json.dumps(incident.model_dump(), indent=2)}
 
 Incident Context:
-{json.dumps(incident_context, indent=2)}
+{json.dumps([ctx.model_dump() for ctx in relevant_context], indent=2)}
 """
 
-    payload = {
-        "model": settings.MODEL_NAME,
-        "prompt": prompt,
-        "stream": False
-    }
+        payload = {
+            "model": settings.MODEL_NAME,
+            "prompt": prompt,
+            "stream": False,
+        }
 
-    endpoint = f"{settings.OLLAMA_BASE_URL}/api/generate"
+        endpoint = f"{settings.OLLAMA_BASE_URL}/api/generate"
 
-    try:
-        logger.info("Submitting RCA request to LLM")
+        try:
+            response = requests.post(
+                endpoint,
+                json=payload,
+                timeout=settings.AI_REQUEST_TIMEOUT,
+            )
 
-        response = requests.post(
-            endpoint,
-            json=payload,
-            timeout=settings.AI_REQUEST_TIMEOUT
-        )
+            response.raise_for_status()
 
-        response.raise_for_status()
+            result = response.json()
 
-        result = response.json()
+            llm_response = validate_llm_response(
+                result.get("response")
+            )
 
-        llm_response = result.get("response")
+            rca_results.append(
+                RCAResponse(
+                    pod_name=incident.pod_name,
+                    incident_type=incident.incident_type,
+                    rca=llm_response,
+                )
+            )
 
-        validated_response = validate_llm_response(llm_response)
+        except requests.exceptions.RequestException:
+            logger.exception(
+                "RCA generation failed pod=%s",
+                incident.pod_name,
+            )
 
-        logger.info("RCA generated successfully")
+            rca_results.append(
+                RCAResponse(
+                    pod_name=incident.pod_name,
+                    incident_type=incident.incident_type,
+                    rca="AI RCA unavailable. Manual investigation required.",
+                )
+            )
 
-        return validated_response
-
-    except requests.exceptions.RequestException:
-        logger.exception("LLM request failed during RCA generation")
-        return "AI RCA unavailable. Manual investigation required."
-
-    except Exception:
-        logger.exception("Unexpected RCA generation failure")
-        return "AI RCA unavailable. Manual investigation required."
+    return rca_results
 
 
 def main():
@@ -115,20 +129,23 @@ def main():
 
     logger.info("Classifying incidents")
 
-    classified_incidents = classify_incident(incident_context)
-    if not classified_incidents:
-        logger.warning("No classified incidents available")
-        return
-
-    logger.info("Generating observability-aware RCA")
-
-    rca_output = generate_rca(
-        incident_context=incident_context,
-        classified_incidents=classified_incidents
+    classified_incidents = classify_incident(
+        incident_context
     )
 
-    print("\n===== AI RCA OUTPUT =====\n")
-    print(rca_output)
+    logger.info("Generating RCA responses")
+
+    rca_results = generate_rca(
+        incident_context=incident_context,
+        classified_incidents=classified_incidents,
+    )
+
+    print(
+        json.dumps(
+            [result.model_dump() for result in rca_results],
+            indent=2,
+        )
+    )
 
 
 if __name__ == "__main__":
