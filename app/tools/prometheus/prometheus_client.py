@@ -1,8 +1,9 @@
 import logging
 import requests
 from app.config.settings import settings
+from app.config.logging_config import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def query_prometheus(promql_query: str):
@@ -41,11 +42,11 @@ def query_prometheus(promql_query: str):
         return payload.get("data", {}).get("result", [])
 
     except requests.exceptions.RequestException as error:
-        logger.error("Prometheus query failed: %s", error)
+        logger.exception("Prometheus query failed")
         return None
 
     except (KeyError, ValueError, TypeError) as error:
-        logger.error("Prometheus response parsing failed: %s", error)
+        logger.error("Prometheus returned unsuccessful status: %s", payload)
         return None
 
 

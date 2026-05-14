@@ -3,9 +3,11 @@ import requests
 
 from app.tools.kubernetes.incident_context import collect_incident_context
 from app.agents.sre.incident_classifier import classify_incident
+from app.config.logging_config import get_logger
+from app.llm.response_validator import validate_llm_response
+from app.config.settings import settings
 
-OLLAMA_URL = "http://localhost:11434/api/generate"
-MODEL = "qwen2.5-coder:latest"
+logger = get_logger(__name__)
 
 
 def generate_rca(incident_context, classified_incidents):
@@ -60,22 +62,41 @@ Incident Context:
 """
 
     payload = {
-        "model": MODEL,
+        "model": settings.MODEL_NAME,
         "prompt": prompt,
         "stream": False
     }
 
-    response = requests.post(
-        OLLAMA_URL,
-        json=payload,
-        timeout=120
-    )
+    endpoint = f"{settings.OLLAMA_BASE_URL}/api/generate"
 
-    response.raise_for_status()
+    try:
+        logger.info("Submitting RCA request to LLM")
 
-    result = response.json()
+        response = requests.post(
+            endpoint,
+            json=payload,
+            timeout=settings.AI_REQUEST_TIMEOUT
+        )
 
-    return result["response"]
+        response.raise_for_status()
+
+        result = response.json()
+
+        llm_response = result.get("response")
+
+        validated_response = validate_llm_response(llm_response)
+
+        logger.info("RCA generated successfully")
+
+        return validated_response
+
+    except requests.exceptions.RequestException:
+        logger.exception("LLM request failed during RCA generation")
+        return "AI RCA unavailable. Manual investigation required."
+
+    except Exception:
+        logger.exception("Unexpected RCA generation failure")
+        return "AI RCA unavailable. Manual investigation required."
 
 
 def main():
@@ -83,19 +104,23 @@ def main():
     RCA execution workflow.
     """
 
-    print("\nCollecting incident context...\n")
+    logger.info("Collecting incident context")
 
     incident_context = collect_incident_context()
 
     if not incident_context:
+        logger.warning("No incidents detected")
         print("No incidents detected.")
         return
 
-    print("Classifying incidents...\n")
+    logger.info("Classifying incidents")
 
     classified_incidents = classify_incident(incident_context)
+    if not classified_incidents:
+        logger.warning("No classified incidents available")
+        return
 
-    print("Generating observability-aware RCA...\n")
+    logger.info("Generating observability-aware RCA")
 
     rca_output = generate_rca(
         incident_context=incident_context,

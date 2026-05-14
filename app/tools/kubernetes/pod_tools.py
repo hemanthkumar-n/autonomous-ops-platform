@@ -1,4 +1,6 @@
 from kubernetes import client, config
+from app.config.logging_config import get_logger
+logger = get_logger(__name__)
 
 config.load_kube_config()
 
@@ -9,9 +11,9 @@ def get_pods(namespace="default"):
     pods = v1.list_namespaced_pod(namespace)
 
     for pod in pods.items:
-        print(f"Pod: {pod.metadata.name}")
+        logger.info(f"Pod: {pod.metadata.name}")
 
-        print(f"Pod Phase: {pod.status.phase}")
+        logger.info(f"Pod Phase: {pod.status.phase}")
 
         if pod.status.container_statuses:
             for container in pod.status.container_statuses:
@@ -22,9 +24,9 @@ def get_pods(namespace="default"):
                     else "Running"
                 )
 
-                print(f"Container State: {waiting_state}")
+                logger.info(f"Container State: {waiting_state}")
 
-        print("-" * 50)
+        logger.info("-" * 50)
 
 
 if __name__ == "__main__":

@@ -3,9 +3,11 @@ import requests
 
 from app.tools.kubernetes.incident_context import collect_incident_context
 from app.agents.sre.incident_classifier import classify_incident
+from app.config.logging_config import get_logger
+from app.config.settings import settings
+from app.llm.response_validator import validate_llm_response
 
-OLLAMA_URL = "http://localhost:11434/api/generate"
-MODEL = "qwen2.5-coder:latest"
+logger = get_logger(__name__)
 
 
 def generate_remediation(single_incident, full_context):
@@ -41,32 +43,6 @@ Your responsibilities:
 4. Suggest rollback or escalation where appropriate
 5. Correlate remediation with incident type
 
-Incident handling guidance:
-
-ImagePullFailure:
-- validate image tag
-- validate registry access
-- validate deployment spec
-- validate imagePullSecrets
-
-MemoryExhaustion:
-- validate memory pressure
-- compare limits vs workload demand
-- inspect restart storms
-- inspect capacity constraints
-- recommend resource tuning
-
-CrashLoopBackOff:
-- inspect startup logs
-- inspect probes
-- inspect dependency failures
-- inspect config changes
-
-FailedScheduling:
-- inspect node capacity
-- inspect taints / tolerations
-- inspect quota constraints
-
 Output format:
 
 ### Incident
@@ -84,22 +60,39 @@ Relevant Incident Context:
 """
 
     payload = {
-        "model": MODEL,
+        "model": settings.MODEL_NAME,
         "prompt": prompt,
         "stream": False
     }
 
-    response = requests.post(
-        OLLAMA_URL,
-        json=payload,
-        timeout=120
-    )
+    endpoint = f"{settings.OLLAMA_BASE_URL}/api/generate"
 
-    response.raise_for_status()
+    try:
+        response = requests.post(
+            endpoint,
+            json=payload,
+            timeout=settings.AI_REQUEST_TIMEOUT
+        )
 
-    result = response.json()
+        response.raise_for_status()
 
-    return result["response"]
+        result = response.json()
+
+        llm_response = result.get("response")
+
+        validated_response = validate_llm_response(llm_response)
+
+        logger.info("Remediation generated successfully")
+
+        return validated_response
+
+    except requests.exceptions.RequestException:
+        logger.exception("LLM remediation request failed")
+        return "Remediation generation failed due to LLM connectivity issue."
+
+    except Exception:
+        logger.exception("Unexpected remediation generation failure")
+        return "Unexpected remediation generation failure."
 
 
 def map_incident_context(incident_context):
@@ -109,8 +102,14 @@ def map_incident_context(incident_context):
 
     context_map = {}
 
+    if not incident_context:
+        return context_map
+
     for incident in incident_context:
-        context_map[incident["pod_name"]] = incident
+        pod_name = incident.get("pod_name")
+
+        if pod_name:
+            context_map[pod_name] = incident
 
     return context_map
 
@@ -125,22 +124,29 @@ def generate_all_remediations(classified_incidents, incident_context):
     remediation_results = []
 
     for incident in classified_incidents:
-        pod_name = incident["pod_name"]
+        try:
+            pod_name = incident.get("pod_name")
 
-        relevant_context = context_map.get(pod_name, {})
+            relevant_context = context_map.get(pod_name, {})
 
-        print(f"Generating remediation for: {pod_name}")
+            logger.info("Generating remediation for pod=%s", pod_name)
 
-        remediation = generate_remediation(
-            single_incident=incident,
-            full_context=relevant_context
-        )
+            remediation = generate_remediation(
+                single_incident=incident,
+                full_context=relevant_context
+            )
 
-        remediation_results.append({
-            "pod_name": pod_name,
-            "incident_type": incident["incident_type"],
-            "remediation": remediation
-        })
+            remediation_results.append({
+                "pod_name": pod_name,
+                "incident_type": incident.get("incident_type"),
+                "remediation": remediation
+            })
+
+        except Exception:
+            logger.exception(
+                "Remediation generation failed for pod=%s",
+                incident.get("pod_name")
+            )
 
     return remediation_results
 
@@ -150,34 +156,26 @@ def main():
     Remediation execution workflow.
     """
 
-    print("\nCollecting incident context...\n")
+    logger.info("Collecting incident context")
 
     incident_context = collect_incident_context()
 
     if not incident_context:
-        print("No incidents detected.")
+        logger.warning("No incidents detected")
         return
 
-    print("Classifying incidents...\n")
+    logger.info("Classifying incidents")
 
     classified_incidents = classify_incident(incident_context)
 
-    print("Generating incident-by-incident remediation plans...\n")
+    logger.info("Generating remediation plans")
 
     remediation_results = generate_all_remediations(
         classified_incidents=classified_incidents,
         incident_context=incident_context
     )
 
-    print("\n===== REMEDIATION OUTPUT =====\n")
-
-    for result in remediation_results:
-        print("=" * 80)
-        print(f"Pod: {result['pod_name']}")
-        print(f"Incident Type: {result['incident_type']}")
-        print("=" * 80)
-        print(result["remediation"])
-        print("\n")
+    print(json.dumps(remediation_results, indent=2))
 
 
 if __name__ == "__main__":
