@@ -3,76 +3,103 @@ import json
 from app.tools.kubernetes.incident_context import collect_incident_context
 from app.agents.sre.incident_classifier import classify_incident
 from app.agents.sre.rca_agent import generate_rca
-from app.agents.sre.remediation_agent import generate_remediation_plan
+from app.agents.sre.remediation_agent import generate_all_remediations
 from app.memory.incident_history.store_incident import store_incident
 
 
-def run_incident_workflow():
+def map_incident_context(incident_context):
     """
-    Full autonomous incident response workflow.
+    Map pod_name -> full incident context.
+    """
 
-    Steps:
-    1. Collect incident context
-    2. Classify incidents
-    3. Generate RCA
-    4. Generate remediation plan
-    5. Persist incident report
+    context_map = {}
+
+    for incident in incident_context:
+        context_map[incident["pod_name"]] = incident
+
+    return context_map
+
+
+def generate_incident_rcas(classified_incidents, incident_context):
+    """
+    Generate RCA per incident.
+    """
+
+    context_map = map_incident_context(incident_context)
+
+    rca_results = []
+
+    for incident in classified_incidents:
+        pod_name = incident["pod_name"]
+
+        relevant_context = context_map.get(pod_name, {})
+
+        print(f"Generating RCA for: {pod_name}")
+
+        rca_output = generate_rca(
+            incident_context=relevant_context,
+            classified_incidents=[incident]
+        )
+
+        rca_results.append({
+            "pod_name": pod_name,
+            "incident_type": incident["incident_type"],
+            "rca": rca_output
+        })
+
+    return rca_results
+
+
+def main():
+    """
+    Autonomous incident workflow.
     """
 
     print("\n=== AUTONOMOUS OPS INCIDENT WORKFLOW STARTED ===\n")
 
-    # Step 1
-    print("Step 1: Collecting incident context...\n")
+    print("Step 1: Collecting unified incident context...\n")
 
     incident_context = collect_incident_context()
 
     if not incident_context:
-        print("No problematic incidents detected.")
-        return None
+        print("No active incidents detected.")
+        return
 
-    # Step 2
     print("Step 2: Classifying incidents...\n")
 
     classified_incidents = classify_incident(incident_context)
 
-    # Step 3
-    print("Step 3: Generating AI RCA...\n")
+    print("Step 3: Generating incident-by-incident RCA...\n")
 
-    rca_output = generate_rca(
-        incident_context=incident_context,
-        classified_incidents=classified_incidents
-    )
-
-    # Step 4
-    print("Step 4: Generating remediation plan...\n")
-
-    remediation_output = generate_remediation_plan(
-        incident_context=incident_context,
+    rca_results = generate_incident_rcas(
         classified_incidents=classified_incidents,
-        rca_output=rca_output
+        incident_context=incident_context
     )
 
-    # Consolidated report
-    incident_report = {
+    print("Step 4: Generating incident-by-incident remediation...\n")
+
+    remediation_results = generate_all_remediations(
+        classified_incidents=classified_incidents,
+        incident_context=incident_context
+    )
+
+    workflow_output = {
         "incident_context": incident_context,
         "classified_incidents": classified_incidents,
-        "rca_analysis": rca_output,
-        "remediation_plan": remediation_output
+        "rca_results": rca_results,
+        "remediation_results": remediation_results
     }
 
-    # Step 5
-    print("Step 5: Persisting incident report...\n")
+    print("Step 5: Persisting workflow results...\n")
 
-    saved_path = store_incident(incident_report)
+    saved_path = store_incident(workflow_output)
 
-    print(f"Incident report saved to: {saved_path}\n")
+    print(f"Workflow saved to: {saved_path}\n")
 
-    print("=== INCIDENT WORKFLOW COMPLETED ===\n")
+    print("\n=== INCIDENT WORKFLOW COMPLETED ===\n")
 
-    print(json.dumps(incident_report, indent=2))
-
-    return incident_report
+    print(json.dumps(workflow_output, indent=2))
 
 
 if __name__ == "__main__":
-    run_incident_workflow()
+    main()
