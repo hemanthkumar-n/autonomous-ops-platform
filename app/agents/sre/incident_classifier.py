@@ -1,140 +1,80 @@
 import json
 
-from app.tools.kubernetes.incident_context import collect_incident_context
+from app.agents.sre.incident_rules import INCIDENT_RULES
 from app.config.logging_config import get_logger
+from app.schemas.classification import IncidentClassification
+from app.schemas.incident import IncidentContext
 
 logger = get_logger(__name__)
 
 
-INCIDENT_RULES = {
-    "OOMKilled": {
-        "incident_type": "MemoryExhaustion",
-        "severity": "Critical",
-        "confidence": 99,
-        "recommended_team": "Application / Platform Engineering"
-    },
-    "CrashLoopBackOff": {
-        "incident_type": "ApplicationCrashLoop",
-        "severity": "High",
-        "confidence": 95,
-        "recommended_team": "Application Team"
-    },
-    "ImagePullBackOff": {
-        "incident_type": "ImagePullFailure",
-        "severity": "High",
-        "confidence": 98,
-        "recommended_team": "Platform Engineering"
-    },
-    "ErrImagePull": {
-        "incident_type": "ImagePullFailure",
-        "severity": "High",
-        "confidence": 96,
-        "recommended_team": "Platform Engineering"
-    },
-    "CreateContainerConfigError": {
-        "incident_type": "ContainerConfigurationFailure",
-        "severity": "High",
-        "confidence": 95,
-        "recommended_team": "Platform Engineering"
-    },
-    "CreateContainerError": {
-        "incident_type": "ContainerStartupFailure",
-        "severity": "High",
-        "confidence": 94,
-        "recommended_team": "Platform Engineering"
-    },
-    "FailedScheduling": {
-        "incident_type": "SchedulingFailure",
-        "severity": "Critical",
-        "confidence": 93,
-        "recommended_team": "Cluster Operations"
-    }
-}
-
-
-DEFAULT_CLASSIFICATION = {
-    "incident_type": "UnknownIncident",
-    "severity": "Medium",
-    "confidence": 50,
-    "recommended_team": "Manual Investigation"
-}
-
-
-def classify_container_state(container_state):
+def classify_container_state(container_state) -> dict:
     """
     Classify a single container operational state.
     """
 
-    if not isinstance(container_state, dict):
-        logger.warning("Invalid container state payload received")
-        return DEFAULT_CLASSIFICATION
-
-    state = container_state.get("state")
+    state = container_state.state
 
     if state in INCIDENT_RULES:
-        logger.info("Matched incident rule for state=%s", state)
         return INCIDENT_RULES[state]
 
-    logger.warning("Unknown container state detected: %s", state)
+    logger.warning("Unknown incident state encountered state=%s", state)
 
-    return DEFAULT_CLASSIFICATION
+    return {
+        "incident_type": "UnknownIncident",
+        "severity": "Medium",
+        "confidence": 50,
+        "recommended_team": "Manual Investigation",
+    }
 
 
-def classify_incident(incident_data):
+def classify_incident(
+    incident_data: list[IncidentContext],
+) -> list[IncidentClassification]:
     """
-    Convert raw incident context into normalized incident intelligence.
+    Convert typed incident context into typed incident intelligence.
     """
-
-    if not incident_data:
-        logger.warning("No incident data received for classification")
-        return []
-
-    if not isinstance(incident_data, list):
-        logger.error("Invalid incident_data type: %s", type(incident_data))
-        return []
 
     classifications = []
 
     for pod in incident_data:
-        try:
-            for container in pod.get("container_states", []):
+        for container in pod.container_states:
 
-                classification = classify_container_state(container)
+            classification = classify_container_state(container)
 
-                incident_record = {
-                    "pod_name": pod.get("pod_name"),
-                    "namespace": pod.get("namespace"),
-                    "node": pod.get("node"),
-                    "container": container.get("container"),
-                    "container_state": container.get("state"),
-                    "restart_count": container.get("restart_count"),
-                    "incident_type": classification["incident_type"],
-                    "severity": classification["severity"],
-                    "confidence": classification["confidence"],
-                    "recommended_team": classification["recommended_team"]
-                }
-
-                classifications.append(incident_record)
-
-        except Exception:
-            logger.exception(
-                "Incident classification failed for pod=%s",
-                pod.get("pod_name")
+            incident_record = IncidentClassification(
+                pod_name=pod.pod_name,
+                namespace=pod.namespace,
+                node=pod.node,
+                container=container.container,
+                container_state=container.state,
+                restart_count=container.restart_count,
+                incident_type=classification["incident_type"],
+                severity=classification["severity"],
+                confidence=classification["confidence"],
+                recommended_team=classification["recommended_team"],
             )
 
+            classifications.append(incident_record)
+
     logger.info(
-        "Incident classification completed total=%s",
-        len(classifications)
+        "Incident classification completed classified=%s",
+        len(classifications),
     )
 
     return classifications
 
 
 if __name__ == "__main__":
-    logger.info("Collecting incident context")
+    from app.tools.kubernetes.incident_context import collect_incident_context
 
     incident_context = collect_incident_context()
 
     classified_incidents = classify_incident(incident_context)
 
-    print(json.dumps(classified_incidents, indent=2))
+    print(
+        json.dumps(
+            [incident.model_dump() for incident in classified_incidents],
+            indent=2,
+        )
+    )
