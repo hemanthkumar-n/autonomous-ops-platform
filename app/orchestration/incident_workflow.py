@@ -1,152 +1,84 @@
 import json
 
-from app.tools.kubernetes.incident_context import collect_incident_context
 from app.agents.sre.incident_classifier import classify_incident
 from app.agents.sre.rca_agent import generate_rca
 from app.agents.sre.remediation_agent import generate_all_remediations
-from app.memory.incident_history.store_incident import store_incident
 from app.config.logging_config import get_logger
-from app.config.settings import settings
+from app.memory.incident_history.store_incident import store_incident
+from app.schemas.workflow import WorkflowExecutionResponse
+from app.tools.kubernetes.incident_context import collect_incident_context
 
 logger = get_logger(__name__)
 
 
-def map_incident_context(incident_context):
+def execute_incident_workflow() -> WorkflowExecutionResponse:
     """
-    Map pod_name -> full incident context.
+    Execute full typed autonomous incident workflow.
     """
 
-    context_map = {}
+    logger.info("Starting autonomous incident workflow")
+
+    incident_context = collect_incident_context()
 
     if not incident_context:
-        return context_map
+        logger.warning("No active incidents detected")
 
-    for incident in incident_context:
-        pod_name = incident.get("pod_name")
+        return WorkflowExecutionResponse(
+            incident_context=[],
+            classified_incidents=[],
+            rca_results=[],
+            remediation_results=[],
+        )
 
-        if pod_name:
-            context_map[pod_name] = incident
+    logger.info("Classifying incidents")
 
-    return context_map
+    classified_incidents = classify_incident(
+        incident_context
+    )
 
+    logger.info("Generating RCA responses")
 
-def generate_incident_rcas(classified_incidents, incident_context):
-    """
-    Generate RCA per incident.
-    """
+    rca_results = generate_rca(
+        incident_context=incident_context,
+        classified_incidents=classified_incidents,
+    )
 
-    context_map = map_incident_context(incident_context)
+    logger.info("Generating remediation responses")
 
-    rca_results = []
+    remediation_results = generate_all_remediations(
+        classified_incidents=classified_incidents,
+        incident_context=incident_context,
+    )
 
-    for incident in classified_incidents:
-        try:
-            pod_name = incident.get("pod_name")
+    workflow_response = WorkflowExecutionResponse(
+        incident_context=incident_context,
+        classified_incidents=classified_incidents,
+        rca_results=rca_results,
+        remediation_results=remediation_results,
+    )
 
-            relevant_context = context_map.get(pod_name, {})
+    logger.info("Persisting workflow execution")
 
-            logger.info("Generating RCA for pod=%s", pod_name)
+    store_incident(workflow_response)
 
-            rca_output = generate_rca(
-                incident_context=relevant_context,
-                classified_incidents=[incident]
-            )
+    logger.info("Incident workflow completed successfully")
 
-            rca_results.append({
-                "pod_name": pod_name,
-                "incident_type": incident.get("incident_type"),
-                "rca": rca_output
-            })
-
-        except Exception:
-            logger.exception(
-                "RCA generation failed for pod=%s",
-                incident.get("pod_name")
-            )
-
-    return rca_results
+    return workflow_response
 
 
 def main():
     """
-    Autonomous incident workflow.
+    CLI execution entrypoint.
     """
 
-    logger.info("Autonomous Ops Incident Workflow started")
+    workflow_output = execute_incident_workflow()
 
-    try:
-        logger.info("Step 1: Collecting unified incident context")
-
-        incident_context = collect_incident_context()
-
-    except Exception:
-        logger.exception("Incident context collection failed")
-        return
-
-    if not incident_context:
-        logger.warning("No active incidents detected")
-        print("No active incidents detected.")
-        return
-
-    try:
-        logger.info("Step 2: Classifying incidents")
-
-        classified_incidents = classify_incident(incident_context)
-
-    except Exception:
-        logger.exception("Incident classification failed")
-        classified_incidents = []
-
-    try:
-        logger.info("Step 3: Generating incident RCA")
-
-        rca_results = generate_incident_rcas(
-            classified_incidents=classified_incidents,
-            incident_context=incident_context
+    print(
+        json.dumps(
+            workflow_output.model_dump(),
+            indent=2,
         )
-
-    except Exception:
-        logger.exception("RCA workflow stage failed")
-        rca_results = []
-
-    try:
-        logger.info("Step 4: Generating remediation guidance")
-
-        remediation_results = generate_all_remediations(
-            classified_incidents=classified_incidents,
-            incident_context=incident_context
-        )
-
-    except Exception:
-        logger.exception("Remediation workflow stage failed")
-        remediation_results = []
-
-    workflow_output = {
-        "metadata": {
-            "platform_name": settings.PLATFORM_NAME,
-            "environment": settings.ENVIRONMENT,
-            "workflow_version": settings.WORKFLOW_VERSION
-        },
-        "incident_context": incident_context,
-        "classified_incidents": classified_incidents,
-        "rca_results": rca_results,
-        "remediation_results": remediation_results
-    }
-
-    try:
-        logger.info("Step 5: Persisting workflow results")
-
-        saved_path = store_incident(workflow_output)
-
-        logger.info("Workflow saved path=%s", saved_path)
-
-    except Exception:
-        logger.exception("Incident persistence failed")
-        saved_path = None
-
-    logger.info("Autonomous Ops Incident Workflow completed")
-
-    print(json.dumps(workflow_output, indent=2))
+    )
 
 
 if __name__ == "__main__":
