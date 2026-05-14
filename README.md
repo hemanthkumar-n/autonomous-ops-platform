@@ -1,3 +1,8 @@
+![Python](https://img.shields.io/badge/Python-3.14-blue)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-AI%20Ops-blue)
+![Ollama](https://img.shields.io/badge/LLM-Ollama-green)
+![Status](https://img.shields.io/badge/Status-Active-success)
+
 # Autonomous Ops Platform
 
 AI-powered operational intelligence platform for SRE, Kubernetes, DevOps, cloud operations, observability, and future autonomous remediation workflows.
