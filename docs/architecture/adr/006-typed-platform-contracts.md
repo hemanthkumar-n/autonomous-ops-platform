@@ -1,7 +1,7 @@
 # ADR-006: Typed Platform Contracts for Deterministic Module Architecture
 
 **Date:** 2026-05-15  
-**Status:** Accepted  
+**Status:** Implemented  
 **Decision Type:** Architecture / Software Engineering / Platform Contract Design  
 **Owners:** Autonomous Ops Platform Engineering  
 
@@ -9,9 +9,9 @@
 
 # Context
 
-Autonomous Ops Platform evolved through rapid engineering iterations focused on validating core operational intelligence capabilities.
+Autonomous Ops Platform evolved through rapid engineering iterations to validate core operational intelligence capabilities for SRE automation.
 
-Implemented platform modules included:
+Initial implementation focused on proving end-to-end incident intelligence workflows:
 
 ```text
 incident_context.py
@@ -23,9 +23,9 @@ incident_workflow.py
 store_incident.py
 ```
 
-During early platform development, data exchange between modules relied entirely on loosely structured Python dictionaries and lists.
+During early platform development, module communication relied primarily on loosely structured Python dictionaries and nested lists.
 
-Examples:
+Example incident payload:
 
 ```python
 incident = {
@@ -35,7 +35,7 @@ incident = {
 }
 ```
 
-Classification output:
+Example classification payload:
 
 ```python
 {
@@ -44,7 +44,7 @@ Classification output:
 }
 ```
 
-Workflow payload:
+Example workflow payload:
 
 ```python
 workflow_output = {
@@ -55,35 +55,37 @@ workflow_output = {
 }
 ```
 
-This approach accelerated functional prototyping.
+This accelerated prototyping and validation.
 
-However, it introduced significant architectural risk as platform complexity increased.
+However, as the platform matured, this architecture introduced structural engineering risks.
 
 ---
 
 # Problem Statement
 
-Loose dictionary-based module communication created multiple engineering risks.
+Dictionary-driven module communication created architectural instability.
 
 ---
 
 ## No Formal Module Contracts
 
-Modules exchanged implicit payload structures.
+Modules exchanged implicit payload assumptions.
 
 Examples:
 
 ```text
 incident_context.py → incident_classifier.py
 incident_classifier.py → rca_agent.py
-rca_agent.py → incident_workflow.py
+rca_agent.py → remediation_agent.py
+remediation_agent.py → incident_workflow.py
+incident_workflow.py → store_incident.py
 ```
 
-But no formal contract guaranteed structure.
+No formal schema guaranteed payload structure.
 
-This created hidden coupling.
+This created hidden coupling between modules.
 
-If one module changed payload shape, downstream consumers could fail unexpectedly.
+A change in one producer could silently break multiple downstream consumers.
 
 ---
 
@@ -99,26 +101,27 @@ incident["container_states"]
 incident["metrics"]
 ```
 
-Risks:
+Failure scenarios:
 
 - missing keys
-- spelling mistakes
-- null structure assumptions
-- inconsistent payloads
+- spelling mismatches
+- null assumptions
+- inconsistent nested structures
+- malformed payloads
 
-Failures occur only at runtime.
+These failures surface only during runtime execution.
 
-This reduces reliability.
+This reduces reliability and increases debugging complexity.
 
 ---
 
 ## Weak Refactor Safety
 
-As platform modules evolve, dictionary-based payloads become difficult to refactor safely.
+As platform modules evolve, dictionary contracts become unsafe.
 
 Example:
 
-Renaming:
+Changing:
 
 ```python
 "restart_metric"
@@ -130,23 +133,29 @@ to:
 "restart_count_metric"
 ```
 
-could silently break downstream consumers.
+could silently break:
 
-Without contracts, refactors become risky.
+- incident enrichment
+- classification
+- RCA reasoning
+- remediation workflows
+- persistence serialization
+
+Without contract enforcement, refactoring becomes high-risk.
 
 ---
 
 ## Poor API Readiness
 
-Future platform evolution includes:
+Planned platform evolution includes:
 
 - FastAPI service interfaces
-- external API consumers
 - workflow APIs
-- agent-to-agent communication
-- memory retrieval APIs
+- operational control APIs
+- external consumers
+- agent communication endpoints
 
-Loose dictionaries are poor API contracts.
+Dictionary payloads are poor API contracts.
 
 Production APIs require deterministic schemas.
 
@@ -154,54 +163,58 @@ Production APIs require deterministic schemas.
 
 ## Weak Testability
 
-Dictionary-heavy systems are harder to validate.
+Dynamic payload systems are harder to validate.
 
-Examples:
+Common issues:
 
-- incomplete payload generation
-- malformed AI outputs
-- unexpected nested structures
+- malformed nested payloads
+- missing observability data
+- inconsistent AI outputs
+- incomplete workflow serialization
 
-Typed contracts improve test precision.
+Typed contracts improve deterministic testing.
 
 ---
 
-## Multi-Agent Evolution Risk
+## Multi-Agent Scalability Risk
 
-Future platform architecture includes specialized agents:
+Planned architecture includes specialized agents:
 
 - SRE incident agent
 - Kubernetes diagnostics agent
 - observability agent
-- remediation agent
-- memory agent
+- RCA reasoning agent
+- remediation planning agent
+- operational memory agent
+- future autonomous execution agent
 
-Inter-agent communication requires strict contracts.
+Inter-agent communication requires explicit message contracts.
 
-Implicit dictionaries do not scale well.
+Implicit dictionaries do not scale safely.
 
 ---
 
-## Platform Governance Risk
+## Governance and Maintainability Risk
 
-Enterprise systems require predictable internal interfaces.
+Enterprise platforms require predictable internal interfaces.
 
-Loose structures make governance difficult.
+Missing capabilities:
 
-Missing:
+- schema ownership
+- validation boundaries
+- contract governance
+- deterministic serialization
+- compatibility discipline
 
-- field ownership
-- explicit contracts
-- schema validation
-- deterministic interfaces
+Without contracts, maintainability degrades over time.
 
 ---
 
 # Decision
 
-A typed schema contract architecture was introduced.
+Autonomous Ops Platform adopts typed schema-based internal platform contracts using Pydantic.
 
-Implementation:
+Implementation location:
 
 ```text
 app/schemas/
@@ -223,7 +236,7 @@ Technology selected:
 Pydantic
 ```
 
-These schemas become the formal internal data contracts for platform modules.
+These schemas become the authoritative internal contracts for platform module communication.
 
 ---
 
@@ -237,7 +250,7 @@ Module:
 app/schemas/metrics.py
 ```
 
-Schema:
+Primary schema:
 
 ```python
 PodMetrics
@@ -253,9 +266,16 @@ Fields:
 - cpu_usage
 - restart_metric
 
+Used by:
+
+```text
+metrics_tools.py
+incident_context.py
+```
+
 ---
 
-## Incident Context Contract
+## Incident Context Contracts
 
 Module:
 
@@ -268,12 +288,13 @@ Schemas:
 ```python
 PodCondition
 ContainerState
+PodEvent
 IncidentContext
 ```
 
 Purpose:
 
-Formal operational incident context contract.
+Canonical operational incident representation.
 
 Captures:
 
@@ -281,11 +302,23 @@ Captures:
 - namespace
 - lifecycle phase
 - node placement
-- conditions
-- container states
-- logs
-- events
+- pod readiness conditions
+- container operational state
+- restart history
+- termination metadata
+- Kubernetes events
+- container logs
 - observability metrics
+
+Used by:
+
+```text
+incident_context.py
+incident_classifier.py
+rca_agent.py
+remediation_agent.py
+incident_workflow.py
+```
 
 ---
 
@@ -297,7 +330,7 @@ Module:
 app/schemas/classification.py
 ```
 
-Schema:
+Primary schema:
 
 ```python
 IncidentClassification
@@ -305,7 +338,7 @@ IncidentClassification
 
 Purpose:
 
-Formal incident intelligence contract.
+Canonical incident intelligence representation.
 
 Captures:
 
@@ -314,6 +347,17 @@ Captures:
 - confidence
 - recommended ownership
 - workload context
+- restart metadata
+- container state
+
+Used by:
+
+```text
+incident_classifier.py
+rca_agent.py
+remediation_agent.py
+incident_workflow.py
+```
 
 ---
 
@@ -334,7 +378,20 @@ RemediationResponse
 
 Purpose:
 
-Formal AI output contracts.
+Canonical AI output contracts.
+
+These formalize:
+
+- RCA generation output
+- remediation planning output
+
+Used by:
+
+```text
+rca_agent.py
+remediation_agent.py
+incident_workflow.py
+```
 
 ---
 
@@ -346,7 +403,7 @@ Module:
 app/schemas/workflow.py
 ```
 
-Schema:
+Primary schema:
 
 ```python
 WorkflowExecutionResponse
@@ -354,33 +411,71 @@ WorkflowExecutionResponse
 
 Purpose:
 
-Formal orchestration payload contract.
+Canonical workflow orchestration contract.
 
----
+Captures:
 
-# Architectural Change
+- incident context
+- classifications
+- RCA outputs
+- remediation outputs
 
-Before:
+Used by:
 
 ```text
-dict
- ↓
-dict
- ↓
-dict
- ↓
-dict
+incident_workflow.py
+store_incident.py
 ```
-
-Implicit contracts.
-
-Hidden coupling.
-
-Runtime fragility.
 
 ---
 
-After:
+# Architectural Migration
+
+Modules migrated:
+
+```text
+incident_context.py
+metrics_tools.py
+incident_classifier.py
+rca_agent.py
+remediation_agent.py
+incident_workflow.py
+store_incident.py
+```
+
+Migration objective:
+
+Replace implicit dictionary glue with deterministic typed contracts.
+
+---
+
+# Architecture Before
+
+```text
+Kubernetes signals
+      ↓
+dictionary blobs
+      ↓
+classification dictionaries
+      ↓
+free-form AI payloads
+      ↓
+workflow dictionaries
+      ↓
+raw JSON persistence
+```
+
+Characteristics:
+
+- implicit coupling
+- weak validation
+- runtime fragility
+- unsafe refactoring
+- poor scalability
+
+---
+
+# Architecture After
 
 ```text
 IncidentContext
@@ -392,40 +487,48 @@ RCAResponse
 RemediationResponse
         ↓
 WorkflowExecutionResponse
+        ↓
+typed persistence
 ```
 
-Explicit deterministic contracts.
+Characteristics:
+
+- explicit contracts
+- deterministic interfaces
+- validation boundaries
+- safe refactoring
+- enterprise scalability
 
 ---
 
 # Alternatives Considered
 
-# Option 1 — Continue Dictionary-Based Contracts
+# Option 1 — Continue Dictionary-Based Architecture
 
-## Advantages
+Advantages:
 
 - fastest implementation
-- minimal development overhead
-- simple prototype experimentation
+- lowest initial engineering effort
+- flexible prototyping
 
-## Disadvantages
+Disadvantages:
 
 - runtime fragility
-- weak refactor safety
 - hidden coupling
 - poor testability
-- poor API readiness
-- unsafe multi-agent scaling
+- weak API readiness
+- unsafe refactoring
+- poor agent interoperability
 
-## Decision
+Decision:
 
 Rejected.
 
-Suitable for prototypes only.
+Appropriate only for prototypes.
 
 ---
 
-# Option 2 — Dataclasses
+# Option 2 — Python Dataclasses
 
 Example:
 
@@ -434,20 +537,20 @@ Example:
 class PodMetrics:
 ```
 
-## Advantages
+Advantages:
 
 - stronger typing
 - lightweight
-- better than raw dictionaries
+- simpler than raw dictionaries
 
-## Disadvantages
+Disadvantages:
 
 - weaker validation
 - limited schema tooling
-- less API-native
-- weaker serialization capabilities
+- weaker serialization guarantees
+- less API-native integration
 
-## Decision
+Decision:
 
 Rejected.
 
@@ -455,24 +558,24 @@ Improvement over dicts, but insufficient for long-term platform evolution.
 
 ---
 
-# Option 3 — Pydantic Schema Contracts
+# Option 3 — Pydantic Typed Contracts
 
-## Advantages
+Advantages:
 
-- validation
-- typing
-- serialization
-- API readiness
-- schema governance
-- safer refactoring
-- deterministic interfaces
+- runtime validation
+- deterministic typing
+- schema serialization
+- API compatibility
+- refactor safety
+- governance readiness
+- future versioning support
 
-## Disadvantages
+Disadvantages:
 
-- modest learning overhead
-- additional schema maintenance
+- schema maintenance overhead
+- stricter engineering discipline required
 
-## Decision
+Decision:
 
 Accepted.
 
@@ -480,15 +583,17 @@ Accepted.
 
 # Decision Rationale
 
-Autonomous Ops Platform is evolving toward:
+Autonomous Ops Platform roadmap includes:
 
-- enterprise API services
-- multi-agent orchestration
+- enterprise API exposure
 - operational memory systems
-- autonomous workflows
-- approval-gated remediation
+- vector indexing
+- incident retrieval
+- multi-agent orchestration
+- autonomous remediation workflows
+- approval-gated execution safety
 
-These architectures require deterministic contracts.
+These architectures require deterministic interfaces.
 
 Engineering principle:
 
@@ -496,41 +601,42 @@ Engineering principle:
 Loose internal interfaces do not scale.
 ```
 
-Typed schema contracts provide:
+Typed contracts provide:
 
 - reliability
 - maintainability
 - safety
+- auditability
 - API readiness
-- agent interoperability
+- AI interoperability
 
-This is foundational platform architecture.
+This is foundational architecture.
 
 ---
 
 # Operational Impact
 
-Benefits introduced:
-
----
-
 ## Early Validation
 
-Invalid payloads fail earlier.
+Invalid payloads fail immediately.
 
-Improves debugging speed.
+Benefits:
+
+- faster debugging
+- earlier fault isolation
+- safer deployments
 
 ---
 
 ## Safer Refactoring
 
-Contract-aware module evolution becomes safer.
+Contract-aware changes reduce regression risk.
+
+Refactors become controlled engineering operations instead of runtime experiments.
 
 ---
 
 ## Better Developer Experience
-
-Examples:
 
 Before:
 
@@ -546,53 +652,57 @@ incident.pod_name
 
 Cleaner interfaces.
 
----
+Better IDE support.
 
-## API Readiness
-
-Schemas directly support:
-
-- FastAPI request models
-- FastAPI response models
-- API validation
+Safer navigation.
 
 ---
 
 ## AI Contract Governance
 
-AI outputs become deterministic platform objects.
+LLM interactions now produce explicit platform objects.
+
+Improves:
+
+- reasoning pipeline stability
+- workflow predictability
+- downstream compatibility
 
 ---
 
-# Architecture Impact
+## Persistence Stability
 
-Before:
+Workflow outputs are serialized using canonical typed models.
+
+Improves:
+
+- audit consistency
+- operational traceability
+- schema stability
+
+---
+
+## API Readiness
+
+Typed contracts align directly with:
 
 ```text
-Implementation modules with implicit contracts
+FastAPI request models
+FastAPI response models
+OpenAPI generation
 ```
-
-After:
-
-```text
-Schema-governed platform architecture
-```
-
-This formalizes platform internal APIs.
 
 ---
 
 # Risks Accepted
 
-Current schema implementation is intentionally initial maturity.
+Current maturity limitations:
 
-Known limitations:
-
-- internal-only schemas
-- no versioned API contracts
-- no strict validation policies
-- no compatibility governance
-- no schema evolution policies
+- internal-only contracts
+- no public API versioning
+- limited compatibility governance
+- no schema migration policy
+- no backward compatibility enforcement
 
 Acceptable for current platform maturity.
 
@@ -600,17 +710,13 @@ Acceptable for current platform maturity.
 
 # Future Evolution
 
-Planned maturity:
+Planned maturity expansions:
 
 ---
 
 ## API Contract Reuse
 
-Schemas reused directly by:
-
-```text
-FastAPI
-```
+Schemas reused directly for service interfaces.
 
 ---
 
@@ -621,38 +727,47 @@ Future:
 ```text
 v1
 v2
+v3
 ```
 
-schema compatibility.
+schema compatibility governance.
 
 ---
 
 ## Agent Communication Contracts
 
-Future agent-to-agent interfaces.
+Explicit message schemas between agents.
 
 ---
 
-## Workflow Contract Enforcement
+## Workflow Validation Gates
 
-Formal workflow validation gates.
+Policy enforcement using typed workflow validation.
 
 ---
 
 ## Memory Layer Contracts
 
-Schemas for:
+Future schema contracts for:
 
 - incident memory
-- runbook memory
+- RCA knowledge memory
+- remediation memory
 - architecture memory
-- vector retrieval contracts
+- vector retrieval interfaces
 
 ---
 
-## External SDK Contracts
+## Autonomous Execution Safety
 
-Potential future external integrations.
+Future execution workflows require typed action contracts.
+
+Examples:
+
+- approval payloads
+- remediation execution requests
+- rollback requests
+- execution audit artifacts
 
 ---
 
@@ -666,7 +781,8 @@ This materially improved:
 - maintainability
 - refactor safety
 - API readiness
+- operational auditability
 - multi-agent scalability
-- engineering governance
+- future autonomous execution readiness
 
-This was a foundational software architecture milestone in platform evolution.
+This was a foundational architecture milestone in platform evolution.
