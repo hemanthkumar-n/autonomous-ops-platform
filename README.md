@@ -326,6 +326,15 @@ Run orchestrated workflow:
 python -m app.orchestration.incident_workflow
 ```
 
+Quick validation before commit:
+
+```bash
+python -m app.agents.sre.incident_classifier
+python -m app.agents.sre.rca_agent
+python -m app.agents.sre.remediation_agent
+python -m app.orchestration.incident_workflow
+```
+
 ---
 
 ## Long-Term Vision
