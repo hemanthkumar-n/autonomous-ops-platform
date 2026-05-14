@@ -1,80 +1,137 @@
 Autonomous Ops Platform
 
-AI-powered operational intelligence platform for SRE, Kubernetes, DevOps, cloud operations, observability, and future autonomous remediation workflows.
+Enterprise-grade AI-powered operational intelligence platform for SRE, Platform Engineering, Kubernetes Operations, Observability Intelligence, and future autonomous remediation workflows.
 
 ⸻
 
 Vision
 
-Autonomous Ops Platform is an enterprise-grade engineering initiative focused on building an intelligent operational platform that assists infrastructure and platform teams in:
+Modern infrastructure operations are increasingly complex.
 
-* incident detection
-* troubleshooting
-* root cause analysis (RCA)
-* remediation guidance
-* operational intelligence
-* future autonomous operational workflows
+Production environments generate signals from multiple disconnected systems:
 
-The long-term goal is to evolve beyond scripts and dashboards into a coordinated AI-assisted operational intelligence ecosystem.
+* Kubernetes
+* Prometheus
+* logs
+* infrastructure events
+* monitoring alerts
+* CI/CD systems
+* runbooks
+* tribal troubleshooting knowledge
+* cloud telemetry
+* operational dashboards
+
+These systems expose raw operational signals.
+
+Engineers still perform the reasoning manually.
+
+Autonomous Ops Platform exists to bridge that gap.
+
+This project is a long-term platform engineering initiative focused on building an intelligent operational control plane capable of:
+
+* infrastructure incident detection
+* workload diagnostics
+* observability correlation
+* deterministic incident classification
+* AI-assisted root cause analysis
+* remediation intelligence
+* persistent operational memory
+* enterprise-safe operational automation
+* future approval-gated autonomous remediation
 
 ⸻
 
 Why This Project Exists
 
-Modern infrastructure teams face:
+Production SRE and platform teams commonly face:
 
 * fragmented observability
-* disconnected tooling
-* tribal troubleshooting knowledge
-* repetitive incident workflows
-* inconsistent remediation steps
-* slow root cause analysis
-* increasing cloud-native operational complexity
+* disconnected tooling ecosystems
+* tribal troubleshooting dependency
+* slow incident triage
+* inconsistent remediation execution
+* repeated manual RCA effort
+* poor historical incident reuse
+* increasing Kubernetes/cloud-native operational complexity
 
-Traditional tooling surfaces signals.
+Traditional operational workflow:
 
-Engineers still perform the reasoning manually.
+Detect → Alert → Investigate → Guess → Recover
 
-Autonomous Ops Platform aims to bridge that gap.
+Target platform workflow:
 
-Core philosophy:
+Detect → Correlate → Reason → Recommend → Learn → Automate
 
-Operational Signals
-        ↓
-Context Engineering
-        ↓
-Incident Intelligence
-        ↓
-AI Reasoning
-        ↓
-Remediation Guidance
-        ↓
-Operational Memory
-        ↓
-Future Autonomous Operations
+This platform is being engineered to make that transformation possible.
 
 ⸻
 
-Current Platform Capabilities
+Platform Engineering Principles
 
-Kubernetes Incident Intelligence
+This project is intentionally being built with production-grade engineering discipline from early stages.
 
-Implemented:
+Core design principles:
 
-* unhealthy workload detection
-* multi-namespace incident discovery
+* zero hardcoded environment assumptions
+* configuration-driven architecture
+* modular domain boundaries
+* deterministic incident normalization before AI reasoning
+* graceful dependency degradation
+* observability-first execution
+* auditability by design
+* reusable provider abstractions
+* enterprise-safe automation boundaries
+* explicit separation between advisory vs execution layers
+* future approval-gated autonomy
+
+⸻
+
+Current Architecture
+
+Infrastructure Signals
+↓
+Kubernetes Incident Context Engine
+↓
+Observability Enrichment Layer
+↓
+Incident Classification Engine
+↓
+AI RCA Intelligence
+↓
+Remediation Intelligence
+↓
+Workflow Orchestration
+↓
+Incident Persistence Layer
+↓
+Future Operational Memory Intelligence
+↓
+Autonomous Safe Operations
+
+⸻
+
+Current Production Capabilities (Day 6)
+
+Kubernetes Incident Context Engine
+
+Implemented capabilities:
+
+* multi-namespace pod discovery
 * pod lifecycle inspection
-* restart analysis
-* termination history collection
-* resource limit inspection
-* bounded log retrieval
+* container runtime state analysis
+* restart telemetry correlation
+* termination reason extraction
+* resource inspection
+* bounded container log retrieval
 * Kubernetes event correlation
+* namespace-aware diagnostics
+* node attribution
 
 Supported failure patterns:
 
 * OOMKilled
-* ImagePullBackOff
 * CrashLoopBackOff
+* ImagePullBackOff
 * ErrImagePull
 * CreateContainerConfigError
 * CreateContainerError
@@ -82,16 +139,42 @@ Supported failure patterns:
 
 ⸻
 
+Observability Enrichment Layer
+
+Prometheus-backed telemetry integration:
+
+* pod memory usage
+* pod CPU usage
+* restart telemetry correlation
+
+Current production-safe implementation:
+
+* environment-driven Prometheus endpoint
+* configurable timeout handling
+* graceful query failure fallback
+* no hardcoded telemetry endpoints
+* reusable Prometheus query abstraction
+
+Configuration:
+
+PROMETHEUS_URL=http://localhost:9090
+PROMETHEUS_TIMEOUT=10
+
+⸻
+
 Incident Classification Engine
 
-Deterministic normalization layer.
+Deterministic infrastructure failure normalization layer.
 
-Converts raw infrastructure failures into structured incident intelligence.
+Purpose:
+
+Convert noisy infrastructure symptoms into structured operational intelligence.
 
 Examples:
 
 OOMKilled → MemoryExhaustion
 ImagePullBackOff → ImagePullFailure
+CrashLoopBackOff → ApplicationCrashLoop
 
 Capabilities:
 
@@ -100,11 +183,17 @@ Capabilities:
 * confidence scoring
 * ownership recommendations
 
+Example ownership:
+
+* Platform Engineering
+* Application Team
+* Infrastructure Team
+
 ⸻
 
 AI RCA Engine
 
-AI-assisted incident reasoning using local LLM inference.
+AI-assisted incident reasoning layer.
 
 Current stack:
 
@@ -115,113 +204,123 @@ Capabilities:
 
 * incident summarization
 * root cause analysis
+* signal correlation
 * severity reasoning
+* ownership recommendations
 * preventive recommendations
+
+Current correlation inputs:
+
+* Kubernetes lifecycle state
+* container runtime state
+* restart counts
+* termination reasons
+* resource limits
+* Kubernetes events
+* bounded logs
+* Prometheus metrics
 
 ⸻
 
-Remediation Intelligence
+Remediation Intelligence Engine
 
-Safe remediation planning.
+Safe advisory remediation planning.
 
 Capabilities:
 
-* immediate recovery guidance
-* validation commands
+* immediate safe actions
+* Kubernetes validation commands
 * escalation recommendations
 * preventive controls
 * operational risk awareness
 
-Advisory only.
+Safety boundary:
 
-No automated destructive execution.
+Advisory Only
+No destructive automated execution
+
+This separation is intentional for enterprise safety.
 
 ⸻
 
-Workflow Orchestration
+Workflow Orchestration Engine
 
-End-to-end coordinated incident workflow:
+End-to-end incident automation pipeline.
+
+Current workflow:
 
 Detect
-→ Collect Context
+→ Collect Incident Context
+→ Enrich Observability
 → Classify Incident
 → Generate RCA
 → Generate Remediation
 → Persist Incident Record
 
+Implemented orchestration:
+
+* incident-by-incident workflow processing
+* structured workflow persistence
+* unified incident payload generation
+
 ⸻
 
 Incident Persistence Layer
 
-Persistent operational history.
+Operational memory foundation.
 
-Stores:
+Current storage:
 
 app/memory/incident_history/incidents/
 
-Enables:
+Purpose:
 
-* audit history
-* recurring incident analysis
-* future dashboards
-* operational memory foundation
-
-⸻
-
-Current Architecture
-
-Kubernetes Signals
-        ↓
-Incident Context Engine
-        ↓
-Incident Classification Engine
-        ↓
-AI RCA Engine
-        ↓
-Remediation Intelligence Engine
-        ↓
-Workflow Orchestration
-        ↓
-Persistent Incident History
+* audit trail
+* historical incident archive
+* recurring issue analysis
+* future operational memory
+* future retrieval-augmented troubleshooting
 
 ⸻
 
 Repository Structure
 
 autonomous-ops-platform/
-│
-├── app/
-│   ├── agents/
-│   │   └── sre/
-│   │       ├── incident_classifier.py
-│   │       ├── rca_agent.py
-│   │       └── remediation_agent.py
-│   │
-│   ├── tools/
-│   │   └── kubernetes/
-│   │       ├── incident_context.py
-│   │       ├── log_tools.py
-│   │       └── event_tools.py
-│   │
-│   ├── orchestration/
-│   │   └── incident_workflow.py
-│   │
-│   ├── memory/
-│   │   └── incident_history/
-│   │       ├── store_incident.py
-│   │       └── incidents/
-│   │
-│   ├── llm/
-│   ├── prompts/
-│   ├── api/
-│   └── config/
-│
-├── kubernetes/
-├── infra/
-├── docs/
-├── scripts/
-├── tests/
-├── screenshots/
+
+app/
+agents/sre/
+incident_classifier.py
+rca_agent.py
+remediation_agent.py
+
+tools/kubernetes/
+incident_context.py
+log_tools.py
+event_tools.py
+
+tools/prometheus/
+prometheus_client.py
+metrics_tools.py
+queries.py
+
+orchestration/
+incident_workflow.py
+
+memory/incident_history/
+store_incident.py
+incidents/
+
+config/
+llm/
+prompts/
+api/
+
+docs/
+infra/
+kubernetes/
+scripts/
+screenshots/
+tests/
 
 ⸻
 
@@ -231,8 +330,9 @@ Current:
 
 * Python
 * Kubernetes Python SDK
-* Docker Desktop
 * Kubernetes
+* Docker Desktop
+* Prometheus
 * Ollama
 * qwen2.5-coder
 * GitHub
@@ -240,7 +340,6 @@ Current:
 
 Planned:
 
-* Prometheus
 * Grafana
 * Datadog
 * Splunk
@@ -264,17 +363,89 @@ Run full incident workflow:
 
 python -m app.orchestration.incident_workflow
 
-Run classifier:
+Run incident context collection:
+
+python -m app.tools.kubernetes.incident_context
+
+Run incident classification:
 
 python -m app.agents.sre.incident_classifier
 
-Run RCA:
+Run RCA generation:
 
 python -m app.agents.sre.rca_agent
 
-Run remediation:
+Run remediation generation:
 
 python -m app.agents.sre.remediation_agent
+
+Run Prometheus telemetry validation:
+
+python -m app.tools.prometheus.metrics_tools
+
+⸻
+
+Hardening Progress
+
+Completed (Hardening Phase 1)
+
+Production-grade improvements already implemented:
+
+* removed hardcoded Prometheus endpoint
+* environment-driven configuration
+* configurable timeout handling
+* reusable telemetry abstraction
+* graceful observability degradation
+* incident persistence workflow
+* observability enrichment architecture
+* production-safe telemetry query boundaries
+
+⸻
+
+Planned Hardening Phases
+
+Hardening Phase 2
+
+* structured logging framework
+* centralized exception handling
+* consistent error contracts
+* correlation IDs
+* failure observability
+
+Hardening Phase 3
+
+* Pydantic schemas
+* typed workflow payloads
+* response validation
+* safer agent interoperability
+
+Hardening Phase 4
+
+* retry/backoff policies
+* transient dependency handling
+* timeout governance
+* circuit breaker patterns
+
+Hardening Phase 5
+
+* secrets management
+* credential abstraction
+* provider authentication boundaries
+* RBAC-aware execution
+
+Hardening Phase 6
+
+* provider abstraction layer
+* observability provider plugins
+* cloud provider plugins
+* execution adapters
+
+Hardening Phase 7
+
+* approval-gated remediation
+* policy enforcement
+* execution safety rails
+* human-in-loop workflows
 
 ⸻
 
@@ -282,13 +453,11 @@ Future Evolution
 
 Observability Intelligence
 
-* Prometheus integration
-* Grafana integration
-* Datadog correlation
+* Grafana correlation
+* Datadog integration
 * Splunk analysis
-* metrics anomaly detection
-
-⸻
+* anomaly detection
+* telemetry enrichment pipelines
 
 Enterprise Knowledge Intelligence
 
@@ -301,15 +470,14 @@ Planned integrations:
 
 Capabilities:
 
-* runbook-aware troubleshooting
+* runbook-aware diagnostics
 * incident trend analysis
-* historical correlation
-
-⸻
+* historical issue correlation
+* retrieval-augmented troubleshooting
 
 Agentic Operations
 
-Planned agents:
+Planned specialized agents:
 
 * Kubernetes Agent
 * Linux Diagnostics Agent
@@ -318,57 +486,23 @@ Planned agents:
 * Security Agent
 * Release Intelligence Agent
 
-⸻
-
-Operational Memory
+Operational Memory Intelligence
 
 Future:
 
-* incident pattern intelligence
+* incident pattern detection
 * historical knowledge reuse
 * contextual retrieval
-* recurring issue detection
-
-⸻
+* recurring failure intelligence
 
 Autonomous Operations
 
 Long-term:
 
 * approval-gated remediation
-* safe execution workflows
-* policy enforcement
-* operational automation
-
-⸻
-
-Documentation
-
-Architecture:
-
-docs/architecture/incident-intelligence-workflow.md
-
-Incident demo:
-
-docs/incidents/day5-incident-workflow-demo.md
-
-Setup:
-
-docs/setup/installation.md
-
-⸻
-
-Contribution Areas
-
-Contributors welcome in:
-
-* Kubernetes automation
-* SRE engineering
-* observability tooling
-* AI agent engineering
-* platform engineering
-* cloud operations
-* enterprise integrations
+* safe automated execution
+* policy-driven operations
+* autonomous operational workflows
 
 ⸻
 
@@ -378,23 +512,25 @@ Hemanth Kumar
 
 Principal SRE | Platform Engineering | DevOps | AWS | Azure | Kubernetes (CKA) | Terraform | CI/CD | Observability | Incident Response
 
-Focused on:
+Focus Areas:
 
 * AI for Infrastructure Operations
 * Kubernetes Automation
 * Operational Intelligence Systems
-* Autonomous Ops Engineering
-
-Building Autonomous Ops Platform as a long-term engineering initiative focused on intelligent infrastructure operations, AI-assisted incident response, and future autonomous operational workflows.
-
-LinkedIn:
-https://www.linkedin.com/in/hemanthkumarn/
+* Autonomous Platform Engineering
 
 GitHub:
 https://github.com/hemanthkumar-n
+
+LinkedIn:
+https://www.linkedin.com/in/hemanthkumarn/
 
 ⸻
 
 Final Direction
 
-Autonomous Ops Platform is being built as an enterprise-grade operational intelligence ecosystem for modern infrastructure teams.
+Autonomous Ops Platform is being engineered as a production-grade operational intelligence platform for modern infrastructure teams.
+
+This is not a demo chatbot project.
+
+This is the foundation for an enterprise autonomous operations control plane.
