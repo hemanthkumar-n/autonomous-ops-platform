@@ -349,7 +349,7 @@ app/schemas/workflow.py
 Schema:
 
 ```python
-WorkflowExecution
+WorkflowExecutionResponse
 ```
 
 Purpose:
@@ -391,7 +391,7 @@ RCAResponse
         ↓
 RemediationResponse
         ↓
-WorkflowExecution
+WorkflowExecutionResponse
 ```
 
 Explicit deterministic contracts.
