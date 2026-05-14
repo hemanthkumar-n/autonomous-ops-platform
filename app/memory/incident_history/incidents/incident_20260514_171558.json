@@ -1,0 +1,155 @@
+{
+  "incident_context": [
+    {
+      "pod_name": "broken-nginx-5fc7d9ddf8-kqbv5",
+      "namespace": "ai-lab",
+      "phase": "Pending",
+      "node": "desktop-worker",
+      "conditions": [
+        {
+          "type": "PodReadyToStartContainers",
+          "status": "True"
+        },
+        {
+          "type": "Initialized",
+          "status": "True"
+        },
+        {
+          "type": "Ready",
+          "status": "False"
+        },
+        {
+          "type": "ContainersReady",
+          "status": "False"
+        },
+        {
+          "type": "PodScheduled",
+          "status": "True"
+        }
+      ],
+      "container_states": [
+        {
+          "container": "nginx",
+          "state": "ImagePullBackOff",
+          "restart_count": 0,
+          "last_termination": null,
+          "resources": {
+            "limits": null,
+            "requests": null
+          },
+          "logs": "Container not started yet. Logs unavailable."
+        }
+      ],
+      "events": [
+        {
+          "type": "Normal",
+          "reason": "Pulling",
+          "message": "Pulling image \"nginx:doesnotexist\""
+        },
+        {
+          "type": "Warning",
+          "reason": "Failed",
+          "message": "Failed to pull image \"nginx:doesnotexist\": rpc error: code = NotFound desc = failed to pull and unpack image \"docker.io/library/nginx:doesnotexist\": failed to resolve reference \"docker.io/library/nginx:doesnotexist\": docker.io/library/nginx:doesnotexist: not found"
+        },
+        {
+          "type": "Normal",
+          "reason": "BackOff",
+          "message": "Back-off pulling image \"nginx:doesnotexist\""
+        },
+        {
+          "type": "Warning",
+          "reason": "Failed",
+          "message": "Error: ImagePullBackOff"
+        }
+      ]
+    },
+    {
+      "pod_name": "memory-stress",
+      "namespace": "ai-lab",
+      "phase": "Running",
+      "node": "desktop-worker2",
+      "conditions": [
+        {
+          "type": "PodReadyToStartContainers",
+          "status": "True"
+        },
+        {
+          "type": "Initialized",
+          "status": "True"
+        },
+        {
+          "type": "Ready",
+          "status": "False"
+        },
+        {
+          "type": "ContainersReady",
+          "status": "False"
+        },
+        {
+          "type": "PodScheduled",
+          "status": "True"
+        }
+      ],
+      "container_states": [
+        {
+          "container": "memory-stress",
+          "state": "OOMKilled",
+          "restart_count": 668,
+          "last_termination": {
+            "reason": "OOMKilled",
+            "exit_code": 137
+          },
+          "resources": {
+            "limits": {
+              "memory": "50Mi"
+            },
+            "requests": {
+              "memory": "50Mi"
+            }
+          },
+          "logs": "stress: info: [1] dispatching hogs: 0 cpu, 0 io, 1 vm, 0 hdd\n"
+        }
+      ],
+      "events": [
+        {
+          "type": "Normal",
+          "reason": "Pulling",
+          "message": "Pulling image \"polinux/stress\""
+        },
+        {
+          "type": "Warning",
+          "reason": "BackOff",
+          "message": "Back-off restarting failed container memory-stress in pod memory-stress_ai-lab(7619755f-e080-4cb5-83e0-e8810d73f494)"
+        }
+      ]
+    }
+  ],
+  "classified_incidents": [
+    {
+      "pod_name": "broken-nginx-5fc7d9ddf8-kqbv5",
+      "namespace": "ai-lab",
+      "node": "desktop-worker",
+      "container": "nginx",
+      "container_state": "ImagePullBackOff",
+      "restart_count": 0,
+      "incident_type": "ImagePullFailure",
+      "severity": "High",
+      "confidence": 98,
+      "recommended_team": "Platform Engineering"
+    },
+    {
+      "pod_name": "memory-stress",
+      "namespace": "ai-lab",
+      "node": "desktop-worker2",
+      "container": "memory-stress",
+      "container_state": "OOMKilled",
+      "restart_count": 668,
+      "incident_type": "MemoryExhaustion",
+      "severity": "Critical",
+      "confidence": 99,
+      "recommended_team": "Application / Platform Engineering"
+    }
+  ],
+  "rca_analysis": "### Incident Summary\n\n**Incident 1:**\n- **Pod:** `broken-nginx-5fc7d9ddf8-kqbv5`\n- **Namespace:** `ai-lab`\n- **Node:** `desktop-worker`\n- **Container:** `nginx`\n- **State:** ImagePullBackOff\n- **Severity:** High\n\n**Incident 2:**\n- **Pod:** `memory-stress`\n- **Namespace:** `ai-lab`\n- **Node:** `desktop-worker2`\n- **Container:** `memory-stress`\n- **State:** OOMKilled\n- **Severity:** Critical\n\n### Root Cause\n\n**Incident 1:**\n- The container is unable to pull the specified image (`nginx:doesnotexist`) from the Docker registry. This indicates a typo or incorrect image tag in the deployment configuration.\n\n**Incident 2:**\n- The container is being killed due to memory exhaustion despite having limited resources (50Mi). This suggests that the application inside the container is consuming more memory than allocated, possibly due to a bug or misconfiguration.\n\n### Severity Assessment\n\n**Incident 1:** High - As the pod is unable to start and remains in a Pending state, it impacts the availability of the service.\n**Incident 2:** Critical - The pod being killed repeatedly can lead to data loss, high CPU usage on the node, and potential impact on other applications running on the same node.\n\n### Recommended Immediate Remediation\n\n**Incident 1:**\n- Correct the image tag in the deployment configuration to a valid one (`nginx` instead of `nginx:doesnotexist`).\n- Apply the updated configuration using `kubectl apply -f <deployment-file>`.\n- Monitor the pod's status to ensure it starts successfully.\n\n**Incident 2:**\n- Increase the memory limits or requests for the container to allow the application more resources.\n- Review the application code for any potential memory leaks or excessive resource consumption.\n- If applicable, adjust the stress testing parameters or container configuration.\n\n### Preventive Recommendations\n\n**Incident 1:**\n- Implement automated image validation checks in the deployment pipeline to ensure correct image tags are used.\n- Use image scanning tools to verify the integrity and existence of images before pulling them into a cluster.\n\n**Incident 2:**\n- Regularly review and optimize application memory usage through profiling and performance testing.\n- Ensure proper error handling and resource management within the application code.\n- Implement monitoring alerts for high memory utilization to proactively identify and resolve issues.\n\n### Team Ownership Recommendation\n\n**Incident 1:**\n- **Platform Engineering:** Responsible for ensuring image availability and correct deployment configurations. They can also set up automated checks to prevent such incidents in the future.\n\n**Incident 2:**\n- **Application / Platform Engineering:** The primary team responsible for application performance, memory management, and bug resolution. They should also collaborate with Platform Engineering for resource allocation adjustments if needed.",
+  "remediation_plan": "### SAFE Remediation Plan for Kubernetes Incidents\n\n#### Immediate Actions\n\n1. **Correct the Image Tag for Incident 1**\n   ```sh\n   kubectl set image deployment/broken-nginx broken-nginx=nginx --namespace ai-lab\n   ```\n   This command updates the deployment configuration to use the correct `nginx` image tag instead of `nginx:doesnotexist`.\n\n2. **Review and Adjust Memory Limits for Incident 2**\n   ```sh\n   kubectl edit deployment/memory-stress --namespace ai-lab\n   ```\n   Increase the memory limits and requests as needed in the deployment YAML file.\n\n#### Kubernetes Validation Commands\n\n1. **Check Pod Status for Incident 1**\n   ```sh\n   kubectl get pods broken-nginx-5fc7d9ddf8-kqbv5 -n ai-lab\n   ```\n   This command checks the status of the `broken-nginx` pod to ensure it has started successfully.\n\n2. **Verify Container Logs for Incident 2**\n   ```sh\n   kubectl logs memory-stress -n ai-lab\n   ```\n   Review the logs to understand why the container is still being killed despite increased resources.\n\n#### Escalation Recommendation\n\n1. **Escalate Incident 1** if the pod remains in a `Pending` state after updating the image tag.\n2. **Escalate Incident 2** if the memory limits adjustments do not resolve the issue, indicating potential bugs or misconfigurations within the application code.\n\n#### Preventive Recommendations\n\n1. **Automated Image Validation Checks**\n   - Implement automated checks in your CI/CD pipeline to validate image tags and ensure they exist.\n   - Example tool: [Kustomize](https://kustomize.io/) with plugins for image validation.\n\n2. **Image Scanning Tools**\n   - Use tools like [Trivy](https://github.com/aquasecurity/trivy) or [Clair](https://github.com/quay/clair) to scan images for vulnerabilities before pulling them into the cluster.\n   ```sh\n   trivy image nginx\n   ```\n\n3. **Regular Performance Testing and Profiling**\n   - Conduct regular memory profiling of applications to identify potential leaks.\n   - Tools like [Heaptrack](https://github.com/KDE/heaptrack) or [Valgrind](https://www.valgrind.org/) can be used.\n\n#### Risk Notes\n\n1. **Incorrect Image Tags (Incident 1):**\n   - Destructive commands: No destructive commands are needed for this incident.\n   - Impact: A pod being stuck in `Pending` state impacts service availability.\n\n2. **Memory Exhaustion (Incident 2):**\n   - Destructive commands: Review and adjust resource limits carefully.\n   - Impact: Frequent container restarts can lead to high CPU usage on the node, potential data loss, and increased load on other services running on the same node.\n\nBy following these immediate actions, validation commands, escalation recommendations, preventive measures, and risk notes, we can ensure a safe and effective resolution of the Kubernetes incidents."
+}

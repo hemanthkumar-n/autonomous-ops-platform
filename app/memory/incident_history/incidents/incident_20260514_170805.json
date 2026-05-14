@@ -1,0 +1,160 @@
+{
+  "incident_context": [
+    {
+      "pod_name": "broken-nginx-5fc7d9ddf8-kqbv5",
+      "namespace": "ai-lab",
+      "phase": "Pending",
+      "node": "desktop-worker",
+      "conditions": [
+        {
+          "type": "PodReadyToStartContainers",
+          "status": "True"
+        },
+        {
+          "type": "Initialized",
+          "status": "True"
+        },
+        {
+          "type": "Ready",
+          "status": "False"
+        },
+        {
+          "type": "ContainersReady",
+          "status": "False"
+        },
+        {
+          "type": "PodScheduled",
+          "status": "True"
+        }
+      ],
+      "container_states": [
+        {
+          "container": "nginx",
+          "state": "ImagePullBackOff",
+          "restart_count": 0,
+          "last_termination": null,
+          "resources": {
+            "limits": null,
+            "requests": null
+          },
+          "logs": "Container not started yet. Logs unavailable."
+        }
+      ],
+      "events": [
+        {
+          "type": "Normal",
+          "reason": "Pulling",
+          "message": "Pulling image \"nginx:doesnotexist\""
+        },
+        {
+          "type": "Warning",
+          "reason": "Failed",
+          "message": "Failed to pull image \"nginx:doesnotexist\": rpc error: code = NotFound desc = failed to pull and unpack image \"docker.io/library/nginx:doesnotexist\": failed to resolve reference \"docker.io/library/nginx:doesnotexist\": docker.io/library/nginx:doesnotexist: not found"
+        },
+        {
+          "type": "Normal",
+          "reason": "BackOff",
+          "message": "Back-off pulling image \"nginx:doesnotexist\""
+        },
+        {
+          "type": "Warning",
+          "reason": "Failed",
+          "message": "Error: ImagePullBackOff"
+        }
+      ]
+    },
+    {
+      "pod_name": "memory-stress",
+      "namespace": "ai-lab",
+      "phase": "Running",
+      "node": "desktop-worker2",
+      "conditions": [
+        {
+          "type": "PodReadyToStartContainers",
+          "status": "True"
+        },
+        {
+          "type": "Initialized",
+          "status": "True"
+        },
+        {
+          "type": "Ready",
+          "status": "False"
+        },
+        {
+          "type": "ContainersReady",
+          "status": "False"
+        },
+        {
+          "type": "PodScheduled",
+          "status": "True"
+        }
+      ],
+      "container_states": [
+        {
+          "container": "memory-stress",
+          "state": "CrashLoopBackOff",
+          "restart_count": 666,
+          "last_termination": {
+            "reason": "OOMKilled",
+            "exit_code": 137
+          },
+          "resources": {
+            "limits": {
+              "memory": "50Mi"
+            },
+            "requests": {
+              "memory": "50Mi"
+            }
+          },
+          "logs": "stress: info: [1] dispatching hogs: 0 cpu, 0 io, 1 vm, 0 hdd\n"
+        }
+      ],
+      "events": [
+        {
+          "type": "Normal",
+          "reason": "Pulling",
+          "message": "Pulling image \"polinux/stress\""
+        },
+        {
+          "type": "Warning",
+          "reason": "BackOff",
+          "message": "Back-off restarting failed container memory-stress in pod memory-stress_ai-lab(7619755f-e080-4cb5-83e0-e8810d73f494)"
+        },
+        {
+          "type": "Normal",
+          "reason": "Pulled",
+          "message": "(combined from similar events): Successfully pulled image \"polinux/stress\" in 2.77s (2.771s including waiting). Image size: 4041495 bytes."
+        }
+      ]
+    }
+  ],
+  "classified_incidents": [
+    {
+      "pod_name": "broken-nginx-5fc7d9ddf8-kqbv5",
+      "namespace": "ai-lab",
+      "node": "desktop-worker",
+      "container": "nginx",
+      "container_state": "ImagePullBackOff",
+      "restart_count": 0,
+      "incident_type": "ImagePullFailure",
+      "severity": "High",
+      "confidence": 98,
+      "recommended_team": "Platform Engineering"
+    },
+    {
+      "pod_name": "memory-stress",
+      "namespace": "ai-lab",
+      "node": "desktop-worker2",
+      "container": "memory-stress",
+      "container_state": "CrashLoopBackOff",
+      "restart_count": 666,
+      "incident_type": "ApplicationCrashLoop",
+      "severity": "High",
+      "confidence": 95,
+      "recommended_team": "Application Team"
+    }
+  ],
+  "rca_analysis": "### Incident Summary\n\n**Incident 1:**  \n- **Pod Name:** `broken-nginx-5fc7d9ddf8-kqbv5`\n- **Namespace:** `ai-lab`\n- **Node:** `desktop-worker`\n- **Container State:** `ImagePullBackOff`\n\n**Incident 2:**  \n- **Pod Name:** `memory-stress`\n- **Namespace:** `ai-lab`\n- **Node:** `desktop-worker2`\n- **Container State:** `CrashLoopBackOff`\n\n### Root Cause\n\n1. **Incident 1:**\n   - The container is unable to pull the specified image (`nginx:doesnotexist`). This indicates a misconfiguration in the pod specification or an incorrect image tag.\n\n2. **Incident 2:**\n   - The container `memory-stress` is crashing and restarting due to Out of Memory (OOM) conditions. The application within the container is consuming more memory than allocated, causing it to be killed by the Kubernetes OOM Killer.\n\n### Severity Assessment\n\n1. **Incident 1:**  \n   - **Severity:** High  \n   - **Reasoning:** The pod is stuck in `ImagePullBackOff`, which prevents further progress and can cause other dependent services to fail or degrade.\n\n2. **Incident 2:**  \n   - **Severity:** High  \n   - **Reasoning:** The pod is experiencing frequent crashes, leading to high restart counts and potential resource contention on the node.\n\n### Recommended Immediate Remediation\n\n1. **Incident 1:**\n   - Correct the image tag in the pod specification to a valid one (`nginx:latest` or another appropriate version).\n   - Restart the pod to allow it to pull the correct image.\n\n2. **Incident 2:**\n   - Investigate and fix the application logic causing the memory leak.\n   - Increase the resource limits for the container if necessary, but ensure that it does not exceed the node's available resources.\n   - Optionally, consider using a different tool or configuration for stress testing to avoid unintended resource usage.\n\n### Preventive Recommendations\n\n1. **Incident 1:**\n   - Implement automated image validation checks before applying pod specifications.\n   - Use image pull secrets if authentication is required to access private repositories.\n\n2. **Incident 2:**\n   - Conduct thorough code reviews for memory-intensive applications.\n   - Monitor container resource usage regularly and set up alerts for potential resource exhaustion.\n   - Consider using tooling to detect and mitigate memory leaks during development and testing phases.\n\n### Team Ownership Recommendation\n\n1. **Incident 1:**  \n   - **Ownership:** Platform Engineering  \n   - **Reasoning:** The issue is related to image pulling, which falls under platform-level concerns.\n\n2. **Incident 2:**  \n   - **Ownership:** Application Team  \n   - **Reasoning:** The application logic causing the memory leak is owned by the application team.",
+  "remediation_plan": "### SAFE Remediation Plan for Kubernetes Incidents\n\n---\n\n#### Immediate Actions\n\n**For Incident 1:**\n\n1. **Correct Image Tag:**\n   Update the pod specification to use a valid image tag, e.g., `nginx:latest`.\n   \n   ```yaml\n   spec:\n     containers:\n     - name: nginx\n       image: nginx:latest\n   ```\n\n2. **Restart Pod:**\n   Use `kubectl delete pod broken-nginx-5fc7d9ddf8-kqbv5` to force Kubernetes to recreate the pod, which should then attempt to pull the correct image.\n\n**For Incident 2:**\n\n1. **Investigate Memory Usage:**\n   Use the following command to inspect the memory usage and logs of the container:\n\n   ```sh\n   kubectl describe pod memory-stress -n ai-lab\n   ```\n\n   Look for any error messages or stack traces in the logs that might indicate what is causing the memory leak.\n\n2. **Scale Down Memory Limits (if necessary):**\n   If the application is leaking memory, consider temporarily scaling down the memory limits to prevent further resource contention:\n\n   ```sh\n   kubectl patch deployment memory-stress -n ai-lab --type json -p='[{\"op\": \"replace\", \"path\": \"/spec/template/spec/containers/0/resources/limits/memory\", \"value\":\"40Mi\"}]'\n   ```\n\n3. **Restart Pod:**\n   Delete the pod to force Kubernetes to recreate it, which might help if the issue is related to a transient state:\n\n   ```sh\n   kubectl delete pod memory-stress -n ai-lab\n   ```\n\n---\n\n#### Kubernetes Validation Commands\n\n**For Incident 1:**\n\n1. **Check Pod Status:**\n   Ensure that the pod has started successfully and is running.\n\n   ```sh\n   kubectl get pods broken-nginx-5fc7d9ddf8-kqbv5 -n ai-lab\n   ```\n\n2. **Describe Pod:**\n   Get detailed information about the pod to verify that it is using the correct image and there are no errors.\n\n   ```sh\n   kubectl describe pod broken-nginx-5fc7d9ddf8-kqbv5 -n ai-lab\n   ```\n\n**For Incident 2:**\n\n1. **Check Pod Status:**\n   Ensure that the pod is still running despite restarts.\n\n   ```sh\n   kubectl get pods memory-stress -n ai-lab\n   ```\n\n2. **Describe Pod:**\n   Get detailed information about the pod to verify resource limits and any errors.\n\n   ```sh\n   kubectl describe pod memory-stress -n ai-lab\n   ```\n\n3. **Logs Check:**\n   View the logs of the pod to identify any recent errors or warnings.\n\n   ```sh\n   kubectl logs memory-stress -n ai-lab\n   ```\n\n---\n\n#### Escalation Recommendation\n\n- **For Incident 1:** If the issue persists after updating the image tag and restarting the pod, escalate to Platform Engineering for further investigation.\n  \n- **For Incident 2:** If the issue is not resolved by investigating logs or scaling down resource limits, escalate to the Application Team for code review and memory leak resolution.\n\n---\n\n#### Preventive Recommendations\n\n1. **Implement Automated Image Validation:**\n   Set up a pipeline step that validates image tags before deploying pods. This can be done using tools like `skopeo` or custom scripts.\n\n2. **Use Image Pull Secrets:**\n   If you are pulling images from private repositories, ensure that the necessary secrets are configured in your Kubernetes cluster to authenticate with the repository.\n\n3. **Conduct Thorough Code Reviews:**\n   Regularly review memory-intensive application code for potential leaks. Use static code analysis tools and performance profiling tools during development and testing phases.\n\n4. **Monitor Resource Usage:**\n   Set up alerts and monitoring for container resource usage. This can help you detect issues before they become critical.\n\n5. **Use Tooling to Detect Memory Leaks:**\n   Integrate memory leak detection tools like `Valgrind` or `Heaptrack` into your development and testing workflows to identify and fix leaks early.\n\n---\n\n#### Risk Notes\n\n1. **Incident 1:** The risk of this incident reoccurring is low if image validation is automated and image tags are correctly specified. However, continuous monitoring and validation are recommended.\n\n2. **Incident 2:** There is a significant risk if the memory leak persists. Frequent restarts can lead to increased resource consumption and potential impact on other applications running on the same node. Addressing memory leaks promptly is crucial.\n\nBy following this remediation plan, you should be able to recover from these incidents safely and implement preventive measures to minimize future occurrences."
+}
