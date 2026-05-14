@@ -1,31 +1,29 @@
-import json
-
 from kubernetes import client, config
 
 from app.config.logging_config import get_logger
+from app.schemas.incident import (
+    IncidentContext,
+    PodCondition,
+    ContainerState,
+)
 from app.tools.kubernetes.log_tools import get_pod_logs
 from app.tools.kubernetes.event_tools import get_pod_events
 from app.tools.prometheus.metrics_tools import get_pod_metrics
 
 logger = get_logger(__name__)
 
-EXCLUDED_NAMESPACES = {
+config.load_kube_config()
+
+v1 = client.CoreV1Api()
+
+EXCLUDED_NAMESPACES = [
     "kube-system",
     "kube-public",
     "kube-node-lease",
-}
+]
 
 
-def get_kubernetes_client():
-    """
-    Lazy Kubernetes client initialization.
-    """
-
-    config.load_kube_config()
-    return client.CoreV1Api()
-
-
-def is_problematic_pod(pod):
+def is_problematic_pod(pod) -> bool:
     """
     Identify unhealthy pods only.
     """
@@ -49,9 +47,12 @@ def is_problematic_pod(pod):
     return False
 
 
-def collect_incident_context(namespace=None, pod_name=None):
+def collect_incident_context(
+    namespace: str | None = None,
+    pod_name: str | None = None,
+) -> list[IncidentContext]:
     """
-    Collect structured operational incident context.
+    Collect structured incident intelligence as typed schema contracts.
     """
 
     logger.info(
@@ -60,15 +61,12 @@ def collect_incident_context(namespace=None, pod_name=None):
         pod_name,
     )
 
-    v1 = get_kubernetes_client()
-
     if namespace:
         pods = v1.list_namespaced_pod(namespace)
-
     else:
         pods = v1.list_pod_for_all_namespaces()
 
-    incident_data = []
+    incident_data: list[IncidentContext] = []
 
     for pod in pods.items:
         pod_namespace = pod.metadata.namespace
@@ -86,65 +84,37 @@ def collect_incident_context(namespace=None, pod_name=None):
             pod_namespace,
         )
 
-        try:
-            logs = get_pod_logs(
-                pod_name=pod_actual_name,
-                namespace=pod_namespace
-            )
-        except Exception:
-            logger.exception(
-                "Log collection failed pod=%s",
-                pod_actual_name,
-            )
-            logs = ""
+        conditions = []
 
-        try:
-            events = get_pod_events(
-                pod_name=pod_actual_name,
-                namespace=pod_namespace
-            )
-        except Exception:
-            logger.exception(
-                "Event collection failed pod=%s",
-                pod_actual_name,
-            )
-            events = []
+        if pod.status.conditions:
+            for condition in pod.status.conditions:
+                conditions.append(
+                    PodCondition(
+                        type=condition.type,
+                        status=condition.status,
+                    )
+                )
 
         try:
             metrics = get_pod_metrics(
                 pod_name=pod_actual_name,
-                namespace=pod_namespace
+                namespace=pod_namespace,
             )
         except Exception:
             logger.exception(
                 "Metrics enrichment failed pod=%s",
                 pod_actual_name,
             )
-            metrics = {}
+            metrics = get_pod_metrics("", "")
 
-        pod_info = {
-            "pod_name": pod_actual_name,
-            "namespace": pod_namespace,
-            "phase": pod.status.phase,
-            "node": pod.spec.node_name,
-            "conditions": [],
-            "container_states": [],
-            "events": events,
-            "metrics": metrics,
-        }
-
-        if pod.status.conditions:
-            for condition in pod.status.conditions:
-                pod_info["conditions"].append({
-                    "type": condition.type,
-                    "status": condition.status,
-                })
+        container_states = []
 
         for container in pod.status.container_statuses:
             state = "unknown"
             restart_count = container.restart_count
             last_termination = None
             resources = {}
+            logs = ""
 
             if container.state.waiting:
                 state = container.state.waiting.reason
@@ -169,16 +139,53 @@ def collect_incident_context(namespace=None, pod_name=None):
                             "requests": spec_container.resources.requests,
                         }
 
-            pod_info["container_states"].append({
-                "container": container.name,
-                "state": state,
-                "restart_count": restart_count,
-                "last_termination": last_termination,
-                "resources": resources,
-                "logs": logs,
-            })
+            try:
+                logs = get_pod_logs(
+                    pod_name=pod_actual_name,
+                    namespace=pod_namespace,
+                )
+            except Exception as exc:
+                logger.exception(
+                    "Log collection failed pod=%s",
+                    pod_actual_name,
+                )
+                logs = str(exc)
 
-        incident_data.append(pod_info)
+            container_states.append(
+                ContainerState(
+                    container=container.name,
+                    state=state,
+                    restart_count=restart_count,
+                    last_termination=last_termination,
+                    resources=resources,
+                    logs=logs,
+                )
+            )
+
+        try:
+            events = get_pod_events(
+                pod_name=pod_actual_name,
+                namespace=pod_namespace,
+            )
+        except Exception:
+            logger.exception(
+                "Event collection failed pod=%s",
+                pod_actual_name,
+            )
+            events = []
+
+        incident = IncidentContext(
+            pod_name=pod_actual_name,
+            namespace=pod_namespace,
+            phase=pod.status.phase,
+            node=pod.spec.node_name,
+            conditions=conditions,
+            container_states=container_states,
+            events=events,
+            metrics=metrics,
+        )
+
+        incident_data.append(incident)
 
     logger.info(
         "Incident context collection completed incidents=%s",
@@ -187,18 +194,13 @@ def collect_incident_context(namespace=None, pod_name=None):
 
     return incident_data
 
-## Responsive incident context
+
 if __name__ == "__main__":
-    data = collect_incident_context()
+    incidents = collect_incident_context()
 
-    incident_count = len(data)
+    if not incidents:
+        print("No incidents detected.")
+        raise SystemExit(0)
 
-    logger.info(
-        "Incident context debug execution incident_count=%s",
-        incident_count,
-    )
-
-    if not data:
-        print("No problematic incidents detected.")
-    else:
-        print(json.dumps(data, indent=2))
+    for incident in incidents:
+        print(incident.model_dump_json(indent=2))
