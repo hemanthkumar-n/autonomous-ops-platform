@@ -1,100 +1,124 @@
-import os
+from __future__ import annotations
+
+import json
+import uuid
 from datetime import datetime
 from pathlib import Path
 
 from app.config.logging_config import get_logger
 from app.config.settings import settings
+from app.memory.fingerprints.signature import build_incident_fingerprint
+from app.schemas.ai import RCAResponse, RemediationResponse
+from app.schemas.classification import IncidentClassification
+from app.schemas.incident import IncidentContext
+from app.schemas.memory import IncidentMemory
 from app.schemas.workflow import WorkflowExecutionResponse
 
 logger = get_logger(__name__)
 
 
-def ensure_incident_directory() -> Path:
+def _ensure_storage_directory() -> Path:
     """
-    Ensure incident persistence directory exists.
+    Ensure incident memory directory exists.
     """
 
-    incident_dir = Path(settings.INCIDENT_HISTORY_DIR)
+    storage_dir = Path(settings.INCIDENT_HISTORY_DIR)
 
-    incident_dir.mkdir(
+    storage_dir.mkdir(
         parents=True,
         exist_ok=True,
     )
 
-    logger.info(
-        "Incident persistence directory ready path=%s",
-        incident_dir,
+    return storage_dir
+
+
+def _build_incident_memory(
+    incident: IncidentContext,
+    classification: IncidentClassification,
+    rca: RCAResponse,
+    remediation: RemediationResponse,
+) -> IncidentMemory:
+    """
+    Convert workflow objects into normalized incident memory.
+    """
+
+    fingerprint = build_incident_fingerprint(
+        incident=incident,
+        classification=classification,
     )
 
-    return incident_dir
+    return IncidentMemory(
+        incident_id=str(uuid.uuid4()),
+        timestamp=datetime.utcnow(),
+        environment=settings.ENVIRONMENT,
+        fingerprint=fingerprint,
+        severity=classification.severity,
+        confidence=classification.confidence,
+        pod_name=incident.pod_name,
+        namespace=incident.namespace,
+        node=incident.node,
+        incident_type=classification.incident_type,
+        rca_summary=rca.rca,
+        remediation_summary=remediation.remediation,
+        source_workflow_version=settings.WORKFLOW_VERSION,
+    )
 
 
-def generate_incident_filename() -> str:
+def _generate_filename() -> str:
     """
-    Generate timestamp-based incident filename.
+    Generate normalized incident memory filename.
     """
 
     timestamp = datetime.utcnow().strftime(
         "%Y%m%d_%H%M%S"
     )
 
-    return f"incident_{timestamp}.json"
+    return f"incident_memory_{timestamp}.json"
 
 
 def store_incident(
-    workflow_report: WorkflowExecutionResponse,
+    workflow: WorkflowExecutionResponse,
 ) -> str:
     """
-    Persist typed workflow execution report.
+    Persist structured incident memory.
     """
 
-    incident_dir = ensure_incident_directory()
+    storage_dir = _ensure_storage_directory()
 
-    filename = generate_incident_filename()
+    incident_memories = []
 
-    filepath = incident_dir / filename
-
-    try:
-        filepath.write_text(
-            workflow_report.model_dump_json(
-                indent=2
-            ),
-            encoding="utf-8",
+    for incident, classification, rca, remediation in zip(
+        workflow.incident_context,
+        workflow.classified_incidents,
+        workflow.rca_results,
+        workflow.remediation_results,
+        strict=False,
+    ):
+        incident_memories.append(
+            _build_incident_memory(
+                incident=incident,
+                classification=classification,
+                rca=rca,
+                remediation=remediation,
+            )
         )
 
-        logger.info(
-            "Incident workflow persisted path=%s",
-            filepath,
+    filepath = storage_dir / _generate_filename()
+
+    with filepath.open(
+        "w",
+        encoding="utf-8",
+    ) as file:
+        json.dump(
+            [memory.model_dump(mode="json") for memory in incident_memories],
+            file,
+            indent=2,
         )
 
-        return str(filepath)
-
-    except Exception:
-        logger.exception(
-            "Incident persistence failed"
-        )
-        raise
-
-
-def main():
-    """
-    Persistence smoke test.
-    """
-
-    from app.orchestration.incident_workflow import (
-        execute_incident_workflow,
+    logger.info(
+        "Incident memory persisted count=%s path=%s",
+        len(incident_memories),
+        filepath,
     )
 
-    logger.info("Executing workflow persistence test")
-
-    workflow_output = execute_incident_workflow()
-
-    saved_path = store_incident(
-        workflow_output
-    )
-
-    print(saved_path)
-
-
-if __name__ == "__main__":
-    main()
+    return str(filepath)

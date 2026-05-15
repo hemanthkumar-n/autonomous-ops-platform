@@ -4,4 +4,4 @@ __pycache__/
 .idea/
 .vscode/
 *.pyc
-.DS_Store
+.DS_Storeapp/memory/incident_history/incidents/

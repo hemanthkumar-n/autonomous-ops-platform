@@ -5,12 +5,64 @@ import json
 from app.agents.sre.incident_classifier import classify_incident
 from app.config.logging_config import get_logger
 from app.llm.client import LLMClient
+from app.memory.retrieval.search import search_incident_memory
 from app.schemas.ai import RemediationResponse
 from app.schemas.classification import IncidentClassification
 from app.schemas.incident import IncidentContext
+from app.schemas.memory import MemoryQuery
 from app.tools.kubernetes.incident_context import collect_incident_context
 
 logger = get_logger(__name__)
+
+
+def build_historical_context(
+    classification: IncidentClassification,
+    incident: IncidentContext,
+) -> str:
+    """
+    Retrieve similar historical incidents for remediation enrichment.
+    """
+
+    query = MemoryQuery(
+        incident_type=classification.incident_type,
+        namespace=incident.namespace,
+        limit=3,
+    )
+
+    try:
+        results = search_incident_memory(query)
+
+    except Exception:
+        logger.exception(
+            "Historical remediation memory retrieval failed"
+        )
+        return "Historical memory unavailable."
+
+    if not results.matches:
+        return "No similar historical incidents found."
+
+    history = []
+
+    for memory in results.matches:
+        history.append(
+            {
+                "incident_type": memory.incident_type,
+                "severity": memory.severity,
+                "failure_reason": memory.fingerprint.failure_reason,
+                "remediation_summary": memory.remediation_summary,
+                "rca_summary": memory.rca_summary,
+            }
+        )
+
+    logger.info(
+        "Historical remediation context retrieved matches=%s",
+        len(results.matches),
+    )
+
+    return json.dumps(
+        history,
+        indent=2,
+    )
 
 
 def build_remediation_prompt(
@@ -21,12 +73,17 @@ def build_remediation_prompt(
     Build remediation planning prompt.
     """
 
+    historical_context = build_historical_context(
+        classification=classification,
+        incident=incident,
+    )
+
     return f"""
 You are a senior Site Reliability Engineer responsible for SAFE incident remediation.
 
 Analyze ONE incident only.
 
-Use all available operational signals.
+Use current operational signals plus relevant historical incident memory.
 
 Available signals:
 - Kubernetes pod lifecycle state
@@ -40,14 +97,19 @@ Available signals:
     - memory usage
     - CPU usage
     - restart telemetry
+- historical incident memory
+    - prior remediation outcomes
+    - prior RCA patterns
+    - prior failure signatures
 
 Your responsibilities:
 
 1. Recommend SAFE remediation steps
 2. Avoid destructive actions
 3. Recommend Kubernetes validation commands
-4. Suggest rollback or escalation where appropriate
-5. Correlate remediation with incident type
+4. Compare with prior incident remediation patterns
+5. Suggest rollback or escalation where appropriate
+6. Correlate remediation with incident type
 
 Incident handling guidance:
 
@@ -78,6 +140,7 @@ FailedScheduling:
 Output format:
 
 ### Incident
+### Historical Similarity Analysis
 ### Immediate Safe Actions
 ### Kubernetes Validation Commands
 ### Escalation Recommendation
@@ -86,6 +149,9 @@ Output format:
 
 Incident Classification:
 {classification.model_dump_json(indent=2)}
+
+Historical Incident Memory:
+{historical_context}
 
 Incident Context:
 {incident.model_dump_json(indent=2)}
@@ -98,7 +164,7 @@ def generate_remediation(
     llm_client: LLMClient | None = None,
 ) -> RemediationResponse:
     """
-    Generate remediation response.
+    Generate AI-assisted remediation guidance.
     """
 
     llm = llm_client or LLMClient()
@@ -116,6 +182,11 @@ def generate_remediation(
         )
 
         response = llm.generate(prompt)
+
+        logger.info(
+            "Remediation generation completed pod=%s",
+            incident.pod_name,
+        )
 
         return RemediationResponse(
             pod_name=incident.pod_name,
@@ -144,7 +215,7 @@ def generate_all_remediations(
     classifications: list[IncidentClassification],
 ) -> list[RemediationResponse]:
     """
-    Generate remediation for all incidents.
+    Generate remediation responses for all incidents.
     """
 
     results = []
@@ -171,7 +242,7 @@ def generate_all_remediations(
 
 def main() -> None:
     """
-    Standalone remediation execution.
+    Standalone remediation workflow.
     """
 
     logger.info("Collecting incident context")
@@ -185,7 +256,9 @@ def main() -> None:
 
     logger.info("Classifying incidents")
 
-    classifications = classify_incident(incidents)
+    classifications = classify_incident(
+        incidents
+    )
 
     logger.info("Generating remediation responses")
 
