@@ -1,700 +1,802 @@
+
 # Autonomous Ops Platform
 
 <p align="center">
-  <strong>Enterprise AI-Powered Incident Intelligence &amp; Autonomous Operations Platform</strong>
+  <strong>Enterprise AI-Powered Incident Intelligence & Autonomous Operations Platform</strong>
 </p>
 
 <p align="center">
-  Built for SRE &bull; Platform Engineering &bull; Kubernetes Operations &bull; DevOps &bull; Cloud Reliability Engineering
+  Built for SRE • Platform Engineering • Kubernetes Operations • DevOps • Cloud Reliability Engineering
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Python-3.11+-blue" alt="Python 3.11+" />
-  <img src="https://img.shields.io/badge/Kubernetes-Platform%20Engineering-326CE5" alt="Kubernetes Platform Engineering" />
-  <img src="https://img.shields.io/badge/SRE-Incident%20Automation-orange" alt="SRE Incident Automation" />
-  <img src="https://img.shields.io/badge/Observability-Prometheus-red" alt="Prometheus Observability" />
-  <img src="https://img.shields.io/badge/LLM-Ollama-green" alt="Ollama LLM" />
-  <img src="https://img.shields.io/badge/Status-Phase%203.2%20Completed-success" alt="Phase 3.2 Completed" />
+  <img src="https://img.shields.io/badge/Python-3.11+-blue" />
+  <img src="https://img.shields.io/badge/Kubernetes-Platform%20Engineering-326CE5" />
+  <img src="https://img.shields.io/badge/SRE-Incident%20Automation-orange" />
+  <img src="https://img.shields.io/badge/Observability-Prometheus-red" />
+  <img src="https://img.shields.io/badge/LLM-Ollama-green" />
+  <img src="https://img.shields.io/badge/Status-Day%206%20Completed-success" />
 </p>
 
 ---
 
-## Executive Summary
+Enterprise Autonomous Operational Intelligence Platform for SRE and Platform Engineering teams.
 
-Autonomous Ops Platform is an enterprise-focused AI operations engineering initiative designed to transform fragmented infrastructure signals into structured operational intelligence.
+Autonomous Ops Platform is an AI-native operational intelligence platform designed to evolve from AI-assisted incident analysis into safe autonomous operational reasoning for cloud-native infrastructure.
 
-The platform combines Kubernetes diagnostics, observability telemetry, AI-assisted reasoning, incident classification, remediation guidance, workflow orchestration, typed platform contracts, LLM provider abstraction, and operational memory foundations into a modular architecture that evolves toward safe autonomous operations.
-
-This is not a chatbot experiment.
-
-This is a platform engineering project focused on real operational automation.
+The platform combines deterministic operational telemetry, Kubernetes diagnostics, historical operational memory, semantic retrieval, and AI reasoning to accelerate incident response and operational decision-making.
 
 ---
 
-## Vision
+# Vision
 
-Modern operations teams still spend significant engineering effort on:
+Modern infrastructure operations suffer from fragmented context:
 
-- manual incident triage
-- fragmented observability correlation
-- repetitive operational diagnostics
-- inconsistent remediation guidance
-- knowledge silos
-- delayed root cause analysis
-- reactive incident management
+- telemetry exists in monitoring tools
+- runtime diagnostics live in Kubernetes
+- historical incidents are buried in tickets
+- remediation knowledge is tribal
+- root cause analysis is repeatedly recreated
 
-Autonomous Ops Platform aims to evolve toward:
+Autonomous Ops Platform aims to consolidate this into an operational intelligence layer.
 
-**AI-native operational intelligence and autonomous reliability engineering.**
-
-Long-term vision:
+Target evolution:
 
 ```text
-Detect -> Understand -> Reason -> Recommend -> Approve -> Execute -> Learn
+Reactive Operations
+      →
+AI-Assisted Incident Response
+      →
+Operational Learning Platform
+      →
+Autonomous Operational Intelligence
+      →
+Safe Self-Healing Platform Engineering
 ```
-
-Current implementation focuses on building deterministic, enterprise-safe foundations for that evolution.
 
 ---
 
-## What Has Been Built
+# Current Platform Capabilities
 
-### Incident Context Intelligence
+## Kubernetes Incident Collection
 
-Collects structured Kubernetes operational context:
+Collects live incident context from Kubernetes workloads.
 
-- Kubernetes pod discovery
-- unhealthy workload detection
-- container lifecycle inspection
-- restart intelligence
-- termination reason extraction
-- pod condition analysis
-- resource requests and limits inspection
-- Kubernetes event correlation
-- container log collection
-- structured incident context normalization
-- namespace-aware diagnostics
+Signals include:
 
-Supported incident patterns:
+- pod lifecycle state
+- container runtime state
+- restart counts
+- container termination reasons
+- resource requests / limits
+- pod events
+- container logs
+- node metadata
 
-- ImagePullBackOff
-- ErrImagePull
-- CrashLoopBackOff
-- OOMKilled
-- FailedScheduling
-- CreateContainerError
-- CreateContainerConfigError
-- restart storms
-- startup failures
+---
 
-### Observability Intelligence
+## Prometheus Observability Enrichment
 
-Prometheus-backed telemetry enrichment:
+Correlates runtime incidents with telemetry:
 
-- pod memory usage
+- memory usage
 - CPU usage
 - restart metrics
-- observability enrichment for incidents
-- operational signal correlation
 
-Production improvements completed:
+Architecture:
 
-- environment-driven Prometheus configuration
-- timeout-based query safety
-- resilient error handling
-- production-safe Prometheus client structure
-- parallel telemetry collection with fault tolerance
+```text
+Incident Context
+      +
+Prometheus Metrics
+      =
+Enriched Operational Incident
+```
 
-### Incident Classification Engine
+---
 
-Deterministic incident classification.
+## AI Incident Classification
 
-Implemented:
+AI-assisted incident classification:
 
-- incident pattern classification
-- severity assignment
-- confidence scoring
-- ownership routing
+Examples:
 
-Example outputs:
+- ImagePullFailure
+- ApplicationCrashLoop
+- MemoryExhaustion
+- ConfigurationFailure
+- ProbeFailure
+- ResourcePressure
+
+Outputs:
 
 - incident type
 - severity
 - confidence
-- Platform Engineering ownership
-- Application Team ownership
+- ownership recommendation
 
-### AI Root Cause Analysis Engine
+---
 
-AI-assisted RCA generation using contextual operational intelligence.
+## AI Root Cause Analysis
 
-Correlates:
+Memory-aware RCA generation using:
 
-- Kubernetes runtime signals
-- observability telemetry
-- restart patterns
-- workload behavior
-- operational failure context
-- ownership recommendations
+- runtime diagnostics
+- Kubernetes context
+- observability metrics
+- hybrid historical operational memory
+
+Outputs:
+
+- incident summary
+- historical similarity analysis
+- root cause analysis
+- signal correlation
+- severity assessment
+- ownership recommendation
 - preventive recommendations
 
-Execution:
+---
 
-```bash
-python -m app.agents.sre.rca_agent
-```
+## AI Remediation Guidance
 
-### Safe AI Remediation Engine
+Safe AI-assisted remediation recommendations.
 
-AI-generated remediation guidance focused on operational safety.
+Includes:
 
-Implemented:
-
-- incident-specific remediation generation
+- immediate low-risk actions
 - Kubernetes validation commands
-- safe operational actions
-- escalation recommendations
-- preventive guidance
+- escalation guidance
+- preventive recommendations
+- operational risk awareness
 
-Design principle:
+Safety principles:
 
-```text
-recommend, never destructively execute
-```
+- validation-first remediation
+- non-destructive by default
+- escalation-aware recommendations
+- human-controlled execution
 
-Execution:
+---
 
-```bash
-python -m app.agents.sre.remediation_agent
-```
+## Structured Operational Memory
 
-### Workflow Orchestration
-
-End-to-end autonomous incident workflow:
+Incident persistence layer:
 
 ```text
-Incident Detection
-        |
-        v
-Context Collection
-        |
-        v
-Observability Correlation
-        |
-        v
-Incident Classification
-        |
-        v
-AI Root Cause Analysis
-        |
-        v
-AI Remediation Generation
-        |
-        v
-Incident Persistence
+app/memory/incident_history/
 ```
 
-Execution:
+Stores normalized operational incidents for:
 
-```bash
-python -m app.orchestration.incident_workflow
-```
+- auditability
+- deterministic retrieval
+- historical learning
+- operational context enrichment
 
-### Typed Platform Contracts
+---
 
-Schema-driven internal architecture using Pydantic.
+## Semantic Operational Memory
 
-Benefits:
+AI semantic memory for operational similarity search.
 
-- deterministic module contracts
-- safer refactoring
-- validation boundaries
-- API readiness
-- workflow consistency
-- persistence stability
-
-### AI Provider Abstraction
-
-Centralized LLM architecture:
+Architecture:
 
 ```text
-Agents
-  |
-  v
-LLM Client
-  |
-  v
-Provider Contract
-  |
-  v
-Provider Implementation
+Structured Incident Memory
+        ↓
+Embedding Generation
+        ↓
+Vector Indexing
+        ↓
+Semantic Retrieval
 ```
 
-Current provider:
+Supports similarity-based recall for operational reasoning.
 
-- Ollama
+---
 
-Architecture ready for:
+## Hybrid Retrieval Engine
+
+Combines:
+
+```text
+Exact Retrieval
+        +
+Semantic Retrieval
+        =
+Hybrid Operational Memory
+```
+
+Purpose:
+
+- exact historical incident lookup
+- fuzzy semantic similarity detection
+- contextual AI operational reasoning
+
+---
+
+## Provider Abstraction Architecture
+
+Platform avoids direct infrastructure coupling.
+
+Implemented abstractions:
+
+### LLM Provider Abstraction
+
+```text
+LLMClient
+    ↓
+LLMProvider
+    ↓
+OllamaProvider
+```
+
+Future:
 
 - OpenAI
 - Claude
 - Gemini
-- vLLM
-- enterprise AI gateways
+- enterprise LLMs
 
-### Operational Memory Foundation
+---
 
-Incident workflow persistence foundation:
-
-- workflow result persistence
-- incident JSON storage
-- historical workflow archiving
-- operational auditability
-- operational memory foundation for future retrieval intelligence
-
-Example output:
+### Embedding Provider Abstraction
 
 ```text
-app/memory/incident_history/incidents/incident_YYYYMMDD_HHMMSS.json
+EmbeddingClient
+    ↓
+EmbeddingProvider
+    ↓
+OllamaEmbeddingProvider
+```
+
+Future:
+
+- OpenAI embeddings
+- VoyageAI
+- BGE
+- enterprise embedding providers
+
+---
+
+### Vector Store Abstraction
+
+```text
+SemanticMemoryClient
+        ↓
+VectorStoreProvider
+        ↓
+ChromaVectorStoreProvider
+```
+
+Future:
+
+- PostgreSQL + pgvector
+- Qdrant
+- Weaviate
+- enterprise vector platforms
+
+---
+
+# High-Level Architecture
+
+```text
+                   ┌────────────────────────────┐
+                   │ Kubernetes Cluster         │
+                   │ Problematic Workloads      │
+                   └────────────┬───────────────┘
+                                │
+                                ▼
+                   ┌────────────────────────────┐
+                   │ Incident Context Collector │
+                   └────────────┬───────────────┘
+                                │
+               ┌────────────────┴────────────────┐
+               │                                 │
+               ▼                                 ▼
+   ┌──────────────────────┐         ┌────────────────────────┐
+   │ Kubernetes Runtime   │         │ Prometheus Metrics     │
+   │ Diagnostics          │         │ Observability Signals  │
+   └────────────┬─────────┘         └────────────┬───────────┘
+                │                                │
+                └────────────────┬───────────────┘
+                                 ▼
+                  ┌─────────────────────────────┐
+                  │ Enriched Incident Context   │
+                  └────────────┬────────────────┘
+                               │
+                               ▼
+                  ┌─────────────────────────────┐
+                  │ AI Incident Classification  │
+                  └────────────┬────────────────┘
+                               │
+                               ▼
+                  ┌─────────────────────────────┐
+                  │ Hybrid Memory Retrieval     │
+                  │ Exact + Semantic            │
+                  └────────────┬────────────────┘
+                               │
+                 ┌─────────────┴──────────────┐
+                 │                            │
+                 ▼                            ▼
+      ┌────────────────────┐      ┌─────────────────────────┐
+      │ Structured Memory  │      │ Semantic Vector Memory  │
+      └────────────────────┘      └─────────────────────────┘
+                 │                            │
+                 └─────────────┬──────────────┘
+                               ▼
+                  ┌─────────────────────────────┐
+                  │ Memory-Aware RCA            │
+                  └────────────┬────────────────┘
+                               │
+                               ▼
+                  ┌─────────────────────────────┐
+                  │ Memory-Aware Remediation    │
+                  └────────────┬────────────────┘
+                               │
+                               ▼
+                  ┌─────────────────────────────┐
+                  │ Structured Persistence      │
+                  │ + Semantic Indexing         │
+                  └─────────────────────────────┘
 ```
 
 ---
 
-## Current Platform Architecture
-
-### High-Level Architecture
-
-```text
-Kubernetes Cluster
-        |
-        v
-Signal Collection Layer
-        |
-        v
-Incident Context Engine
-        |
-        v
-Prometheus Observability Correlation
-        |
-        v
-Incident Classification Engine
-        |
-        v
-AI RCA Agent
-        |
-        v
-AI Remediation Agent
-        |
-        v
-Workflow Orchestrator
-        |
-        v
-Operational Memory Store
-```
-
-### AI Architecture
-
-```text
-RCA Agent
-Remediation Agent
-        |
-        v
-      LLMClient
-        |
-        v
-   LLMProvider Contract
-        |
-        v
-   OllamaProvider
-        |
-        v
-      Ollama
-```
-
-### Contract Architecture
-
-```text
-IncidentContext
-        |
-        v
-IncidentClassification
-        |
-        v
-RCAResponse
-        |
-        v
-RemediationResponse
-        |
-        v
-WorkflowExecutionResponse
-```
-
----
-
-## Repository Structure
+# Repository Structure
 
 ```text
 autonomous-ops-platform/
-|
-|-- app/
-|   |-- agents/
-|   |   `-- sre/
-|   |       |-- incident_classifier.py
-|   |       |-- rca_agent.py
-|   |       `-- remediation_agent.py
-|   |
-|   |-- config/
-|   |   |-- logging_config.py
-|   |   `-- settings.py
-|   |
-|   |-- llm/
-|   |   |-- client.py
-|   |   |-- response_validator.py
-|   |   `-- providers/
-|   |       |-- base.py
-|   |       `-- ollama_provider.py
-|   |
-|   |-- memory/
-|   |   `-- incident_history/
-|   |       `-- store_incident.py
-|   |
-|   |-- orchestration/
-|   |   `-- incident_workflow.py
-|   |
-|   |-- schemas/
-|   |   |-- ai.py
-|   |   |-- classification.py
-|   |   |-- incident.py
-|   |   |-- metrics.py
-|   |   `-- workflow.py
-|   |
-|   `-- tools/
-|       |-- kubernetes/
-|       `-- prometheus/
-|
-|-- docs/
-|   `-- architecture/
-|       `-- adr/
-|
-|-- kubernetes/
-|-- memory/
-|-- screenshots/
-|-- README.md
-`-- requirements.txt
+│
+├── app/
+│   ├── agents/
+│   │   └── sre/
+│   │       ├── incident_classifier.py
+│   │       ├── rca_agent.py
+│   │       └── remediation_agent.py
+│   │
+│   ├── config/
+│   │   ├── logging_config.py
+│   │   └── settings.py
+│   │
+│   ├── llm/
+│   │   ├── client.py
+│   │   ├── response_validator.py
+│   │   ├── providers/
+│   │   │   ├── base.py
+│   │   │   └── ollama_provider.py
+│   │   │
+│   │   └── embeddings/
+│   │       ├── client.py
+│   │       └── providers/
+│   │           ├── base.py
+│   │           └── ollama_embedding_provider.py
+│   │
+│   ├── memory/
+│   │   ├── fingerprints/
+│   │   ├── incident_history/
+│   │   ├── retrieval/
+│   │   │   ├── search.py
+│   │   │   ├── semantic_search.py
+│   │   │   └── hybrid_search.py
+│   │   │
+│   │   └── vectorstore/
+│   │       ├── client.py
+│   │       └── providers/
+│   │           ├── base.py
+│   │           └── chroma_provider.py
+│   │
+│   ├── orchestration/
+│   │   └── incident_workflow.py
+│   │
+│   ├── schemas/
+│   │   ├── ai.py
+│   │   ├── classification.py
+│   │   ├── incident.py
+│   │   ├── memory.py
+│   │   └── workflow.py
+│   │
+│   └── tools/
+│       ├── kubernetes/
+│       └── prometheus/
+│
+├── docs/
+│   └── architecture/
+│       └── adr/
+│
+├── infra/
+├── scripts/
+├── tests/
+└── README.md
 ```
 
 ---
 
-## Technology Stack
+# Technology Stack
 
-Current stack:
+Core Platform:
 
-- Python 3.11+
-- Kubernetes Python SDK
+- Python 3.14+
+- Pydantic
+- FastAPI (planned service layer)
+
+Cloud Native:
+
+- Kubernetes
 - Prometheus
+
+AI Runtime:
+
 - Ollama
-- Qwen 2.5 Coder
-- Docker Desktop Kubernetes
-- VS Code
-- GitHub
+- qwen2.5-coder
+- local AI inference
 
-Target ecosystem:
+Semantic Memory:
 
-- Grafana
-- Datadog
-- Splunk
-- OpenTelemetry
-- AWS
-- Azure
+- ChromaDB
+- nomic-embed-text embeddings
+
+Future Targets:
+
+- PostgreSQL + pgvector
+- Qdrant
+- enterprise vector stores
+
+DevOps / Platform:
+
+- Docker
 - Terraform
 - Jenkins
-- GitHub Actions
-- Slack
-- Jira
-- Confluence
-- OpenAI
-- Claude
-- LangGraph
-- MCP ecosystem
+- AWS / Azure
 
 ---
 
-## Capability Matrix
+# Architecture Principles
 
-| Capability | Status |
-| --- | --- |
-| Kubernetes incident collection | Implemented |
-| Incident context engine | Implemented |
-| Event correlation | Implemented |
-| Log correlation | Implemented |
-| Prometheus correlation | Implemented |
-| Incident classification | Implemented |
-| AI RCA generation | Implemented |
-| AI remediation generation | Implemented |
-| Incident workflow orchestration | Implemented |
-| Typed platform contracts | Implemented |
-| LLM provider abstraction | Implemented |
-| Incident persistence | Implemented |
-| Historical memory foundation | Implemented |
-| Multi-agent coordination | Planned |
-| Enterprise knowledge retrieval | Planned |
-| API control plane | Planned |
-| Approval-gated automation | Planned |
-| Autonomous remediation | Planned |
+## Provider Abstraction
+
+Infrastructure implementations must remain replaceable.
+
+Avoid:
+
+```text
+agent → vendor SDK
+```
+
+Prefer:
+
+```text
+agent → abstraction → provider implementation
+```
 
 ---
 
-## Architecture Decision Records
+## Typed Contracts
 
-Documented architectural decisions:
+Operational contracts are strongly typed.
+
+Examples:
+
+- IncidentContext
+- IncidentClassification
+- RCAResponse
+- RemediationResponse
+- IncidentMemory
+- WorkflowExecutionResponse
+
+---
+
+## Memory-First Operational Intelligence
+
+Operational reasoning should use organizational history.
+
+Not:
+
+```text
+incident → AI reasoning only
+```
+
+But:
+
+```text
+incident
+  +
+historical memory
+  +
+semantic similarity
+  +
+AI reasoning
+```
+
+---
+
+## Safety by Design
+
+Autonomous remediation must remain controlled.
+
+Principles:
+
+- safe defaults
+- validation-first execution
+- escalation-aware workflows
+- destructive actions gated
+
+---
+
+## Future Infrastructure Portability
+
+Avoid permanent coupling to:
+
+- specific LLM vendors
+- vector stores
+- embedding providers
+
+---
+
+# ADR Architecture Decisions
+
+Current architectural decisions:
+
+- ADR-006 — Typed Contract Architecture
+- ADR-007 — LLM Provider Abstraction Architecture
+- ADR-008 — Operational Memory Architecture
+- ADR-009 — Semantic Operational Memory Architecture
+
+Path:
 
 ```text
 docs/architecture/adr/
 ```
 
-Implemented ADRs:
+---
 
-- ADR-001 Centralized Runtime Settings
-- ADR-002 Prometheus Incident Enrichment
-- ADR-003 Structured Logging Standardization
-- ADR-004 AI Agent Resilience Hardening
-- ADR-005 Incident Workflow Orchestration
-- ADR-006 Typed Platform Contracts
-- ADR-007 LLM Provider Abstraction
+# Local Setup
+
+## Prerequisites
+
+Install:
+
+- Python 3.14+
+- Kubernetes cluster
+- kubectl configured
+- Prometheus endpoint
+- Ollama
+- ChromaDB dependencies
 
 ---
 
-## Setup
-
-### Prerequisites
-
-Required:
-
-- Python 3.11+
-- Kubernetes cluster access
-- `kubectl` configured
-- Prometheus
-- Ollama
-
-Optional future:
-
-- OpenAI, Claude, or Gemini integration
-
-### Environment Setup
-
-Clone:
+## Install Dependencies
 
 ```bash
-git clone https://github.com/hemanthkumar-n/autonomous-ops-platform.git
-cd autonomous-ops-platform
-```
-
-Create environment:
-
-```bash
-python3 -m venv venv
+python -m venv venv
 source venv/bin/activate
-```
 
-Install dependencies:
-
-```bash
 pip install -r requirements.txt
 ```
 
-### Configuration
+---
 
-Create a `.env` file:
+## Install Ollama Model
+
+Example:
+
+```bash
+ollama pull qwen2.5-coder:latest
+ollama pull nomic-embed-text
+```
+
+---
+
+## Environment Configuration
+
+Example:
 
 ```env
 ENVIRONMENT=development
+
 WORKFLOW_VERSION=v1
+
 PROMETHEUS_URL=http://localhost:9090
 PROMETHEUS_TIMEOUT=10
-PROMETHEUS_RETRIES=3
-MAX_LOG_LINES=50
-ENABLE_POD_LOG_COLLECTION=true
-ENABLE_EVENT_COLLECTION=true
+
 OLLAMA_BASE_URL=http://localhost:11434
-MODEL_NAME=qwen2.5-coder:latest
-AI_REQUEST_TIMEOUT=120
-PERSIST_INCIDENTS=true
+
+LLM_MODEL_NAME=qwen2.5-coder:latest
+EMBEDDING_MODEL_NAME=nomic-embed-text
+
+INCIDENT_HISTORY_DIR=app/memory/incident_history/incidents
+
 SAFE_MODE=true
 ENABLE_DESTRUCTIVE_REMEDIATION=false
 ```
 
 ---
 
-## Example Commands
+# Run Platform
 
-Collect incident context:
-
-```bash
-python -m app.tools.kubernetes.incident_context
-```
-
-Run classification:
-
-```bash
-python -m app.agents.sre.incident_classifier
-```
-
-Run RCA:
-
-```bash
-python -m app.agents.sre.rca_agent
-```
-
-Run remediation:
-
-```bash
-python -m app.agents.sre.remediation_agent
-```
-
-Run orchestrated workflow:
+Full incident workflow:
 
 ```bash
 python -m app.orchestration.incident_workflow
 ```
 
-Quick validation before commit:
+RCA only:
 
 ```bash
-python -m app.agents.sre.incident_classifier
 python -m app.agents.sre.rca_agent
+```
+
+Remediation only:
+
+```bash
 python -m app.agents.sre.remediation_agent
-python -m app.orchestration.incident_workflow
+```
+
+Semantic search test:
+
+```bash
+python -m app.memory.retrieval.semantic_search
+```
+
+Hybrid search test:
+
+```bash
+python -m app.memory.retrieval.hybrid_search
 ```
 
 ---
 
-## Current Maturity
+# Current Maturity
 
-Implemented:
-
-- Phase 1: platform foundation
-- Phase 2: hardening
-- Phase 3.1: typed contracts
-- Phase 3.2: AI provider abstraction
-
-Current status:
-
-**Enterprise engineering foundation established.**
-
----
-
-## Roadmap
-
-### Phase 4: Operational Memory Architecture
-
-- incident memory
-- runbook memory
-- architecture memory
-- vector retrieval
-- knowledge indexing
-
-### Phase 5: API Control Plane
-
-- FastAPI interfaces
-- workflow APIs
-- operational query APIs
-- AI control APIs
-
-### Phase 6: Autonomous Execution Governance
-
-- approval workflows
-- execution safety policies
-- remediation gates
-- audit controls
-
-### Phase 7: Advanced AI Routing
-
-- multi-provider routing
-- provider failover
-- retry orchestration
-- model governance
-- cost controls
-
-### Phase 8: Autonomous Operational Intelligence
+Completed:
 
 ```text
-signals -> context -> intelligence -> reasoning -> safe automation
+Phase 1
+✓ Incident collection
+
+Phase 2
+✓ AI classification
+✓ RCA generation
+✓ remediation generation
+
+Phase 3
+✓ LLM provider abstraction
+
+Phase 4
+✓ operational memory
+✓ embeddings abstraction
+✓ vector store abstraction
+✓ semantic indexing
+✓ hybrid retrieval
+✓ memory-aware RCA
+✓ memory-aware remediation
 ```
 
-Target capabilities:
+---
 
-- approval-gated remediation
-- restart automation
-- scaling workflows
-- rollback intelligence
-- alert triage
-- autonomous operational decision support
+# Roadmap
+
+## Phase 5 — Operational Intelligence Evolution
+
+Planned:
+
+- incident pattern intelligence
+- recurrence tracking
+- incident fingerprint clustering
+- pattern-aware semantic memory
+- operational trend awareness
 
 ---
 
-## Engineering Philosophy
+## Phase 6 — Agentic Orchestration
 
-Design principles:
+Planned:
 
-- enterprise-first architecture
-- schema-first contracts
-- modular engineering
-- production-oriented evolution
-- provider independence
-- observability-aware reasoning
-- safe automation boundaries
-- context-first AI design
-- operational reliability focus
-- future autonomous execution governance
+- planner agents
+- execution agents
+- approval workflows
+- guarded remediation automation
 
 ---
 
-## Contribution Philosophy
+## Phase 7 — Shared Organizational Intelligence
 
+Planned:
+
+- shared operational knowledge
+- multi-agent memory
+- runbook intelligence
+- institutional operational learning
+
+---
+
+## Phase 8 — Enterprise Platform Evolution
+
+Planned:
+
+- FastAPI service layer
+- authentication
+- RBAC
+- audit workflows
+- approval systems
+- multi-tenant architecture
+
+---
+
+# Long-Term Vision
+
+Target capability:
+
+```text
+Observe
+→ Understand
+→ Remember
+→ Reason
+→ Recommend
+→ Validate
+→ Act (safely)
+→ Learn
+```
+
+Autonomous Ops Platform is being engineered as an enterprise-grade foundation for autonomous operational intelligence.
+
+---
+
+# Status
+
+Active engineering architecture evolution.
+
+Current maturity:
+
+```text
+Semantic operational intelligence foundation complete.
+```
+
+Next milestone:
+
+```text
+Incident Pattern Intelligence
+```
+
+⸻
+
+Contribution Philosophy
 This project is being engineered as a serious platform architecture initiative.
-
 Contributions should align with:
+	•	clean architecture
+	•	deterministic contracts
+	•	observability
+	•	modularity
+	•	enterprise operational safety
 
-- clean architecture
-- deterministic contracts
-- observability
-- modularity
-- enterprise operational safety
+⸻
 
----
-
-## Disclaimer
-
+Disclaimer
 Current implementation provides AI-assisted operational intelligence and safe remediation recommendations.
-
 It does not autonomously execute destructive production actions.
-
 Execution automation will be introduced only through explicit governance and approval controls.
 
----
+⸻
 
-## About the Builder
-
-**Hemanth Kumar**
+Author
+Built by:
+Hemanth Kumar
 
 Principal SRE | Platform Engineering | DevOps | Kubernetes | AWS | Azure | Terraform | CI/CD | Observability | Incident Response
 
 14+ years of infrastructure engineering, reliability engineering, DevOps automation, and enterprise operations leadership.
-
 This platform serves as a flagship engineering initiative demonstrating enterprise AI operations architecture and autonomous platform engineering vision.
 
 LinkedIn:
-
-<https://www.linkedin.com/in/hemanthkumarn/>
+https://www.linkedin.com/in/hemanthkumarn/
 
 GitHub:
+https://github.com/hemanthkumar-n
 
-<https://github.com/hemanthkumar-n>
+⸻
 
----
-
-## Strategic Direction
-
+Strategic Direction
 Autonomous Ops Platform is not intended to remain a Kubernetes troubleshooting tool.
-
 It is being architected as a long-term enterprise AI operations platform for autonomous reliability engineering.
+
