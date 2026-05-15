@@ -7,10 +7,12 @@ from pathlib import Path
 
 from app.config.logging_config import get_logger
 from app.config.settings import settings
-from app.memory.fingerprints.signature import build_incident_fingerprint
-from app.schemas.ai import RCAResponse, RemediationResponse
-from app.schemas.classification import IncidentClassification
-from app.schemas.incident import IncidentContext
+from app.memory.fingerprints.signature import (
+    build_incident_fingerprint,
+)
+from app.memory.vectorstore.client import (
+    SemanticMemoryClient,
+)
 from app.schemas.memory import IncidentMemory
 from app.schemas.workflow import WorkflowExecutionResponse
 
@@ -22,7 +24,9 @@ def _ensure_storage_directory() -> Path:
     Ensure incident memory directory exists.
     """
 
-    storage_dir = Path(settings.INCIDENT_HISTORY_DIR)
+    storage_dir = Path(
+        settings.INCIDENT_HISTORY_DIR
+    )
 
     storage_dir.mkdir(
         parents=True,
@@ -33,10 +37,10 @@ def _ensure_storage_directory() -> Path:
 
 
 def _build_incident_memory(
-    incident: IncidentContext,
-    classification: IncidentClassification,
-    rca: RCAResponse,
-    remediation: RemediationResponse,
+    incident,
+    classification,
+    rca,
+    remediation,
 ) -> IncidentMemory:
     """
     Convert workflow objects into normalized incident memory.
@@ -66,24 +70,28 @@ def _build_incident_memory(
 
 def _generate_filename() -> str:
     """
-    Generate normalized incident memory filename.
+    Generate normalized storage filename.
     """
 
     timestamp = datetime.utcnow().strftime(
         "%Y%m%d_%H%M%S"
     )
 
-    return f"incident_memory_{timestamp}.json"
+    return (
+        f"incident_memory_{timestamp}.json"
+    )
 
 
 def store_incident(
     workflow: WorkflowExecutionResponse,
 ) -> str:
     """
-    Persist structured incident memory.
+    Persist structured incident memory and semantic memory.
     """
 
     storage_dir = _ensure_storage_directory()
+
+    semantic_client = SemanticMemoryClient()
 
     incident_memories = []
 
@@ -94,14 +102,27 @@ def store_incident(
         workflow.remediation_results,
         strict=False,
     ):
-        incident_memories.append(
-            _build_incident_memory(
-                incident=incident,
-                classification=classification,
-                rca=rca,
-                remediation=remediation,
-            )
+        memory = _build_incident_memory(
+            incident=incident,
+            classification=classification,
+            rca=rca,
+            remediation=remediation,
         )
+
+        incident_memories.append(
+            memory
+        )
+
+        try:
+            semantic_client.index_incident(
+                memory
+            )
+
+        except Exception:
+            logger.exception(
+                "Semantic indexing failed incident_id=%s",
+                memory.incident_id,
+            )
 
     filepath = storage_dir / _generate_filename()
 
@@ -110,7 +131,12 @@ def store_incident(
         encoding="utf-8",
     ) as file:
         json.dump(
-            [memory.model_dump(mode="json") for memory in incident_memories],
+            [
+                memory.model_dump(
+                    mode="json"
+                )
+                for memory in incident_memories
+            ],
             file,
             indent=2,
         )
