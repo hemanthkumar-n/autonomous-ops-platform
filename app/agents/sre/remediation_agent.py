@@ -3,14 +3,19 @@ from __future__ import annotations
 import json
 
 from app.agents.sre.incident_classifier import classify_incident
+from app.agents.sre.rca_agent import generate_rca
 from app.config.logging_config import get_logger
 from app.llm.client import LLMClient
-from app.memory.retrieval.search import search_incident_memory
+from app.memory.retrieval.hybrid_search import (
+    hybrid_incident_search,
+)
 from app.schemas.ai import RemediationResponse
 from app.schemas.classification import IncidentClassification
 from app.schemas.incident import IncidentContext
 from app.schemas.memory import MemoryQuery
-from app.tools.kubernetes.incident_context import collect_incident_context
+from app.tools.kubernetes.incident_context import (
+    collect_incident_context,
+)
 
 logger = get_logger(__name__)
 
@@ -18,124 +23,117 @@ logger = get_logger(__name__)
 def build_historical_context(
     classification: IncidentClassification,
     incident: IncidentContext,
-) -> str:
+) -> tuple[str, bool]:
     """
-    Retrieve similar historical incidents for remediation enrichment.
+    Retrieve hybrid operational memory context.
     """
+
+    failure_reason = None
+
+    if incident.container_states:
+        first_container = incident.container_states[0]
+
+        if (
+            first_container.last_termination
+            and hasattr(
+                first_container.last_termination,
+                "reason",
+            )
+        ):
+            failure_reason = (
+                first_container.last_termination.reason
+            )
 
     query = MemoryQuery(
         incident_type=classification.incident_type,
         namespace=incident.namespace,
+        workload_name=incident.pod_name,
+        failure_reason=failure_reason,
+        severity=classification.severity,
         limit=3,
     )
 
-    try:
-        results = search_incident_memory(query)
-
-    except Exception:
-        logger.exception(
-            "Historical remediation memory retrieval failed"
-        )
-        return "Historical memory unavailable."
-
-    if not results.matches:
-        return "No similar historical incidents found."
-
-    history = []
-
-    for memory in results.matches:
-        history.append(
-            {
-                "incident_type": memory.incident_type,
-                "severity": memory.severity,
-                "failure_reason": memory.fingerprint.failure_reason,
-                "remediation_summary": memory.remediation_summary,
-                "rca_summary": memory.rca_summary,
-            }
-        )
-
-    logger.info(
-        "Historical remediation context retrieved matches=%s",
-        len(results.matches),
+    results = hybrid_incident_search(
+        query
     )
 
-    return json.dumps(
-        history,
-        indent=2,
+    has_history = (
+        results["exact_match_count"] > 0
+        or results["semantic_match_count"] > 0
+    )
+
+    if not has_history:
+        return (
+            "No relevant historical incidents found.",
+            False,
+        )
+
+    return (
+        json.dumps(
+            results,
+            indent=2,
+        ),
+        True,
     )
 
 
 def build_remediation_prompt(
     incident: IncidentContext,
     classification: IncidentClassification,
+    rca: str,
 ) -> str:
     """
-    Build remediation planning prompt.
+    Build remediation prompt.
     """
 
-    historical_context = build_historical_context(
-        classification=classification,
-        incident=incident,
+    historical_context, has_history = (
+        build_historical_context(
+            classification=classification,
+            incident=incident,
+        )
     )
 
+    historical_guidance = ""
+
+    if has_history:
+        historical_guidance = """
+Historical reasoning responsibilities:
+- Compare remediation options with similar historical incidents
+- Prefer historically successful low-risk actions
+- Highlight repeated operational failure patterns
+"""
+    else:
+        historical_guidance = """
+Historical reasoning responsibilities:
+- No historical incidents available
+- Base remediation only on current incident evidence
+"""
+
     return f"""
-You are a senior Site Reliability Engineer responsible for SAFE incident remediation.
+You are a senior Site Reliability Engineer specializing in Kubernetes remediation guidance.
 
-Analyze ONE incident only.
+Generate SAFE operational remediation guidance.
 
-Use current operational signals plus relevant historical incident memory.
+Inputs:
+- incident runtime context
+- classification
+- root cause analysis
+- historical operational memory
 
-Available signals:
-- Kubernetes pod lifecycle state
-- container runtime state
-- restart counts
-- last termination reasons
-- resource requests and limits
-- Kubernetes events
-- container logs
-- Prometheus metrics
-    - memory usage
-    - CPU usage
-    - restart telemetry
-- historical incident memory
-    - prior remediation outcomes
-    - prior RCA patterns
-    - prior failure signatures
+Core responsibilities:
 
-Your responsibilities:
+1. Recommend immediate low-risk actions
+2. Suggest Kubernetes validation commands
+3. Recommend escalation path
+4. Suggest preventive improvements
 
-1. Recommend SAFE remediation steps
-2. Avoid destructive actions
-3. Recommend Kubernetes validation commands
-4. Compare with prior incident remediation patterns
-5. Suggest rollback or escalation where appropriate
-6. Correlate remediation with incident type
+{historical_guidance}
 
-Incident handling guidance:
-
-ImagePullFailure:
-- validate image tag
-- validate registry access
-- validate deployment spec
-- validate imagePullSecrets
-
-MemoryExhaustion:
-- validate memory pressure
-- compare limits vs workload demand
-- inspect restart storms
-- inspect capacity constraints
-- recommend resource tuning
-
-CrashLoopBackOff:
-- inspect startup logs
-- inspect probes
-- inspect dependency failures
-- inspect config changes
-
-FailedScheduling:
-- inspect node capacity
-- inspect taints / tolerations
-- inspect quota constraints
+Safety rules:
+- Never recommend destructive actions automatically
+- Prefer validation-first remediation
+- Recommend escalation when confidence is limited
+- Preserve operational safety
 
 Output format:
 
@@ -150,21 +148,25 @@ Output format:
 Incident Classification:
 {classification.model_dump_json(indent=2)}
 
-Historical Incident Memory:
-{historical_context}
-
 Incident Context:
 {incident.model_dump_json(indent=2)}
+
+Root Cause Analysis:
+{rca}
+
+Historical Operational Memory:
+{historical_context}
 """
 
 
 def generate_remediation(
     incident: IncidentContext,
     classification: IncidentClassification,
+    rca: str,
     llm_client: LLMClient | None = None,
 ) -> RemediationResponse:
     """
-    Generate AI-assisted remediation guidance.
+    Generate memory-aware remediation guidance.
     """
 
     llm = llm_client or LLMClient()
@@ -172,20 +174,18 @@ def generate_remediation(
     prompt = build_remediation_prompt(
         incident=incident,
         classification=classification,
+        rca=rca,
     )
 
     try:
         logger.info(
-            "Generating remediation for pod=%s incident=%s",
+            "Generating remediation pod=%s incident=%s",
             incident.pod_name,
             classification.incident_type,
         )
 
-        response = llm.generate(prompt)
-
-        logger.info(
-            "Remediation generation completed pod=%s",
-            incident.pod_name,
+        response = llm.generate(
+            prompt
         )
 
         return RemediationResponse(
@@ -205,18 +205,32 @@ def generate_remediation(
             incident_type=classification.incident_type,
             remediation=(
                 "AI remediation unavailable. "
-                "Manual SRE intervention required."
+                "Manual intervention required."
             ),
         )
 
 
-def generate_all_remediations(
-    incidents: list[IncidentContext],
-    classifications: list[IncidentClassification],
-) -> list[RemediationResponse]:
+def main() -> None:
     """
-    Generate remediation responses for all incidents.
+    Manual remediation workflow.
     """
+
+    logger.info(
+        "Collecting incident context"
+    )
+
+    incidents = collect_incident_context()
+
+    if not incidents:
+        logger.warning(
+            "No incidents detected"
+        )
+        print("No incidents detected.")
+        return
+
+    classifications = classify_incident(
+        incidents
+    )
 
     results = []
 
@@ -225,51 +239,22 @@ def generate_all_remediations(
         classifications,
         strict=False,
     ):
+        rca = generate_rca(
+            incident=incident,
+            classification=classification,
+        )
+
         results.append(
             generate_remediation(
                 incident=incident,
                 classification=classification,
-            )
+                rca=rca.rca,
+            ).model_dump()
         )
-
-    logger.info(
-        "Remediation generation completed count=%s",
-        len(results),
-    )
-
-    return results
-
-
-def main() -> None:
-    """
-    Standalone remediation workflow.
-    """
-
-    logger.info("Collecting incident context")
-
-    incidents = collect_incident_context()
-
-    if not incidents:
-        logger.warning("No incidents detected")
-        print("No incidents detected.")
-        return
-
-    logger.info("Classifying incidents")
-
-    classifications = classify_incident(
-        incidents
-    )
-
-    logger.info("Generating remediation responses")
-
-    results = generate_all_remediations(
-        incidents=incidents,
-        classifications=classifications,
-    )
 
     print(
         json.dumps(
-            [result.model_dump() for result in results],
+            results,
             indent=2,
         )
     )
