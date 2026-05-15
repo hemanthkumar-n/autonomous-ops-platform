@@ -5,12 +5,16 @@ import json
 from app.agents.sre.incident_classifier import classify_incident
 from app.config.logging_config import get_logger
 from app.llm.client import LLMClient
-from app.memory.retrieval.search import search_incident_memory
+from app.memory.retrieval.hybrid_search import (
+    hybrid_incident_search,
+)
 from app.schemas.ai import RCAResponse
 from app.schemas.classification import IncidentClassification
 from app.schemas.incident import IncidentContext
 from app.schemas.memory import MemoryQuery
-from app.tools.kubernetes.incident_context import collect_incident_context
+from app.tools.kubernetes.incident_context import (
+    collect_incident_context,
+)
 
 logger = get_logger(__name__)
 
@@ -18,50 +22,57 @@ logger = get_logger(__name__)
 def build_historical_context(
     classification: IncidentClassification,
     incident: IncidentContext,
-) -> str:
+) -> tuple[str, bool]:
     """
-    Retrieve similar historical incidents for RCA enrichment.
+    Retrieve hybrid operational memory context.
     """
+
+    failure_reason = None
+
+    if incident.container_states:
+        first_container = incident.container_states[0]
+
+        if (
+            first_container.last_termination
+            and hasattr(
+                first_container.last_termination,
+                "reason",
+            )
+        ):
+            failure_reason = (
+                first_container.last_termination.reason
+            )
 
     query = MemoryQuery(
         incident_type=classification.incident_type,
         namespace=incident.namespace,
+        workload_name=incident.pod_name,
+        failure_reason=failure_reason,
+        severity=classification.severity,
         limit=3,
     )
 
-    try:
-        results = search_incident_memory(query)
-
-    except Exception:
-        logger.exception(
-            "Historical memory retrieval failed"
-        )
-        return "Historical memory unavailable."
-
-    if not results.matches:
-        return "No similar historical incidents found."
-
-    history = []
-
-    for memory in results.matches:
-        history.append(
-            {
-                "incident_type": memory.incident_type,
-                "severity": memory.severity,
-                "failure_reason": memory.fingerprint.failure_reason,
-                "rca_summary": memory.rca_summary,
-                "remediation_summary": memory.remediation_summary,
-            }
-        )
-
-    logger.info(
-        "Historical incident context retrieved matches=%s",
-        len(results.matches),
+    results = hybrid_incident_search(
+        query
     )
 
-    return json.dumps(
-        history,
-        indent=2,
+    has_history = (
+        results["exact_match_count"] > 0
+        or results["semantic_match_count"] > 0
+    )
+
+    if not has_history:
+        return (
+            "No relevant historical incidents found.",
+            False,
+        )
+
+    return (
+        json.dumps(
+            results,
+            indent=2,
+        ),
+        True,
     )
 
 
@@ -73,15 +84,32 @@ def build_rca_prompt(
     Build RCA analysis prompt.
     """
 
-    historical_context = build_historical_context(
-        classification=classification,
-        incident=incident,
+    historical_context, has_history = (
+        build_historical_context(
+            classification=classification,
+            incident=incident,
+        )
     )
+
+    historical_guidance = ""
+
+    if has_history:
+        historical_guidance = """
+Historical reasoning responsibilities:
+4. Compare against similar historical incidents
+5. Detect recurrence patterns
+6. Highlight recurring operational risks
+"""
+    else:
+        historical_guidance = """
+Historical reasoning responsibilities:
+4. No historical incidents available. Base analysis only on current runtime evidence.
+"""
 
     return f"""
 You are a senior Site Reliability Engineer specializing in Kubernetes incident response.
 
-Analyze the incident using ALL available operational signals and relevant historical incident memory.
+Analyze the incident using ALL available operational signals.
 
 Signal sources include:
 - Kubernetes pod lifecycle state
@@ -92,26 +120,22 @@ Signal sources include:
 - Kubernetes events
 - container logs
 - Prometheus observability metrics
-    - memory usage
-    - CPU usage
-    - restart telemetry
-- historical incident memory
-    - prior RCA outcomes
-    - prior remediation actions
-    - prior failure patterns
 
-Your responsibilities:
+Primary responsibilities:
 
 1. Identify the most likely root cause
-2. Correlate Kubernetes runtime signals with Prometheus telemetry
-3. Detect restart storms
-4. Detect memory pressure / exhaustion
-5. Detect image pull failures
-6. Detect configuration failures
-7. Compare with historical operational incidents
-8. Assess severity
-9. Recommend ownership team
-10. Suggest preventive engineering actions
+2. Correlate runtime signals with telemetry
+3. Assess severity
+
+{historical_guidance}
+
+Operational responsibilities:
+
+7. Recommend ownership team
+8. Suggest preventive engineering actions
+
+Important telemetry note:
+Prometheus metrics represent point-in-time observations and may not reflect historical peak resource usage before failure.
 
 Output format:
 
@@ -126,13 +150,12 @@ Output format:
 Incident Classification:
 {classification.model_dump_json(indent=2)}
 
-Historical Incident Memory:
-{historical_context}
-
 Incident Context:
 {incident.model_dump_json(indent=2)}
-"""
 
+Historical Operational Memory:
+{historical_context}
+"""
 
 def generate_rca(
     incident: IncidentContext,
@@ -140,7 +163,7 @@ def generate_rca(
     llm_client: LLMClient | None = None,
 ) -> RCAResponse:
     """
-    Generate AI-assisted RCA.
+    Generate memory-aware RCA.
     """
 
     llm = llm_client or LLMClient()
@@ -152,16 +175,13 @@ def generate_rca(
 
     try:
         logger.info(
-            "Generating RCA for pod=%s incident=%s",
+            "Generating RCA pod=%s incident=%s",
             incident.pod_name,
             classification.incident_type,
         )
 
-        response = llm.generate(prompt)
-
-        logger.info(
-            "RCA generation completed pod=%s",
-            incident.pod_name,
+        response = llm.generate(
+            prompt
         )
 
         return RCAResponse(
@@ -179,17 +199,38 @@ def generate_rca(
         return RCAResponse(
             pod_name=incident.pod_name,
             incident_type=classification.incident_type,
-            rca="AI RCA unavailable. Manual investigation required.",
+            rca=(
+                "AI RCA unavailable. "
+                "Manual investigation required."
+            ),
         )
 
 
-def generate_all_rcas(
-    incidents: list[IncidentContext],
-    classifications: list[IncidentClassification],
-) -> list[RCAResponse]:
+def main() -> None:
     """
-    Generate RCA responses for all incidents.
+    RCA execution workflow.
     """
+    
+    logger.info(
+        "Collecting incident context"
+    )
+
+    incidents = collect_incident_context()
+
+    if not incidents:
+        logger.warning(
+            "No incidents detected"
+        )
+        print("No incidents detected.")
+        return
+
+    logger.info(
+        "Classifying incidents"
+    )
+
+    classifications = classify_incident(
+        incidents
+    )
 
     results = []
 
@@ -202,47 +243,12 @@ def generate_all_rcas(
             generate_rca(
                 incident=incident,
                 classification=classification,
-            )
+            ).model_dump()
         )
-
-    logger.info(
-        "RCA generation completed count=%s",
-        len(results),
-    )
-
-    return results
-
-
-def main() -> None:
-    """
-    Standalone RCA workflow.
-    """
-
-    logger.info("Collecting incident context")
-
-    incidents = collect_incident_context()
-
-    if not incidents:
-        logger.warning("No incidents detected")
-        print("No incidents detected.")
-        return
-
-    logger.info("Classifying incidents")
-
-    classifications = classify_incident(
-        incidents
-    )
-
-    logger.info("Generating RCA responses")
-
-    results = generate_all_rcas(
-        incidents=incidents,
-        classifications=classifications,
-    )
 
     print(
         json.dumps(
-            [result.model_dump() for result in results],
+            results,
             indent=2,
         )
     )

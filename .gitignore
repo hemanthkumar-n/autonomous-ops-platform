@@ -5,3 +5,5 @@ __pycache__/
 .vscode/
 *.pyc
 .DS_Storeapp/memory/incident_history/incidents/
+app/memory/vectorstore/chroma_db/
+app/memory/incident_history/incidents/
