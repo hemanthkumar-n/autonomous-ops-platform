@@ -20,7 +20,7 @@ class OllamaProvider(LLMProvider):
 
     def __init__(self) -> None:
         self.base_url = settings.OLLAMA_BASE_URL
-        self.model_name = settings.MODEL_NAME
+        self.model_name = settings.LLM_MODEL_NAME
         self.default_timeout = settings.AI_REQUEST_TIMEOUT
 
     def generate(

@@ -18,7 +18,12 @@ def _get_bool(value: str, default: bool = False) -> bool:
     if value is None:
         return default
 
-    return value.lower() in ("true", "1", "yes", "on")
+    return value.lower() in (
+        "true",
+        "1",
+        "yes",
+        "on",
+    )
 
 
 def _get_int(value: str, default: int) -> int:
@@ -28,8 +33,12 @@ def _get_int(value: str, default: int) -> int:
 
     try:
         return int(value)
+
     except (TypeError, ValueError):
-        logger.warning("Invalid integer config detected, using default=%s", default)
+        logger.warning(
+            "Invalid integer config detected, using default=%s",
+            default,
+        )
         return default
 
 
@@ -41,15 +50,16 @@ def _validate_url(url: str, setting_name: str) -> str:
     parsed = urlparse(url)
 
     if not parsed.scheme or not parsed.netloc:
-        raise ValueError(f"Invalid URL configuration: {setting_name}")
+        raise ValueError(
+            f"Invalid URL configuration: {setting_name}"
+        )
 
     return url.rstrip("/")
 
 
 class Settings:
     """
-    Central runtime configuration for Autonomous Ops Platform.
-    Production-safe environment driven settings.
+    Central runtime configuration.
     """
 
     def __init__(self):
@@ -58,17 +68,17 @@ class Settings:
         # =========================
         self.PLATFORM_NAME = os.getenv(
             "PLATFORM_NAME",
-            "autonomous-ops-platform"
+            "autonomous-ops-platform",
         )
 
         self.ENVIRONMENT = os.getenv(
             "ENVIRONMENT",
-            "development"
+            "development",
         )
 
         self.WORKFLOW_VERSION = os.getenv(
             "WORKFLOW_VERSION",
-            "v1"
+            "v1",
         )
 
         # =========================
@@ -77,24 +87,24 @@ class Settings:
         self.PROMETHEUS_URL = _validate_url(
             os.getenv(
                 "PROMETHEUS_URL",
-                "http://localhost:9090"
+                "http://localhost:9090",
             ),
-            "PROMETHEUS_URL"
+            "PROMETHEUS_URL",
         )
 
         self.PROMETHEUS_TIMEOUT = _get_int(
             os.getenv("PROMETHEUS_TIMEOUT"),
-            10
+            10,
         )
 
         self.PROMETHEUS_RETRIES = _get_int(
             os.getenv("PROMETHEUS_RETRIES"),
-            3
+            3,
         )
 
         self.ENABLE_METRICS_ENRICHMENT = _get_bool(
             os.getenv("ENABLE_METRICS_ENRICHMENT"),
-            True
+            True,
         )
 
         # =========================
@@ -102,17 +112,17 @@ class Settings:
         # =========================
         self.MAX_LOG_LINES = _get_int(
             os.getenv("MAX_LOG_LINES"),
-            50
+            50,
         )
 
         self.ENABLE_POD_LOG_COLLECTION = _get_bool(
             os.getenv("ENABLE_POD_LOG_COLLECTION"),
-            True
+            True,
         )
 
         self.ENABLE_EVENT_COLLECTION = _get_bool(
             os.getenv("ENABLE_EVENT_COLLECTION"),
-            True
+            True,
         )
 
         # =========================
@@ -120,12 +130,12 @@ class Settings:
         # =========================
         self.INCIDENT_HISTORY_DIR = os.getenv(
             "INCIDENT_HISTORY_DIR",
-            "app/memory/incident_history/incidents"
+            "app/memory/incident_history/incidents",
         )
 
         self.PERSIST_INCIDENTS = _get_bool(
             os.getenv("PERSIST_INCIDENTS"),
-            True
+            True,
         )
 
         # =========================
@@ -134,19 +144,24 @@ class Settings:
         self.OLLAMA_BASE_URL = _validate_url(
             os.getenv(
                 "OLLAMA_BASE_URL",
-                "http://localhost:11434"
+                "http://localhost:11434",
             ),
-            "OLLAMA_BASE_URL"
+            "OLLAMA_BASE_URL",
         )
 
-        self.MODEL_NAME = os.getenv(
-            "MODEL_NAME",
-            "qwen2.5-coder:latest"
+        self.LLM_MODEL_NAME = os.getenv(
+            "LLM_MODEL_NAME",
+            "qwen2.5-coder:latest",
+        )
+
+        self.EMBEDDING_MODEL_NAME = os.getenv(
+            "EMBEDDING_MODEL_NAME",
+            "nomic-embed-text",
         )
 
         self.AI_REQUEST_TIMEOUT = _get_int(
             os.getenv("AI_REQUEST_TIMEOUT"),
-            120
+            120,
         )
 
         # =========================
@@ -154,12 +169,12 @@ class Settings:
         # =========================
         self.ENABLE_DESTRUCTIVE_REMEDIATION = _get_bool(
             os.getenv("ENABLE_DESTRUCTIVE_REMEDIATION"),
-            False
+            False,
         )
 
         self.SAFE_MODE = _get_bool(
             os.getenv("SAFE_MODE"),
-            True
+            True,
         )
 
         self.validate()
@@ -170,18 +185,26 @@ class Settings:
         """
 
         if self.PROMETHEUS_TIMEOUT <= 0:
-            raise ValueError("PROMETHEUS_TIMEOUT must be > 0")
+            raise ValueError(
+                "PROMETHEUS_TIMEOUT must be > 0"
+            )
 
         if self.AI_REQUEST_TIMEOUT <= 0:
-            raise ValueError("AI_REQUEST_TIMEOUT must be > 0")
+            raise ValueError(
+                "AI_REQUEST_TIMEOUT must be > 0"
+            )
 
         if self.MAX_LOG_LINES <= 0:
-            raise ValueError("MAX_LOG_LINES must be > 0")
+            raise ValueError(
+                "MAX_LOG_LINES must be > 0"
+            )
 
         logger.info(
-            "Settings initialized environment=%s workflow=%s",
+            "Settings initialized env=%s workflow=%s llm=%s embedding=%s",
             self.ENVIRONMENT,
-            self.WORKFLOW_VERSION
+            self.WORKFLOW_VERSION,
+            self.LLM_MODEL_NAME,
+            self.EMBEDDING_MODEL_NAME,
         )
 
 
