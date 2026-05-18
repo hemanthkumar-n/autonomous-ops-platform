@@ -1,12 +1,28 @@
-def validate_llm_response(response: str) -> str:
+from __future__ import annotations
+
+
+def validate_llm_response(
+    response: str | None,
+) -> str:
     """
-    Validate LLM response.
+    Validate LLM response safely.
     """
 
-    if not response:
-        raise ValueError("LLM returned empty response")
+    if response is None:
+        raise ValueError(
+            "LLM returned empty response"
+        )
 
-    if len(response.strip()) < 50:
-        raise ValueError("LLM response too short")
+    if not isinstance(response, str):
+        raise ValueError(
+            "LLM returned invalid response type"
+        )
 
-    return response
+    cleaned = response.strip()
+
+    if not cleaned:
+        raise ValueError(
+            "LLM returned blank response"
+        )
+
+    return cleaned

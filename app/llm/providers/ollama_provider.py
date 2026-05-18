@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 from app.config.logging_config import get_logger
 from app.config.settings import settings
@@ -13,15 +15,36 @@ logger = get_logger(__name__)
 class OllamaProvider(LLMProvider):
     """
     Ollama LLM provider implementation.
-
-    Encapsulates transport, payload construction,
-    timeout handling, response parsing, and validation.
     """
 
     def __init__(self) -> None:
         self.base_url = settings.OLLAMA_BASE_URL
         self.model_name = settings.LLM_MODEL_NAME
         self.default_timeout = settings.AI_REQUEST_TIMEOUT
+
+        self.session = requests.Session()
+
+        retry_strategy = Retry(
+            total=2,
+            backoff_factor=2,
+            status_forcelist=[
+                429,
+                500,
+                502,
+                503,
+                504,
+            ],
+            allowed_methods=["POST"],
+        )
+
+        adapter = HTTPAdapter(
+            max_retries=retry_strategy,
+            pool_connections=10,
+            pool_maxsize=10,
+        )
+
+        self.session.mount("http://", adapter)
+        self.session.mount("https://", adapter)
 
     def generate(
         self,
@@ -48,7 +71,7 @@ class OllamaProvider(LLMProvider):
                 self.model_name,
             )
 
-            response = requests.post(
+            response = self.session.post(
                 endpoint,
                 json=payload,
                 timeout=effective_timeout,
@@ -69,6 +92,12 @@ class OllamaProvider(LLMProvider):
             )
 
             return validated_response
+
+        except requests.exceptions.Timeout:
+            logger.exception(
+                "Ollama request timeout"
+            )
+            raise
 
         except requests.exceptions.RequestException:
             logger.exception(

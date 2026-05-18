@@ -7,3 +7,6 @@ __pycache__/
 .DS_Storeapp/memory/incident_history/incidents/
 app/memory/vectorstore/chroma_db/
 app/memory/incident_history/incidents/
+chroma.sqlite3
+.DS_Store
+backup_readme/

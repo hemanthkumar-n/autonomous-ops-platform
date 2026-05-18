@@ -130,7 +130,7 @@ class Settings:
         # =========================
         self.INCIDENT_HISTORY_DIR = os.getenv(
             "INCIDENT_HISTORY_DIR",
-            "app/memory/incident_history/incidents",
+            "data/incidents",
         )
 
         self.PERSIST_INCIDENTS = _get_bool(
@@ -161,7 +161,25 @@ class Settings:
 
         self.AI_REQUEST_TIMEOUT = _get_int(
             os.getenv("AI_REQUEST_TIMEOUT"),
-            120,
+            180,
+        )
+
+        # =========================
+        # Vector memory
+        # =========================
+        self.VECTORSTORE_PROVIDER = os.getenv(
+            "VECTORSTORE_PROVIDER",
+            "chroma",
+        )
+
+        self.VECTORSTORE_PATH = os.getenv(
+            "VECTORSTORE_PATH",
+            "data/vectorstore/chroma",
+        )
+
+        self.VECTORSTORE_COLLECTION_NAME = os.getenv(
+            "VECTORSTORE_COLLECTION_NAME",
+            "incident_memory",
         )
 
         # =========================
@@ -199,12 +217,18 @@ class Settings:
                 "MAX_LOG_LINES must be > 0"
             )
 
+        if not self.VECTORSTORE_PROVIDER:
+            raise ValueError(
+                "VECTORSTORE_PROVIDER must be configured"
+            )
+
         logger.info(
-            "Settings initialized env=%s workflow=%s llm=%s embedding=%s",
+            "Settings initialized env=%s workflow=%s llm=%s embedding=%s vectorstore=%s",
             self.ENVIRONMENT,
             self.WORKFLOW_VERSION,
             self.LLM_MODEL_NAME,
             self.EMBEDDING_MODEL_NAME,
+            self.VECTORSTORE_PROVIDER,
         )
 
 

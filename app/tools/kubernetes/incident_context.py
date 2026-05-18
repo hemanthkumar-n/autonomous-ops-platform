@@ -1,3 +1,4 @@
+from concurrent.futures import ThreadPoolExecutor
 from kubernetes import client, config
 
 from app.config.logging_config import get_logger
@@ -16,16 +17,19 @@ config.load_kube_config()
 
 v1 = client.CoreV1Api()
 
-EXCLUDED_NAMESPACES = [
+EXCLUDED_NAMESPACES = {
     "kube-system",
     "kube-public",
     "kube-node-lease",
-]
+}
+
+RESTART_THRESHOLD = 3
+IO_WORKERS = 3
 
 
 def is_problematic_pod(pod) -> bool:
     """
-    Identify unhealthy pods only.
+    Detect unhealthy pods using production-safe heuristics.
     """
 
     if pod.metadata.namespace in EXCLUDED_NAMESPACES:
@@ -35,13 +39,16 @@ def is_problematic_pod(pod) -> bool:
         return False
 
     for container in pod.status.container_statuses:
-        if container.restart_count > 0:
-            return True
-
         if container.state.waiting:
             return True
 
         if container.state.terminated:
+            return True
+
+        if (
+            container.restart_count >= RESTART_THRESHOLD
+            and not container.state.running
+        ):
             return True
 
     return False
@@ -52,7 +59,7 @@ def collect_incident_context(
     pod_name: str | None = None,
 ) -> list[IncidentContext]:
     """
-    Collect structured incident intelligence as typed schema contracts.
+    Collect structured Kubernetes incident intelligence.
     """
 
     logger.info(
@@ -95,17 +102,53 @@ def collect_incident_context(
                     )
                 )
 
-        try:
-            metrics = get_pod_metrics(
-                pod_name=pod_actual_name,
-                namespace=pod_namespace,
-            )
-        except Exception:
-            logger.exception(
-                "Metrics enrichment failed pod=%s",
+        metrics = {}
+        events = []
+        pod_logs = ""
+
+        with ThreadPoolExecutor(max_workers=IO_WORKERS) as executor:
+            metrics_future = executor.submit(
+                get_pod_metrics,
                 pod_actual_name,
+                pod_namespace,
             )
-            metrics = get_pod_metrics("", "")
+
+            events_future = executor.submit(
+                get_pod_events,
+                pod_actual_name,
+                pod_namespace,
+            )
+
+            logs_future = executor.submit(
+                get_pod_logs,
+                pod_actual_name,
+                pod_namespace,
+            )
+
+            try:
+                metrics = metrics_future.result()
+            except Exception:
+                logger.exception(
+                    "Metrics enrichment failed pod=%s",
+                    pod_actual_name,
+                )
+
+            try:
+                events = events_future.result()
+            except Exception:
+                logger.exception(
+                    "Event collection failed pod=%s",
+                    pod_actual_name,
+                )
+
+            try:
+                pod_logs = logs_future.result()
+            except Exception as exc:
+                logger.exception(
+                    "Log collection failed pod=%s",
+                    pod_actual_name,
+                )
+                pod_logs = str(exc)
 
         container_states = []
 
@@ -114,7 +157,6 @@ def collect_incident_context(
             restart_count = container.restart_count
             last_termination = None
             resources = {}
-            logs = ""
 
             if container.state.waiting:
                 state = container.state.waiting.reason
@@ -125,7 +167,7 @@ def collect_incident_context(
             elif container.state.terminated:
                 state = container.state.terminated.reason
 
-            if container.last_state.terminated:
+            if container.last_state and container.last_state.terminated:
                 last_termination = {
                     "reason": container.last_state.terminated.reason,
                     "exit_code": container.last_state.terminated.exit_code,
@@ -138,18 +180,7 @@ def collect_incident_context(
                             "limits": spec_container.resources.limits,
                             "requests": spec_container.resources.requests,
                         }
-
-            try:
-                logs = get_pod_logs(
-                    pod_name=pod_actual_name,
-                    namespace=pod_namespace,
-                )
-            except Exception as exc:
-                logger.exception(
-                    "Log collection failed pod=%s",
-                    pod_actual_name,
-                )
-                logs = str(exc)
+                    break
 
             container_states.append(
                 ContainerState(
@@ -158,21 +189,9 @@ def collect_incident_context(
                     restart_count=restart_count,
                     last_termination=last_termination,
                     resources=resources,
-                    logs=logs,
+                    logs=pod_logs,
                 )
             )
-
-        try:
-            events = get_pod_events(
-                pod_name=pod_actual_name,
-                namespace=pod_namespace,
-            )
-        except Exception:
-            logger.exception(
-                "Event collection failed pod=%s",
-                pod_actual_name,
-            )
-            events = []
 
         incident = IncidentContext(
             pod_name=pod_actual_name,
@@ -204,3 +223,4 @@ if __name__ == "__main__":
 
     for incident in incidents:
         print(incident.model_dump_json(indent=2))
+        

@@ -1,42 +1,57 @@
 from __future__ import annotations
 
-from app.memory.vectorstore.providers.base import (
-    VectorStoreProvider,
-)
-from app.memory.vectorstore.providers.chroma_provider import (
-    ChromaVectorStoreProvider,
-)
-from app.schemas.memory import IncidentMemory
+from app.config.logging_config import get_logger
+from app.config.settings import settings
+from app.memory.vectorstore.providers.chroma_provider import ChromaProvider
+
+logger = get_logger(__name__)
 
 
 class SemanticMemoryClient:
     """
-    Central semantic memory abstraction.
+    Vector store abstraction layer.
+
+    Routes semantic memory operations through configured provider.
     """
 
-    def __init__(
-        self,
-        provider: VectorStoreProvider | None = None,
-    ) -> None:
-        self.provider = (
-            provider
-            or ChromaVectorStoreProvider()
+    def __init__(self) -> None:
+        provider = settings.VECTORSTORE_PROVIDER.lower()
+
+        if provider == "chroma":
+            self.provider = ChromaProvider()
+        else:
+            raise ValueError(
+                f"Unsupported vectorstore provider: {provider}"
+            )
+
+        logger.info(
+            "Semantic memory client initialized provider=%s",
+            provider,
         )
 
-    def index_incident(
+    def upsert(
         self,
-        memory: IncidentMemory,
+        incident_id: str,
+        document: str,
+        embedding: list[float],
+        metadata: dict,
     ) -> None:
-        self.provider.index_incident(
-            memory
+        self.provider.upsert(
+            incident_id=incident_id,
+            document=document,
+            embedding=embedding,
+            metadata=metadata,
         )
 
-    def search_similar(
+    def similarity_search(
         self,
-        query_text: str,
-        limit: int = 3,
+        embedding: list[float],
+        limit: int = 5,
     ) -> dict:
-        return self.provider.search_similar(
-            query_text=query_text,
+        return self.provider.similarity_search(
+            embedding=embedding,
             limit=limit,
         )
+
+    def delete_all(self) -> None:
+        self.provider.delete_all()

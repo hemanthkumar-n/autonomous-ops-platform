@@ -2,31 +2,36 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from app.schemas.memory import IncidentMemory
-
 
 class VectorStoreProvider(ABC):
     """
-    Abstract semantic vector store contract.
+    Abstract vector store provider contract.
     """
 
     @abstractmethod
-    def index_incident(
+    def upsert(
         self,
-        memory: IncidentMemory,
+        incident_id: str,
+        document: str,
+        embedding: list[float],
+        metadata: dict,
     ) -> None:
         """
-        Persist semantic memory.
+        Insert or update semantic memory document.
         """
-        raise NotImplementedError
 
     @abstractmethod
-    def search_similar(
+    def similarity_search(
         self,
-        query_text: str,
-        limit: int = 3,
+        embedding: list[float],
+        limit: int = 5,
     ) -> dict:
         """
-        Semantic similarity search.
+        Semantic similarity retrieval.
         """
-        raise NotImplementedError
+
+    @abstractmethod
+    def delete_all(self) -> None:
+        """
+        Clear semantic memory.
+        """

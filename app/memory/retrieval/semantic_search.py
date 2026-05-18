@@ -3,25 +3,29 @@ from __future__ import annotations
 import json
 
 from app.config.logging_config import get_logger
-from app.memory.vectorstore.client import (
-    SemanticMemoryClient,
-)
+from app.llm.embeddings.client import EmbeddingClient
+from app.memory.vectorstore.client import SemanticMemoryClient
 
 logger = get_logger(__name__)
 
 
 def search_similar_incidents(
     query_text: str,
-    limit: int = 3,
+    limit: int = 5,
 ) -> dict:
     """
     Semantic incident similarity search.
     """
 
-    client = SemanticMemoryClient()
+    embedding_client = EmbeddingClient()
+    semantic_client = SemanticMemoryClient()
 
-    results = client.search_similar(
-        query_text=query_text,
+    query_embedding = embedding_client.embed(
+        query_text
+    )
+
+    results = semantic_client.similarity_search(
+        embedding=query_embedding,
         limit=limit,
     )
 
@@ -34,7 +38,7 @@ def search_similar_incidents(
 
 def main() -> None:
     """
-    Manual semantic retrieval test.
+    Manual semantic search test.
     """
 
     results = search_similar_incidents(
