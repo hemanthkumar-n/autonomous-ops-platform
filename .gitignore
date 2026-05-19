@@ -10,3 +10,4 @@ app/memory/incident_history/incidents/
 chroma.sqlite3
 .DS_Store
 backup_readme/
+.DS_Store
