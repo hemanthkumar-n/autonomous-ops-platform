@@ -1,112 +1,83 @@
 from __future__ import annotations
 
-import requests
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
+import asyncio
+import logging
+from typing import Any
 
-from app.config.logging_config import get_logger
+import httpx
+from tenacity import retry, stop_after_attempt, wait_exponential
+
 from app.config.settings import settings
-from app.llm.response_validator import validate_llm_response
-from app.llm.providers.base import LLMProvider
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
-class OllamaProvider(LLMProvider):
+class OllamaProvider:
     """
-    Ollama LLM provider implementation.
+    Production-grade Ollama provider.
+
+    Features:
+    - async connection pooling
+    - keepalive reuse
+    - retries
+    - timeout controls
+    - concurrency-safe
     """
 
     def __init__(self) -> None:
-        self.base_url = settings.OLLAMA_BASE_URL
-        self.model_name = settings.LLM_MODEL_NAME
-        self.default_timeout = settings.AI_REQUEST_TIMEOUT
+        self.base_url = settings.OLLAMA_BASE_URL.rstrip("/")
 
-        self.session = requests.Session()
-
-        retry_strategy = Retry(
-            total=2,
-            backoff_factor=2,
-            status_forcelist=[
-                429,
-                500,
-                502,
-                503,
-                504,
-            ],
-            allowed_methods=["POST"],
+        self.client = httpx.AsyncClient(
+            base_url=self.base_url,
+            timeout=httpx.Timeout(
+                connect=5.0,
+                read=180.0,
+                write=30.0,
+                pool=5.0,
+            ),
+            limits=httpx.Limits(
+                max_connections=100,
+                max_keepalive_connections=20,
+            ),
         )
 
-        adapter = HTTPAdapter(
-            max_retries=retry_strategy,
-            pool_connections=10,
-            pool_maxsize=10,
-        )
-
-        self.session.mount("http://", adapter)
-        self.session.mount("https://", adapter)
-
-    def generate(
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=1, max=10),
+        reraise=True,
+    )
+    async def generate(
         self,
         prompt: str,
-        timeout: int | None = None,
+        model: str | None = None,
+        temperature: float = 0.2,
     ) -> str:
-        """
-        Generate response from Ollama.
-        """
-
-        endpoint = f"{self.base_url}/api/generate"
-
         payload = {
-            "model": self.model_name,
+            "model": model or settings.LLM_MODEL,
             "prompt": prompt,
             "stream": False,
+            "options": {
+                "temperature": temperature,
+            },
         }
 
-        effective_timeout = timeout or self.default_timeout
+        response = await self.client.post(
+            "/api/generate",
+            json=payload,
+        )
 
+        response.raise_for_status()
+
+        data: dict[str, Any] = response.json()
+
+        return data.get("response", "").strip()
+
+    async def healthcheck(self) -> bool:
         try:
-            logger.info(
-                "Submitting request to Ollama model=%s",
-                self.model_name,
-            )
-
-            response = self.session.post(
-                endpoint,
-                json=payload,
-                timeout=effective_timeout,
-            )
-
-            response.raise_for_status()
-
-            result = response.json()
-
-            llm_response = result.get("response")
-
-            validated_response = validate_llm_response(
-                llm_response
-            )
-
-            logger.info(
-                "Ollama response generated successfully"
-            )
-
-            return validated_response
-
-        except requests.exceptions.Timeout:
-            logger.exception(
-                "Ollama request timeout"
-            )
-            raise
-
-        except requests.exceptions.RequestException:
-            logger.exception(
-                "Ollama transport failure"
-            )
-            raise
-
+            response = await self.client.get("/api/tags")
+            return response.status_code == 200
         except Exception:
-            logger.exception(
-                "Unexpected Ollama provider failure"
-            )
-            raise
+            return False
+
+    async def close(self) -> None:
+        await self.client.aclose()
