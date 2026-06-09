@@ -4,6 +4,27 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.7.0 — Kubernetes SRE Shortcuts
+
+Date: 2026-06-09
+
+### Added
+
+- `aop kb` and `aop k8s` Kubernetes command groups
+- health, node, namespace, deployment, service, pod, event, log, and pod
+  description commands
+- short aliases including `po`, `ev`, `log`, `desc`, `deploy`, and `svc`
+- JSON output for inventory commands
+- `aop kb inv` shortcut for full AI investigation
+- Kubernetes CLI and normalization tests
+
+### Safety
+
+Kubernetes shortcut commands are read-only. Cluster mutation remains outside
+the current CLI.
+
+---
+
 ## v0.6.0 — Showcase CLI and Workflow Recovery
 
 Date: 2026-06-09

@@ -4,6 +4,7 @@ import click
 
 from app.cli.health import health
 from app.cli.investigate import investigate
+from app.cli.kubernetes import kubernetes
 from app.cli.precheck import precheck
 from app.cli.remediate import memory
 
@@ -14,7 +15,7 @@ from app.cli.remediate import memory
     }
 )
 @click.version_option(
-    version="0.6.0",
+    version="0.7.0",
     prog_name="aop",
 )
 def main() -> None:
@@ -27,6 +28,8 @@ main.add_command(health)
 main.add_command(precheck)
 main.add_command(investigate)
 main.add_command(memory)
+main.add_command(kubernetes)
+main.add_command(kubernetes, name="k8s")
 
 
 if __name__ == "__main__":

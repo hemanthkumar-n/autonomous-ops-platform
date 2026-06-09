@@ -631,6 +631,17 @@ Validate the local runtime:
 aop health
 ```
 
+Fast Kubernetes triage:
+
+```bash
+aop kb health
+aop kb po
+aop kb ev
+```
+
+The complete shortcut reference is in
+[`docs/KUBERNETES_CLI.md`](docs/KUBERNETES_CLI.md).
+
 Investigate all unhealthy Kubernetes workloads:
 
 ```bash
@@ -727,6 +738,10 @@ Phase 5
 ✓ namespace and pod-scoped investigation
 ✓ JSON and Markdown report export
 ✓ offline regression tests
+
+Phase 6
+✓ `aop kb` Kubernetes SRE shortcuts
+✓ read-only cluster, workload, event, and log triage
 ```
 
 ---

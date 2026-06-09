@@ -33,14 +33,14 @@ Remediation is advisory and non-destructive.
 
 ## Current Baseline
 
-- Version: `0.6.0`
+- Version: `0.7.0`
 - Branch: `feature/aop-cli-transition`
 - Latest commits:
   - `526bdbc` remove local artifacts from tracking
   - `e946e90` add showcase-ready AOP CLI workflow
 - Python: `3.11+`
 - CLI entry point: `aop`
-- Tests: six offline regression tests passing
+- Tests: twelve offline regression tests passing
 - Real Ollama generation and 768-dimensional embeddings verified
 - Full live demo still requires Kubernetes and Prometheus to be running
 
@@ -66,8 +66,10 @@ does not block analysis from current evidence.
 app/cli/main.py
 app/cli/investigate.py
 app/cli/health.py
+app/cli/kubernetes.py
 app/orchestration/incident_workflow.py
 app/tools/kubernetes/incident_context.py
+app/tools/kubernetes/operations.py
 app/agents/sre/incident_classifier.py
 app/agents/sre/rca_agent.py
 app/agents/sre/remediation_agent.py
@@ -88,11 +90,20 @@ architecture history or setup details are specifically needed.
 ```bash
 source venv/bin/activate
 aop health
+aop kb health
+aop kb po
+aop kb ev
 aop investigate k8s --namespace ai-lab
 aop investigate k8s --namespace ai-lab \
   --format markdown \
   --output reports/incident.md
 aop memory search --namespace ai-lab
+```
+
+Kubernetes shortcut reference:
+
+```text
+docs/KUBERNETES_CLI.md
 ```
 
 Sample incidents:

@@ -67,12 +67,13 @@ pip install -e .
 aop --version
 aop --help
 aop health
+aop kb --help
 ```
 
 The expected CLI version is:
 
 ```text
-aop, version 0.6.0
+aop, version 0.7.0
 ```
 
 ---
@@ -185,6 +186,14 @@ Run the investigation:
 
 ```bash
 aop investigate k8s --namespace ai-lab
+```
+
+Fast SRE triage:
+
+```bash
+aop kb health -n ai-lab
+aop kb po -n ai-lab
+aop kb ev -n ai-lab
 ```
 
 Export a presentation-ready Markdown report:
