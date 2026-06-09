@@ -1,9 +1,6 @@
 from kubernetes import client, config
 from kubernetes.client.exceptions import ApiException
-
-config.load_kube_config()
-
-v1 = client.CoreV1Api()
+from kubernetes.config.config_exception import ConfigException
 
 
 def get_pod_logs(
@@ -24,6 +21,13 @@ def get_pod_logs(
     """
 
     try:
+        try:
+            config.load_kube_config()
+        except ConfigException:
+            config.load_incluster_config()
+
+        v1 = client.CoreV1Api()
+
         logs = v1.read_namespaced_pod_log(
             name=pod_name,
             namespace=namespace,

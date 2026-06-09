@@ -105,10 +105,19 @@ def hybrid_incident_search(
         query
     )
 
-    semantic_results = search_similar_incidents(
-        query_text=semantic_query,
-        limit=query.limit,
-    )
+    semantic_results = {}
+
+    if semantic_query:
+        try:
+            semantic_results = search_similar_incidents(
+                query_text=semantic_query,
+                limit=query.limit,
+            )
+        except Exception as exc:
+            logger.warning(
+                "Semantic retrieval unavailable; using exact memory only error=%s",
+                exc,
+            )
 
     normalized_semantic = _normalize_semantic_results(
         semantic_results

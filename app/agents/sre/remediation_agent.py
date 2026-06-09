@@ -6,6 +6,7 @@ from app.agents.sre.incident_classifier import classify_incident
 from app.agents.sre.rca_agent import generate_rca
 from app.config.logging_config import get_logger
 from app.llm.client import LLMClient
+from app.memory.fingerprints.signature import extract_failure_reason
 from app.memory.retrieval.hybrid_search import (
     hybrid_incident_search,
 )
@@ -28,27 +29,11 @@ def build_historical_context(
     Retrieve hybrid operational memory context.
     """
 
-    failure_reason = None
-
-    if incident.container_states:
-        first_container = incident.container_states[0]
-
-        if (
-            first_container.last_termination
-            and hasattr(
-                first_container.last_termination,
-                "reason",
-            )
-        ):
-            failure_reason = (
-                first_container.last_termination.reason
-            )
-
     query = MemoryQuery(
         incident_type=classification.incident_type,
         namespace=incident.namespace,
         workload_name=incident.pod_name,
-        failure_reason=failure_reason,
+        failure_reason=extract_failure_reason(incident),
         severity=classification.severity,
         limit=3,
     )
@@ -170,6 +155,7 @@ def generate_remediation(
     """
 
     llm = llm_client or LLMClient()
+    owns_client = llm_client is None
 
     prompt = build_remediation_prompt(
         incident=incident,
@@ -208,6 +194,49 @@ def generate_remediation(
                 "Manual intervention required."
             ),
         )
+    finally:
+        if owns_client:
+            llm.close()
+
+
+def generate_all_remediations(
+    incidents: list[IncidentContext],
+    classifications: list[IncidentClassification],
+    rca_results: list | None = None,
+    llm_client: LLMClient | None = None,
+) -> list[RemediationResponse]:
+    """
+    Generate remediation guidance for aligned incident results.
+    """
+
+    results = []
+
+    for index, (incident, classification) in enumerate(
+        zip(
+            incidents,
+            classifications,
+            strict=False,
+        )
+    ):
+        if rca_results and index < len(rca_results):
+            rca_text = rca_results[index].rca
+        else:
+            rca_text = generate_rca(
+                incident=incident,
+                classification=classification,
+                llm_client=llm_client,
+            ).rca
+
+        results.append(
+            generate_remediation(
+                incident=incident,
+                classification=classification,
+                rca=rca_text,
+                llm_client=llm_client,
+            )
+        )
+
+    return results
 
 
 def main() -> None:

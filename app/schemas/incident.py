@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
 
 from app.schemas.metrics import PodMetrics
@@ -23,7 +23,15 @@ class IncidentContext(BaseModel):
     namespace: str
     phase: str
     node: Optional[str] = None
-    conditions: List[PodCondition] = []
-    container_states: List[ContainerState] = []
-    events: List[Any] = []
-    metrics: PodMetrics
+    conditions: List[PodCondition] = Field(
+        default_factory=list
+    )
+    container_states: List[ContainerState] = Field(
+        default_factory=list
+    )
+    events: List[Any] = Field(
+        default_factory=list
+    )
+    metrics: PodMetrics = Field(
+        default_factory=PodMetrics
+    )

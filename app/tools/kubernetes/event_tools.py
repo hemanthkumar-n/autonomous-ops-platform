@@ -1,8 +1,5 @@
 from kubernetes import client, config
-
-config.load_kube_config()
-
-v1 = client.CoreV1Api()
+from kubernetes.config.config_exception import ConfigException
 
 
 def get_pod_events(
@@ -14,6 +11,13 @@ def get_pod_events(
     """
 
     pod_events = []
+
+    try:
+        config.load_kube_config()
+    except ConfigException:
+        config.load_incluster_config()
+
+    v1 = client.CoreV1Api()
 
     events = v1.list_namespaced_event(namespace)
 

@@ -1,4 +1,3 @@
-import logging
 import requests
 from app.config.settings import settings
 from app.config.logging_config import get_logger
@@ -20,6 +19,7 @@ def query_prometheus(promql_query: str):
     """
 
     endpoint = f"{settings.PROMETHEUS_URL}/api/v1/query"
+    payload = None
 
     try:
         response = requests.get(
@@ -41,11 +41,11 @@ def query_prometheus(promql_query: str):
 
         return payload.get("data", {}).get("result", [])
 
-    except requests.exceptions.RequestException as error:
+    except requests.exceptions.RequestException:
         logger.exception("Prometheus query failed")
         return None
 
-    except (KeyError, ValueError, TypeError) as error:
+    except (KeyError, ValueError, TypeError):
         logger.error("Prometheus returned unsuccessful status: %s", payload)
         return None
 

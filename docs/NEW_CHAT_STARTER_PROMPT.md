@@ -29,6 +29,8 @@ Current platform focus:
 - semantic memory using ChromaDB
 - hybrid exact plus semantic retrieval
 - provider abstractions for LLM, embeddings, and vector stores
+- installable `aop` CLI for Kubernetes investigation
+- runtime health checks and Markdown/JSON report export
 
 Important design principles:
 - evidence before AI reasoning
@@ -40,15 +42,12 @@ Important design principles:
 - keep changes scoped and production-minded
 
 Known current gaps:
-- CLI files are placeholders
 - FastAPI layer is placeholder
-- tests are missing
+- tests cover the recovered core path but are not yet comprehensive
 - many domain folders are future skeletons
-- vector store settings exist but provider still hardcodes Chroma path
-- `.gitignore` needs cleanup
 - ADR numbering has duplicates
+- Kubernetes and Prometheus must be running for the complete showcase
 
 Now help me with this specific task:
 <replace this line with the task>
 ```
-

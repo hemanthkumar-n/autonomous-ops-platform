@@ -56,6 +56,23 @@ venv\Scripts\activate
 ```bash
 python3 -m pip install --upgrade pip
 pip install -r requirements.txt
+pip install -e .
+```
+
+---
+
+## Validate AOP CLI
+
+```bash
+aop --version
+aop --help
+aop health
+```
+
+The expected CLI version is:
+
+```text
+aop, version 0.6.0
 ```
 
 ---
@@ -130,6 +147,7 @@ Recommended:
 
 ```bash
 ollama pull qwen2.5-coder
+ollama pull nomic-embed-text
 ```
 
 Verify:
@@ -148,7 +166,45 @@ Expected:
 
 ---
 
-## Project Validation
+## Showcase Workflow
+
+Create the sample namespace:
+
+```bash
+kubectl create namespace ai-lab
+```
+
+Apply one or both sample incidents:
+
+```bash
+kubectl apply -f kubernetes/incidents/imagepull/broken-nginx.yaml
+kubectl apply -f kubernetes/incidents/oomkilled/oom-test.yaml
+```
+
+Run the investigation:
+
+```bash
+aop investigate k8s --namespace ai-lab
+```
+
+Export a presentation-ready Markdown report:
+
+```bash
+aop investigate k8s \
+  --namespace ai-lab \
+  --format markdown \
+  --output reports/ai-lab-incident.md
+```
+
+Inspect learned incident memory:
+
+```bash
+aop memory search --namespace ai-lab
+```
+
+---
+
+## Module Validation
 
 ### Log Tool
 
@@ -189,7 +245,7 @@ python -m app.agents.sre.rca_agent
 Apply:
 
 ```bash
-kubectl apply -f kubernetes/incidents/imagepull/imagepull-test.yaml
+kubectl apply -f kubernetes/incidents/imagepull/broken-nginx.yaml
 ```
 
 Verify:
@@ -308,11 +364,17 @@ kubectl get pods -n ai-lab
 Typical workflow:
 
 1. generate incident
-2. inspect Kubernetes state
-3. collect structured incident context
-4. run AI RCA
-5. improve tooling
-6. extend platform architecture
+2. run `aop health`
+3. run `aop investigate k8s`
+4. inspect the generated RCA and remediation
+5. export a Markdown report
+6. query operational memory
+
+Run offline regression tests:
+
+```bash
+python -m unittest discover -s tests -v
+```
 
 ---
 
@@ -320,11 +382,11 @@ Typical workflow:
 
 Suggested next implementations:
 
-- incident classification engine
-- Prometheus integration
-- deployment intelligence
-- Linux diagnostics agent
-- observability integrations
+- incident recurrence and pattern intelligence
+- approval-gated remediation execution
+- richer deployment-level Kubernetes context
+- Linux diagnostics
+- AWS operational intelligence
 - enterprise knowledge integrations
 
 ---
@@ -356,3 +418,5 @@ Ensure:
 - sample incidents deployed
 - incident context generation working
 - AI RCA working
+- `aop --help` working
+- offline regression tests passing

@@ -7,6 +7,13 @@ from app.schemas.incident import IncidentContext
 
 logger = get_logger(__name__)
 
+SEVERITY_RANK = {
+    "Critical": 4,
+    "High": 3,
+    "Medium": 2,
+    "Low": 1,
+}
+
 
 def classify_container_state(container_state) -> dict:
     """
@@ -14,6 +21,11 @@ def classify_container_state(container_state) -> dict:
     """
 
     state = container_state.state
+    last_termination = container_state.last_termination or {}
+    termination_reason = last_termination.get("reason")
+
+    if termination_reason in INCIDENT_RULES:
+        return INCIDENT_RULES[termination_reason]
 
     if state in INCIDENT_RULES:
         return INCIDENT_RULES[state]
@@ -38,11 +50,33 @@ def classify_incident(
     classifications = []
 
     for pod in incident_data:
-        for container in pod.container_states:
+        candidates = []
 
+        for container in pod.container_states:
             classification = classify_container_state(container)
 
-            incident_record = IncidentClassification(
+            candidates.append(
+                (
+                    SEVERITY_RANK.get(
+                        classification["severity"],
+                        0,
+                    ),
+                    classification["confidence"],
+                    container,
+                    classification,
+                )
+            )
+
+        if not candidates:
+            continue
+
+        _, _, container, classification = max(
+            candidates,
+            key=lambda item: (item[0], item[1]),
+        )
+
+        classifications.append(
+            IncidentClassification(
                 pod_name=pod.pod_name,
                 namespace=pod.namespace,
                 node=pod.node,
@@ -54,8 +88,7 @@ def classify_incident(
                 confidence=classification["confidence"],
                 recommended_team=classification["recommended_team"],
             )
-
-            classifications.append(incident_record)
+        )
 
     logger.info(
         "Incident classification completed classified=%s",

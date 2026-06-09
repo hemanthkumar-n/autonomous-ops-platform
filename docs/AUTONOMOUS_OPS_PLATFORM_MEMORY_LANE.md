@@ -1,6 +1,6 @@
 # Autonomous Ops Platform Memory Lane
 
-Date: 2026-05-19
+Date: 2026-06-09
 
 Use this file as the compact project context when starting a fresh ChatGPT or Codex conversation. It is intentionally much smaller than the full repo, but it preserves the design intent, active architecture, current implementation state, and next engineering priorities.
 
@@ -13,7 +13,7 @@ Autonomous Ops Platform is an AI-native operational intelligence platform for SR
 - GitHub: `https://github.com/hemanthkumar-n/autonomous-ops-platform/`
 - Local repo inspected: `/Users/hemanthkumarn/autonomous-ops-platform`
 - Audit zip inspected: `/Users/hemanthkumarn/autonomous-ops-platform/autonomous-ops-platform-audit.zip`
-- Live repo should be treated as source of truth over the zip because it has current uncommitted changes.
+- Live repo should be treated as source of truth over the audit zip.
 
 ## Current Project Stage
 
@@ -95,7 +95,8 @@ Settings include:
 - `ENABLE_DESTRUCTIVE_REMEDIATION`
 - `SAFE_MODE`
 
-Important note: current uncommitted settings changes add vector store config inside `validate()` rather than `__init__`. This works as an attribute side effect, but it belongs in `__init__` before `self.validate()` for cleaner design.
+Vector-store provider, path, and collection settings are initialized before
+runtime validation and are consumed by the Chroma provider.
 
 ### Kubernetes Context
 
@@ -292,13 +293,13 @@ Default structured memory directory:
 app/memory/incident_history/incidents
 ```
 
-Current Chroma path is hardcoded in provider:
+Current Chroma path defaults to:
 
 ```text
-app/memory/vectorstore/chroma_db
+data/vectorstore/chroma
 ```
 
-The code also has a newer config idea for:
+It is configurable through:
 
 ```text
 VECTORSTORE_PROVIDER
@@ -306,7 +307,7 @@ VECTORSTORE_PATH
 VECTORSTORE_COLLECTION_NAME
 ```
 
-but provider code does not yet use these settings.
+The provider uses these settings directly.
 
 ## Typed Contracts
 
@@ -386,13 +387,15 @@ Implemented or meaningful:
 - embedding abstraction
 - Chroma vector provider
 - structured and semantic memory
+- installable `aop` CLI
+- runtime health checks
+- Markdown and JSON incident report export
+- focused offline regression tests
 - incident docs and ADRs
 
 Mostly placeholder or empty:
 
 - FastAPI app layer
-- CLI commands under `app/cli`
-- tests
 - base agent classes
 - Linux agents/tools
 - AWS/cloud agents
@@ -403,23 +406,32 @@ Mostly placeholder or empty:
 - Terraform/Jenkins/GitHub/Slack/Jira/Confluence implementations
 - infra and deployment manifests
 
-## Current Git State Observed
+## Current Restart Baseline
 
-Uncommitted changes:
+Version:
 
 ```text
- M .DS_Store
- M .gitignore
- M app/config/settings.py
-?? autonomous-ops-platform-audit.zip
+v0.6.0
 ```
 
-Advice:
+Showcase commands:
 
-- remove `.DS_Store` from git tracking later
-- keep audit zip out of git unless intentionally publishing it
-- clean `.gitignore`; it currently has a suspicious joined line: `.DS_Storeapp/memory/incident_history/incidents/`
-- move vector store settings from `validate()` into `__init__`
+```bash
+aop health
+aop investigate k8s --namespace ai-lab
+aop investigate k8s --namespace ai-lab --format markdown --output reports/incident.md
+aop memory search --namespace ai-lab
+```
+
+The June 9 recovery work repaired:
+
+- synchronous LLM provider contracts
+- Ollama model configuration
+- remediation workflow imports
+- semantic indexing APIs
+- graceful semantic-memory fallback
+- per-pod classification alignment
+- lazy Kubernetes client loading
 
 ## Dependencies
 
@@ -490,29 +502,26 @@ kubectl apply -f kubernetes/incidents/oomkilled/oom-test.yaml
 
 ## Near-Term Engineering Priorities
 
-1. Add tests for deterministic logic.
-   Start with incident rules, Prometheus metric parsing, memory fingerprinting, structured memory search, and prompt construction.
+1. Expand deterministic tests.
+   Add Prometheus parsing, fingerprinting, prompt construction, persistence,
+   and CLI report snapshot coverage.
 
-2. Fix config hygiene.
-   Move vectorstore settings into `__init__`, make Chroma path and collection configurable, clean `.gitignore`, stop tracking generated files.
+2. Add CI.
+   Run formatting, linting, type checks, and unit tests on each pull request.
 
-3. Add a real CLI.
-   Implement commands like `aop investigate k8s`, `aop memory search`, `aop workflow run`, and dry-run remediation helpers.
+3. Add incident-pattern intelligence.
+   Introduce recurrence grouping, fingerprint clustering, and trend summaries.
 
-4. Add API routes only after CLI/core is stable.
+4. Add API routes only after the CLI/core remains stable.
    FastAPI is present but currently mostly placeholder.
 
-5. Separate storage/data from code.
-   Do not keep Chroma DB or incident history in source-controlled app paths long term. Prefer `data/` or `.aop/` with `.gitignore`.
-
-6. Improve provider governance.
+5. Improve provider governance.
    Add provider selection through config, retries, fallback, timeout policy, and structured LLM error types.
 
-7. Improve prompt/output contracts.
+6. Improve prompt/output contracts.
    Consider structured JSON responses from RCA/remediation agents to make downstream automation safer.
 
-8. Create real CI.
-   Add formatting, linting, type checks, and unit tests before expanding features.
+7. Add approval-gated remediation only after policy and audit controls exist.
 
 ## Suggested New Chat Instruction
 
@@ -544,4 +553,3 @@ detect -> collect -> classify -> enrich -> remember -> reason -> recommend -> ve
 ```
 
 Once that loop has tests, CLI ergonomics, stable config, and repeatable demos, then expand into Linux, AWS, Terraform, and broader autonomous operations.
-

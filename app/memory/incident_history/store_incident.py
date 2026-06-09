@@ -91,9 +91,16 @@ def store_incident(
 
     storage_dir = _ensure_storage_directory()
 
-    semantic_client = SemanticMemoryClient()
-
     incident_memories = []
+    semantic_client = None
+
+    try:
+        semantic_client = SemanticMemoryClient()
+    except Exception as exc:
+        logger.warning(
+            "Semantic memory unavailable; structured persistence will continue error=%s",
+            exc,
+        )
 
     for incident, classification, rca, remediation in zip(
         workflow.incident_context,
@@ -113,16 +120,17 @@ def store_incident(
             memory
         )
 
-        try:
-            semantic_client.index_incident(
-                memory
-            )
-
-        except Exception:
-            logger.exception(
-                "Semantic indexing failed incident_id=%s",
-                memory.incident_id,
-            )
+        if semantic_client is not None:
+            try:
+                semantic_client.index_incident(
+                    memory
+                )
+            except Exception as exc:
+                logger.warning(
+                    "Semantic indexing failed incident_id=%s error=%s",
+                    memory.incident_id,
+                    exc,
+                )
 
     filepath = storage_dir / _generate_filename()
 

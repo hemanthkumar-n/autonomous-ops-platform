@@ -417,7 +417,7 @@ autonomous-ops-platform/
 
 Core Platform:
 
-- Python 3.14+
+- Python 3.11+
 - Pydantic
 - FastAPI (planned service layer)
 
@@ -573,6 +573,7 @@ python -m venv venv
 source venv/bin/activate
 
 pip install -r requirements.txt
+pip install -e .
 ```
 
 ---
@@ -605,7 +606,10 @@ OLLAMA_BASE_URL=http://localhost:11434
 LLM_MODEL_NAME=qwen2.5-coder:latest
 EMBEDDING_MODEL_NAME=nomic-embed-text
 
-INCIDENT_HISTORY_DIR=app/memory/incident_history/incidents
+INCIDENT_HISTORY_DIR=data/incidents
+
+VECTORSTORE_PATH=data/vectorstore/chroma
+VECTORSTORE_COLLECTION_NAME=incident_memory
 
 SAFE_MODE=true
 ENABLE_DESTRUCTIVE_REMEDIATION=false
@@ -614,6 +618,47 @@ ENABLE_DESTRUCTIVE_REMEDIATION=false
 ---
 
 # Run Platform
+
+## Showcase CLI
+
+Validate the local runtime:
+
+```bash
+aop health
+```
+
+Investigate all unhealthy Kubernetes workloads:
+
+```bash
+aop investigate k8s
+```
+
+Limit investigation to a namespace:
+
+```bash
+aop investigate k8s --namespace ai-lab
+```
+
+Generate a Markdown report:
+
+```bash
+aop investigate k8s \
+  --namespace ai-lab \
+  --format markdown \
+  --output reports/incident-report.md
+```
+
+Search structured operational memory:
+
+```bash
+aop memory search --incident-type MemoryExhaustion
+```
+
+The CLI is advisory. It collects evidence, classifies incidents, generates
+RCA and remediation guidance, and stores operational memory. It does not
+execute destructive remediation.
+
+## Module Entrypoints
 
 Full incident workflow:
 
@@ -671,6 +716,13 @@ Phase 4
 ✓ hybrid retrieval
 ✓ memory-aware RCA
 ✓ memory-aware remediation
+
+Phase 5
+✓ installable `aop` CLI
+✓ runtime health checks
+✓ namespace and pod-scoped investigation
+✓ JSON and Markdown report export
+✓ offline regression tests
 ```
 
 ---
@@ -799,4 +851,3 @@ https://github.com/hemanthkumar-n
 Strategic Direction
 Autonomous Ops Platform is not intended to remain a Kubernetes troubleshooting tool.
 It is being architected as a long-term enterprise AI operations platform for autonomous reliability engineering.
-

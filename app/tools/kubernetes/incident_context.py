@@ -1,7 +1,9 @@
 from concurrent.futures import ThreadPoolExecutor
 from kubernetes import client, config
+from kubernetes.config.config_exception import ConfigException
 
 from app.config.logging_config import get_logger
+from app.config.settings import settings
 from app.schemas.incident import (
     IncidentContext,
     PodCondition,
@@ -13,10 +15,6 @@ from app.tools.prometheus.metrics_tools import get_pod_metrics
 
 logger = get_logger(__name__)
 
-config.load_kube_config()
-
-v1 = client.CoreV1Api()
-
 EXCLUDED_NAMESPACES = {
     "kube-system",
     "kube-public",
@@ -25,6 +23,19 @@ EXCLUDED_NAMESPACES = {
 
 RESTART_THRESHOLD = 3
 IO_WORKERS = 3
+
+
+def _core_v1_api():
+    """
+    Build the Kubernetes client only when collection is requested.
+    """
+
+    try:
+        config.load_kube_config()
+    except ConfigException:
+        config.load_incluster_config()
+
+    return client.CoreV1Api()
 
 
 def is_problematic_pod(pod) -> bool:
@@ -68,6 +79,8 @@ def collect_incident_context(
         pod_name,
     )
 
+    v1 = _core_v1_api()
+
     if namespace:
         pods = v1.list_namespaced_pod(namespace)
     else:
@@ -107,48 +120,47 @@ def collect_incident_context(
         pod_logs = ""
 
         with ThreadPoolExecutor(max_workers=IO_WORKERS) as executor:
-            metrics_future = executor.submit(
-                get_pod_metrics,
-                pod_actual_name,
-                pod_namespace,
-            )
+            futures = {}
 
-            events_future = executor.submit(
-                get_pod_events,
-                pod_actual_name,
-                pod_namespace,
-            )
-
-            logs_future = executor.submit(
-                get_pod_logs,
-                pod_actual_name,
-                pod_namespace,
-            )
-
-            try:
-                metrics = metrics_future.result()
-            except Exception:
-                logger.exception(
-                    "Metrics enrichment failed pod=%s",
+            if settings.ENABLE_METRICS_ENRICHMENT:
+                futures["metrics"] = executor.submit(
+                    get_pod_metrics,
                     pod_actual_name,
+                    pod_namespace,
                 )
 
-            try:
-                events = events_future.result()
-            except Exception:
-                logger.exception(
-                    "Event collection failed pod=%s",
+            if settings.ENABLE_EVENT_COLLECTION:
+                futures["events"] = executor.submit(
+                    get_pod_events,
                     pod_actual_name,
+                    pod_namespace,
                 )
 
-            try:
-                pod_logs = logs_future.result()
-            except Exception as exc:
-                logger.exception(
-                    "Log collection failed pod=%s",
+            if settings.ENABLE_POD_LOG_COLLECTION:
+                futures["logs"] = executor.submit(
+                    get_pod_logs,
                     pod_actual_name,
+                    pod_namespace,
+                    settings.MAX_LOG_LINES,
                 )
-                pod_logs = str(exc)
+
+            for signal_name, future in futures.items():
+                try:
+                    value = future.result()
+                    if signal_name == "metrics":
+                        metrics = value
+                    elif signal_name == "events":
+                        events = value
+                    else:
+                        pod_logs = value
+                except Exception as exc:
+                    logger.exception(
+                        "%s collection failed pod=%s",
+                        signal_name.capitalize(),
+                        pod_actual_name,
+                    )
+                    if signal_name == "logs":
+                        pod_logs = str(exc)
 
         container_states = []
 
@@ -223,4 +235,3 @@ if __name__ == "__main__":
 
     for incident in incidents:
         print(incident.model_dump_json(indent=2))
-        

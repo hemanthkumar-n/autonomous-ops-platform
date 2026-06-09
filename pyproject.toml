@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "autonomous-ops-platform"
+version = "0.6.0"
+description = "AI-native Kubernetes incident intelligence for SRE teams"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "chromadb>=1.1.1",
+  "click>=8.1",
+  "httpx>=0.28",
+  "kubernetes>=35.0",
+  "ollama>=0.6",
+  "pydantic>=2.13",
+  "python-dotenv>=1.2",
+  "requests>=2.33",
+  "tenacity>=9.0",
+]
+
+[project.scripts]
+aop = "app.cli.main:main"
+
+[tool.setuptools.packages.find]
+include = ["app*"]

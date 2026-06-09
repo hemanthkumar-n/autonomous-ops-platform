@@ -158,12 +158,12 @@ if __name__ == "__main__":
     for incident in incidents:
         print(
             f"\nFetching metrics for "
-            f"{incident['namespace']}/{incident['pod_name']}"
+            f"{incident.namespace}/{incident.pod_name}"
         )
 
         metrics = get_pod_metrics(
-            pod_name=incident["pod_name"],
-            namespace=incident["namespace"],
+            pod_name=incident.pod_name,
+            namespace=incident.namespace,
         )
 
         print(metrics.model_dump())
