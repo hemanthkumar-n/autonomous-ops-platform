@@ -40,6 +40,10 @@ Modern infrastructure operations suffer from fragmented context:
 
 Autonomous Ops Platform aims to consolidate this into an operational intelligence layer.
 
+The durable cross-domain product direction, including Linux, Kubernetes, AWS,
+Slack/Teams approvals, the operator UI, and company onboarding, is documented
+in [`docs/AOP_PRODUCT_VISION.md`](docs/AOP_PRODUCT_VISION.md).
+
 Target evolution:
 
 ```text

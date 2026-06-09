@@ -8,6 +8,21 @@ AOP is an AI-native operational intelligence runtime for SRE and platform
 engineering. Kubernetes is the first production path; Linux, AWS, Terraform,
 and autonomous execution remain future domains.
 
+Long-term product direction is preserved in:
+
+```text
+docs/AOP_PRODUCT_VISION.md
+```
+
+Read that file for roadmap, product, Linux, AWS, UI, Slack/Teams, company
+onboarding, or platform-positioning work. It is the durable vision source.
+
+The previous detailed 555-line memory remains recoverable from Git:
+
+```bash
+git show 526bdbc:docs/AUTONOMOUS_OPS_PLATFORM_MEMORY_LANE.md
+```
+
 Core loop:
 
 ```text
@@ -146,4 +161,6 @@ ENABLE_DESTRUCTIVE_REMEDIATION=false
 ## Codex Startup Rule
 
 Start with this file. Then inspect only the files needed for the requested
-task. Treat current source and tests as truth when older docs disagree.
+task. Also read `docs/AOP_PRODUCT_VISION.md` when the task affects product
+direction or roadmap. Treat current source and tests as truth for implemented
+behavior when older docs disagree.

@@ -7,6 +7,9 @@ First read `docs/AUTONOMOUS_OPS_PLATFORM_MEMORY_LANE.md`.
 Then inspect only files relevant to my task; do not scan every ADR or Markdown
 file unless the task requires architecture history.
 
+If the task concerns roadmap, Linux, AWS, UI, Slack/Teams, company onboarding,
+or product direction, also read `docs/AOP_PRODUCT_VISION.md`.
+
 Preserve:
 - evidence before AI
 - deterministic classification before LLM reasoning
