@@ -1,0 +1,265 @@
+.TH TSHELPER 1 "May 2026" "1.0.0" "Linux Troubleshooting Helper"
+
+.SH NAME
+tshelper \- a layman-friendly, one-stop Linux troubleshooting tool
+
+.SH SYNOPSIS
+.B tshelper
+.RI [ SUBCOMMAND ]
+
+.SH DESCRIPTION
+.B tshelper
+is a bash-based Linux troubleshooting helper designed for everyday users and sysadmins alike.
+It bundles the most common diagnostic commands — with the right flags — into a single tool,
+so you never have to remember syntax again.
+
+Run it with no arguments to get an interactive menu, or pass a subcommand to jump straight
+to a specific check. All output is colour-coded and human-readable, with plain-English
+pass/fail indicators where applicable.
+
+.B tshelper
+covers disk usage, memory, CPU, network diagnostics, running processes, systemd services,
+and system logs — making it a single source of truth for Linux troubleshooting.
+
+.SH SUBCOMMANDS
+
+.TP
+.B (no argument)
+Launch the interactive menu. Navigate with number keys and press
+.B q
+to quit.
+
+.TP
+.B disk
+Show disk space usage (human-readable), inode usage, and the top 10 largest
+directories in the current path.
+
+Runs:
+.I df \-h, df \-i, du \-ah \-\-max\-depth=1
+
+.TP
+.B memory
+Show RAM and swap usage, and list the top 10 most memory-hungry processes.
+
+Runs:
+.I free \-h, ps aux \-\-sort=\-%mem
+
+.TP
+.B cpu
+Display CPU model, core/thread count, current MHz, system load averages,
+and the top CPU-consuming processes.
+
+Runs:
+.I lscpu, uptime, ps aux \-\-sort=\-%cpu
+
+.TP
+.B network
+Run a full network diagnostic suite covering 7 areas:
+
+.RS
+.TP
+.B [1] Internet Connectivity
+Pings
+.I 8.8.8.8
+and
+.I google.com
+with plain-English pass/fail output. Distinguishes between a gateway issue
+(cannot reach IP) and a DNS issue (cannot resolve hostname).
+
+.TP
+.B [2] DNS Resolution
+Displays configured DNS servers from
+.I /etc/resolv.conf,
+performs a live DNS lookup, and a reverse DNS test using
+.I dig
+or
+.I nslookup.
+
+.TP
+.B [3] Network Interfaces & Speed/Errors
+Lists all interfaces with IP addresses, shows RX/TX error and drop counters,
+and reports link speed and duplex using
+.I ethtool
+(if available).
+
+Runs:
+.I ip \-br addr, ip \-s link, ethtool
+
+.TP
+.B [4] Open Ports
+Lists all ports the machine is actively listening on, including the process
+name responsible for each port.
+
+Runs:
+.I ss \-tulnp
+
+.TP
+.B [5] Who's Connected
+Shows all established inbound connections and summarises unique remote IPs
+with connection counts.
+
+Runs:
+.I ss \-tnp state established
+
+.TP
+.B [6] Firewall Rules
+Auto-detects whether
+.I ufw
+or
+.I iptables
+is in use, and displays active INPUT and OUTPUT rules.
+
+Runs:
+.I ufw status verbose, iptables \-L INPUT/OUTPUT \-n \-v
+
+.TP
+.B [7] Routing Table
+Displays the full routing table and highlights the default gateway.
+
+Runs:
+.I ip route
+.RE
+
+.TP
+.B process
+Snapshot of all running processes sorted by CPU usage, plus a process tree.
+
+Runs:
+.I ps aux \-\-sort=\-%cpu, pstree \-p
+
+.TP
+.B services
+Lists failed systemd units and all currently running services.
+
+Runs:
+.I systemctl \-\-failed, systemctl list\-units \-\-type=service \-\-state=running
+
+.TP
+.B logs
+Shows the last 30 lines of system/kernel logs and the last 10 SSH auth log
+entries. Falls back gracefully between journald, syslog, and messages.
+
+Runs:
+.I journalctl \-n 30, journalctl \-u ssh \-n 10
+
+.TP
+.B all
+Runs all of the above checks in sequence: disk, memory, cpu, network,
+process, services, logs.
+
+.TP
+.B help
+Display usage information and a list of all subcommands.
+
+.SH EXAMPLES
+
+.TP
+Launch the interactive menu:
+.B tshelper
+
+.TP
+Check disk usage directly:
+.B tshelper disk
+
+.TP
+Run a full network diagnostic:
+.B tshelper network
+
+.TP
+Run everything at once (useful for a health report):
+.B tshelper all
+
+.TP
+Pipe the full report to a file for sharing:
+.B tshelper all > report.txt
+
+.SH INSTALLATION
+
+Copy the script to your PATH and make it executable:
+
+.RS
+.nf
+sudo cp tshelper.sh /usr/local/bin/tshelper
+sudo chmod +x /usr/local/bin/tshelper
+.fi
+.RE
+
+Install the man page:
+
+.RS
+.nf
+sudo cp tshelper.1 /usr/local/share/man/man1/
+sudo mandb
+man tshelper
+.fi
+.RE
+
+.SH DEPENDENCIES
+
+.B tshelper
+uses standard Linux utilities that are present on most distributions.
+Optional tools enhance output when available:
+
+.TP
+.B Required (standard on all distros)
+bash, ps, df, du, free, ip, ss, ping, cat, awk, sort
+
+.TP
+.B Optional (install for richer output)
+.I dig / nslookup
+\- for DNS resolution checks (package:
+.B dnsutils
+)
+
+.I ethtool
+\- for interface speed and duplex info (package:
+.B ethtool
+)
+
+.I pstree
+\- for process tree view (package:
+.B psmisc
+)
+
+.I ufw / iptables
+\- for firewall rule display
+
+.I journalctl
+\- for structured log output (systemd systems)
+
+.SH EXIT STATUS
+
+.TP
+.B 0
+Success.
+
+.TP
+.B 1
+Unknown subcommand was provided.
+
+.SH NOTES
+Some subcommands (firewall rules via iptables, certain network stats) may require
+.B root
+or
+.B sudo
+privileges to display full output.
+
+.SH AUTHOR
+Written for layman-friendly Linux troubleshooting.
+Maintained by the tshelper project.
+
+.SH SEE ALSO
+.BR df (1),
+.BR du (1),
+.BR free (1),
+.BR ps (1),
+.BR ss (8),
+.BR ip (8),
+.BR ping (8),
+.BR dig (1),
+.BR iptables (8),
+.BR ufw (8),
+.BR journalctl (1),
+.BR systemctl (1),
+.BR ethtool (8),
+.BR pstree (1)

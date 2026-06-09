@@ -584,6 +584,8 @@ Live Kubernetes and Prometheus validation remains a separate environment test.
 | [`docs/AOP_PRODUCT_VISION.md`](docs/AOP_PRODUCT_VISION.md) | Linux, Kubernetes, AWS, UI, Slack/Teams, and onboarding vision |
 | [`docs/AUTONOMOUS_OPS_PLATFORM_MEMORY_LANE.md`](docs/AUTONOMOUS_OPS_PLATFORM_MEMORY_LANE.md) | Compact current implementation memory |
 | [`docs/KUBERNETES_CLI.md`](docs/KUBERNETES_CLI.md) | Kubernetes shortcut reference |
+| [`docs/linux/LINUX_EXPERTISE_BLUEPRINT.md`](docs/linux/LINUX_EXPERTISE_BLUEPRINT.md) | Linux administration expertise and implementation direction |
+| [`docs/linux/tshelper-original/`](docs/linux/tshelper-original/) | Preserved original `tshelper` source materials |
 | [`docs/setup/installation.md`](docs/setup/installation.md) | Detailed local installation |
 | [`docs/architecture/adr/`](docs/architecture/adr/) | Architecture decision records |
 | [`CHANGELOG.md`](CHANGELOG.md) | Version history |
