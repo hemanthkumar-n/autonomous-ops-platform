@@ -1,11 +1,12 @@
 # Autonomous Ops Platform: Codex Memory
 
-Updated: 2026-06-09
+Updated: 2026-06-10
 
 ## Purpose
 
 AOP is an AI-native operational intelligence runtime for SRE and platform
-engineering. Kubernetes is the first production path; Linux, AWS, Terraform,
+engineering. Kubernetes incident intelligence and the first deterministic
+Linux troubleshooting CLI are implemented. AWS, Terraform, UI, collaboration,
 and autonomous execution remain future domains.
 
 Long-term product direction is preserved in:
@@ -33,14 +34,11 @@ Remediation is advisory and non-destructive.
 
 ## Current Baseline
 
-- Version: `0.7.0`
+- Version: `0.8.0`
 - Branch: `feature/aop-cli-transition`
-- Latest commits:
-  - `526bdbc` remove local artifacts from tracking
-  - `e946e90` add showcase-ready AOP CLI workflow
 - Python: `3.11+`
 - CLI entry point: `aop`
-- Tests: twelve offline regression tests passing
+- Tests: twenty-one offline regression tests passing
 - Real Ollama generation and 768-dimensional embeddings verified
 - Full live demo still requires Kubernetes and Prometheus to be running
 
@@ -60,6 +58,20 @@ Kubernetes pods
 Semantic-memory failure degrades to exact structured memory. Missing memory
 does not block analysis from current evidence.
 
+Linux CLI:
+
+```text
+host health
+  -> bounded read-only command collection
+  -> CPU, memory, disk, network, process, service, log, kernel, boot, security
+  -> normalized unavailable, permission, timeout, and error evidence
+  -> human-readable or JSON output
+```
+
+Advanced Linux correlation, incident memory, and AI RCA are not implemented.
+Original `tshelper` sources are preserved under
+`docs/linux/tshelper-original/`.
+
 ## Main Files
 
 ```text
@@ -67,9 +79,11 @@ app/cli/main.py
 app/cli/investigate.py
 app/cli/health.py
 app/cli/kubernetes.py
+app/cli/linux.py
 app/orchestration/incident_workflow.py
 app/tools/kubernetes/incident_context.py
 app/tools/kubernetes/operations.py
+app/tools/linux/operations.py
 app/agents/sre/incident_classifier.py
 app/agents/sre/rca_agent.py
 app/agents/sre/remediation_agent.py
@@ -93,6 +107,9 @@ aop health
 aop kb health
 aop kb po
 aop kb ev
+aop linux health
+aop linux network
+aop linux all --json
 aop investigate k8s --namespace ai-lab
 aop investigate k8s --namespace ai-lab \
   --format markdown \
@@ -104,6 +121,14 @@ Kubernetes shortcut reference:
 
 ```text
 docs/KUBERNETES_CLI.md
+```
+
+Linux references:
+
+```text
+docs/LINUX_CLI.md
+docs/linux/LINUX_EXPERTISE_BLUEPRINT.md
+docs/linux/tshelper-original/
 ```
 
 Sample incidents:

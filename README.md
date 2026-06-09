@@ -10,7 +10,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-blue" alt="Python 3.11+" />
-  <img src="https://img.shields.io/badge/AOP-v0.7.0-success" alt="AOP v0.7.0" />
+  <img src="https://img.shields.io/badge/AOP-v0.8.0-success" alt="AOP v0.8.0" />
   <img src="https://img.shields.io/badge/Kubernetes-SRE%20Shortcuts-326CE5" alt="Kubernetes SRE Shortcuts" />
   <img src="https://img.shields.io/badge/Observability-Prometheus-red" alt="Prometheus" />
   <img src="https://img.shields.io/badge/LLM-Ollama-green" alt="Ollama" />
@@ -64,15 +64,19 @@ The durable cross-domain product direction is documented in
 Current version:
 
 ```text
-AOP v0.7.0
+AOP v0.8.0
 ```
 
-The implemented and tested path currently focuses on Kubernetes incident
-intelligence.
+The implemented and tested paths currently cover Kubernetes incident
+intelligence and the first deterministic Linux troubleshooting CLI.
 
 ### Implemented
 
 - installable `aop` command
+- native `aop linux` health and diagnostic commands
+- bounded, shell-free Linux command execution with JSON output
+- CPU, memory, disk, network, process, service, log, kernel, boot, and security
+  evidence collection
 - read-only Kubernetes SRE shortcuts
 - Kubernetes pod and container evidence collection
 - node, namespace, deployment, service, event, and log inspection
@@ -85,11 +89,11 @@ intelligence.
 - graceful exact-memory fallback
 - Markdown and JSON incident reports
 - typed Pydantic contracts
-- twelve offline regression tests
+- twenty-one offline regression tests
 
 ### Not Yet Implemented
 
-- Linux diagnostics engine
+- deep Linux signal correlation, incident classification, memory, and AI RCA
 - AWS and CloudWatch troubleshooting
 - operator web UI
 - Slack or Microsoft Teams approval workflows
@@ -139,6 +143,43 @@ aop kb inv -n ai-lab
 The showcase demonstrates a single workflow from live Kubernetes evidence to
 deterministic classification, historical-memory lookup, AI-assisted RCA, safe
 remediation guidance, and persisted incident knowledge.
+
+---
+
+## Linux SRE CLI
+
+The preserved `tshelper` workflow is now available through native AOP commands:
+
+```bash
+aop linux health
+aop linux cpu
+aop linux memory
+aop linux disk --path /var
+aop linux network
+aop linux processes --top 20
+aop linux services
+aop linux logs
+aop linux kernel
+aop linux boot
+aop linux security
+aop linux all
+```
+
+Use JSON output for automation:
+
+```bash
+aop linux health --json
+aop linux network --json
+aop linux all --json > linux-report.json
+```
+
+The first release is read-only and deterministic. It uses explicit command
+arguments without shell evaluation, applies timeouts and output limits,
+records missing commands and permission failures as evidence, and avoids
+restart, kill, delete, unmount, firewall, and log-clearing actions.
+
+The deeper Linux intelligence roadmap is documented in
+[`docs/linux/LINUX_EXPERTISE_BLUEPRINT.md`](docs/linux/LINUX_EXPERTISE_BLUEPRINT.md).
 
 ---
 
@@ -559,12 +600,15 @@ python -m unittest discover -s tests -v
 Current baseline:
 
 ```text
-12 tests passing
+21 tests passing
 ```
 
 The tests cover:
 
 - CLI discovery and aliases
+- Linux CLI discovery, JSON output, and prioritized health findings
+- shell-free Linux command execution, timeout handling, and missing utilities
+- bounded Linux process output and diagnostic ordering
 - Kubernetes health and JSON output
 - healthy and completed pod normalization
 - primary incident classification
@@ -584,6 +628,7 @@ Live Kubernetes and Prometheus validation remains a separate environment test.
 | [`docs/AOP_PRODUCT_VISION.md`](docs/AOP_PRODUCT_VISION.md) | Linux, Kubernetes, AWS, UI, Slack/Teams, and onboarding vision |
 | [`docs/AUTONOMOUS_OPS_PLATFORM_MEMORY_LANE.md`](docs/AUTONOMOUS_OPS_PLATFORM_MEMORY_LANE.md) | Compact current implementation memory |
 | [`docs/KUBERNETES_CLI.md`](docs/KUBERNETES_CLI.md) | Kubernetes shortcut reference |
+| [`docs/LINUX_CLI.md`](docs/LINUX_CLI.md) | Native Linux troubleshooting command reference |
 | [`docs/linux/LINUX_EXPERTISE_BLUEPRINT.md`](docs/linux/LINUX_EXPERTISE_BLUEPRINT.md) | Linux administration expertise and implementation direction |
 | [`docs/linux/tshelper-original/`](docs/linux/tshelper-original/) | Preserved original `tshelper` source materials |
 | [`docs/setup/installation.md`](docs/setup/installation.md) | Detailed local installation |

@@ -68,12 +68,13 @@ aop --version
 aop --help
 aop health
 aop kb --help
+aop linux --help
 ```
 
 The expected CLI version is:
 
 ```text
-aop, version 0.7.0
+aop, version 0.8.0
 ```
 
 ---

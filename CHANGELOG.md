@@ -4,6 +4,37 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.8.0 - Native Linux SRE Commands
+
+Date: 2026-06-10
+
+### Added
+
+- native `aop linux` command group
+- `health`, `cpu`, `memory`, `disk`, `network`, `processes`, `services`,
+  `logs`, `kernel`, `boot`, `security`, and `all` commands
+- human-readable and JSON diagnostic output
+- bounded shell-free command runner with timeouts
+- normalized unavailable, permission, timeout, and command-error evidence
+- deterministic load, available-memory, filesystem, and failed-service health
+  findings
+- preserved original `tshelper` sources with provenance and SHA-256 checksums
+- Linux operational expertise blueprint
+- Linux CLI and command-runner regression tests
+
+### Safety
+
+Linux commands are read-only. AOP does not restart services, kill processes,
+delete files, modify firewalls, unmount filesystems, or clear logs.
+
+### Current Boundary
+
+This release establishes deterministic Linux evidence collection. Advanced
+cross-signal correlation, incident memory, AI-assisted RCA, and remediation
+guidance remain planned work.
+
+---
+
 ## v0.7.0 — Kubernetes SRE Shortcuts
 
 Date: 2026-06-09

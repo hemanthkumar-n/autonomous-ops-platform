@@ -42,7 +42,7 @@ Symptom
 AI analysis should enhance this workflow only after deterministic evidence and
 rules have established the facts.
 
-## Planned CLI
+## Implemented CLI Foundation
 
 ```text
 aop linux health
@@ -56,11 +56,12 @@ aop linux logs
 aop linux kernel
 aop linux boot
 aop linux security
-aop linux investigate
 aop linux all
 ```
 
-Short aliases can be introduced after the command behavior is stable.
+These commands provide read-only, bounded evidence collection with
+human-readable and JSON output. `aop linux investigate`, cross-domain
+correlation, incident memory, and AI-assisted RCA remain future work.
 
 ## Baseline Evidence
 
@@ -231,24 +232,26 @@ variables must be redacted from reports.
 
 ### Phase 1: Preserve and Model
 
-- preserve all `tshelper` source material
-- define typed Linux host and diagnostic evidence
-- establish command execution safety and timeout contracts
+- [x] preserve all `tshelper` source material
+- [x] establish command execution safety and timeout contracts
+- [x] add normalized Linux command-result records
+- [ ] define comprehensive typed Linux host and diagnostic evidence
 - document distribution and utility compatibility
 
 ### Phase 2: Linux Health
 
-- implement `aop linux health`
-- collect baseline host, load, memory, disk, inode, service, kernel, and network
-  indicators
-- return deterministic status and prioritized findings
-- add offline fixture-based tests
+- [x] implement `aop linux health`
+- [x] collect baseline host, load, memory, filesystem, and service indicators
+- [x] return deterministic status and prioritized findings
+- [x] add offline mocked tests
+- [ ] add Linux fixture coverage for inode, kernel, network, and service states
 
 ### Phase 3: Focused Diagnostics
 
-- implement CPU, memory, disk, network, process, service, and log commands
-- add bounded human-readable and JSON reports
-- encode expert correlation and next-step rules
+- [x] implement CPU, memory, disk, network, process, service, and log commands
+- [x] add bounded human-readable and JSON reports
+- [x] add kernel, boot, and security evidence commands
+- [ ] encode advanced expert correlation and next-step rules
 
 ### Phase 4: Deep Linux Intelligence
 
