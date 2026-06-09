@@ -695,9 +695,8 @@ This platform serves as a flagship engineering initiative demonstrating
 enterprise AI operations architecture and autonomous platform engineering
 vision.
 
-LinkedIn: 
-https://www.linkedin.com/in/hemanthkumarn
-
+LinkedIn:
+https://www.linkedin.com/in/hemanthkumarn/
 
 GitHub:
 https://github.com/hemanthkumar-n
