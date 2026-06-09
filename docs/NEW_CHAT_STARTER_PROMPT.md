@@ -1,53 +1,23 @@
-# New Chat Starter Prompt
-
-Paste this into a fresh ChatGPT or Codex conversation:
+# New Codex Chat
 
 ```text
-I am working on `autonomous-ops-platform`, an AI-native SRE and platform engineering project.
+Work in `autonomous-ops-platform`.
 
-Repo:
-https://github.com/hemanthkumar-n/autonomous-ops-platform/
+First read `docs/AUTONOMOUS_OPS_PLATFORM_MEMORY_LANE.md`.
+Then inspect only files relevant to my task; do not scan every ADR or Markdown
+file unless the task requires architecture history.
 
-Please first read `AUTONOMOUS_OPS_PLATFORM_MEMORY_LANE.md` if I provide it. If not, inspect the repo starting from:
-- README.md
-- docs/architecture/incident-intelligence-workflow.md
-- docs/architecture/adr/
-- app/orchestration/incident_workflow.py
-- app/tools/kubernetes/incident_context.py
-- app/agents/sre/
-- app/memory/
-- app/llm/
-- app/schemas/
+Preserve:
+- evidence before AI
+- deterministic classification before LLM reasoning
+- typed contracts
+- provider abstraction
+- exact-memory fallback when semantic memory is unavailable
+- advisory, non-destructive remediation
+- focused changes with tests
 
-Current platform focus:
-- Kubernetes incident context collection
-- Prometheus metrics enrichment
-- deterministic incident classification
-- Ollama-based RCA and remediation
-- safe advisory remediation
-- structured JSON incident memory
-- semantic memory using ChromaDB
-- hybrid exact plus semantic retrieval
-- provider abstractions for LLM, embeddings, and vector stores
-- installable `aop` CLI for Kubernetes investigation
-- runtime health checks and Markdown/JSON report export
+Treat current code and tests as truth over stale documentation.
 
-Important design principles:
-- evidence before AI reasoning
-- deterministic checks before LLM output
-- typed contracts between layers
-- provider abstraction, no direct vendor coupling in agents
-- memory-first operational intelligence
-- no destructive remediation by default
-- keep changes scoped and production-minded
-
-Known current gaps:
-- FastAPI layer is placeholder
-- tests cover the recovered core path but are not yet comprehensive
-- many domain folders are future skeletons
-- ADR numbering has duplicates
-- Kubernetes and Prometheus must be running for the complete showcase
-
-Now help me with this specific task:
-<replace this line with the task>
+Task:
+<describe the task>
 ```
