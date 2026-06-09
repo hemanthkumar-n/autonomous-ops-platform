@@ -10,6 +10,9 @@ from app.memory.fingerprints.signature import extract_failure_reason
 from app.memory.retrieval.hybrid_search import (
     hybrid_incident_search,
 )
+from app.prompts.shared.cross_domain import (
+    KUBERNETES_LINUX_CORRELATION_POLICY,
+)
 from app.schemas.ai import RemediationResponse
 from app.schemas.classification import IncidentClassification
 from app.schemas.incident import IncidentContext
@@ -119,6 +122,8 @@ Safety rules:
 - Prefer validation-first remediation
 - Recommend escalation when confidence is limited
 - Preserve operational safety
+
+{KUBERNETES_LINUX_CORRELATION_POLICY}
 
 Output format:
 

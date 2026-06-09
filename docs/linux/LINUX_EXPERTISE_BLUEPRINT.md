@@ -9,6 +9,10 @@ The founding source is Hemanth Kumar's `tshelper` work and the operational
 experience behind its command selection. The original artifacts are preserved
 under [`tshelper-original/`](tshelper-original/).
 
+The founder's authored Linux and Kubernetes correlation criterion is preserved
+in
+[`../../app/memory/knowledgebase/linkedin_kubernetes_linux_criteria.md`](../../app/memory/knowledgebase/linkedin_kubernetes_linux_criteria.md).
+
 This document is the editable design space. The archived source files remain
 unchanged.
 
@@ -280,3 +284,14 @@ New Linux knowledge from the author should be recorded as one of:
 
 This converts individual experience into durable, testable operational
 intelligence.
+
+## Kubernetes Correlation Rule
+
+Linux evidence should not be collected as an isolated parallel report. When a
+Kubernetes incident can originate from the node, AOP should correlate the pod,
+workload, event, metric, kernel, cgroup, filesystem, process, service, runtime,
+and network evidence inside one investigation.
+
+Until remote node collection exists, AI must name the missing Linux evidence
+and recommend the appropriate `aop linux` command rather than asserting a
+host-level cause.

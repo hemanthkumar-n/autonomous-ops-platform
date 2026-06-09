@@ -8,6 +8,9 @@ from app.agents.sre.incident_classifier import classify_incident
 from app.config.logging_config import get_logger
 from app.llm.client import LLMClient
 from app.memory.retrieval.hybrid_search import hybrid_incident_search
+from app.prompts.shared.cross_domain import (
+    KUBERNETES_LINUX_CORRELATION_POLICY,
+)
 from app.schemas.classification import IncidentClassification
 from app.schemas.incident import IncidentContext
 from app.schemas.memory import MemoryQuery
@@ -142,6 +145,8 @@ Rules:
 - recommend escalation when uncertain
 - prioritize operational safety
 - keep guidance practical and executable
+
+{KUBERNETES_LINUX_CORRELATION_POLICY}
 
 Classification:
 {classification.model_dump_json(indent=2)}

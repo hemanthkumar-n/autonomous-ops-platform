@@ -34,11 +34,11 @@ Remediation is advisory and non-destructive.
 
 ## Current Baseline
 
-- Version: `0.8.0`
+- Version: `0.8.1`
 - Branch: `feature/aop-cli-transition`
 - Python: `3.11+`
 - CLI entry point: `aop`
-- Tests: twenty-one offline regression tests passing
+- Tests: twenty-five offline regression tests passing
 - Real Ollama generation and 768-dimensional embeddings verified
 - Full live demo still requires Kubernetes and Prometheus to be running
 
@@ -72,6 +72,29 @@ Advanced Linux correlation, incident memory, and AI RCA are not implemented.
 Original `tshelper` sources are preserved under
 `docs/linux/tshelper-original/`.
 
+## Kubernetes and Linux AI Criterion
+
+Founder's authored LinkedIn source:
+
+```text
+app/memory/knowledgebase/linkedin_kubernetes_linux_criteria.md
+```
+
+Durable rule:
+
+```text
+Kubernetes symptom
+  -> collect orchestration evidence
+  -> determine whether a Linux node cause is plausible
+  -> correlate node evidence when available
+  -> state evidence gaps when unavailable
+  -> never invent host facts
+  -> recommend the next read-only aop linux command
+```
+
+This policy is active in the RCA, combined incident-analysis, and remediation
+prompts through `app/prompts/shared/cross_domain.py`.
+
 ## Main Files
 
 ```text
@@ -87,6 +110,8 @@ app/tools/linux/operations.py
 app/agents/sre/incident_classifier.py
 app/agents/sre/rca_agent.py
 app/agents/sre/remediation_agent.py
+app/prompts/shared/cross_domain.py
+app/memory/knowledgebase/linkedin_kubernetes_linux_criteria.md
 app/llm/client.py
 app/llm/providers/ollama_provider.py
 app/memory/retrieval/hybrid_search.py
@@ -167,6 +192,8 @@ ENABLE_DESTRUCTIVE_REMEDIATION=false
 ## Engineering Rules
 
 - Evidence before AI reasoning.
+- Correlate Kubernetes symptoms with Linux node evidence when relevant.
+- State missing host evidence explicitly; never infer invented Linux facts.
 - Deterministic classification before LLM analysis.
 - Keep typed Pydantic contracts between layers.
 - Agents use provider clients, not vendor transports directly.

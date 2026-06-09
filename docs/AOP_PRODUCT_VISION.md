@@ -47,6 +47,16 @@ Linux knowledge is a core product advantage, not a secondary integration.
 Future Linux diagnostics should capture real operational troubleshooting
 patterns and lessons accumulated through the founder's career.
 
+An authored Linux/Kubernetes troubleshooting criterion is preserved at:
+
+```text
+app/memory/knowledgebase/linkedin_kubernetes_linux_criteria.md
+```
+
+Its central product rule is that Kubernetes orchestration symptoms must be
+correlated with relevant Linux node evidence before AOP reaches a cross-domain
+conclusion.
+
 ## Product Domains
 
 ### Linux
@@ -239,6 +249,10 @@ Linux + Kubernetes + AWS + Observability + Runbooks + Incident History
 - Evidence before AI.
 - Deterministic troubleshooting before probabilistic reasoning.
 - Linux and Kubernetes are first-class domains.
+- Kubernetes symptoms must trigger Linux node correlation when the failure
+  could originate from kernel, cgroup, process, filesystem, network, service,
+  kubelet, or container-runtime behavior.
+- Missing cross-domain evidence must be identified, not invented by AI.
 - AWS is a first-class cloud domain.
 - Human confirmation before consequential action.
 - CLI, UI, and chat are interfaces to the same platform intelligence.

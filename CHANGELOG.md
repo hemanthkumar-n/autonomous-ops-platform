@@ -4,6 +4,27 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.8.1 - Linux and Kubernetes AI Correlation Policy
+
+Date: 2026-06-10
+
+### Added
+
+- founder-authored LinkedIn knowledge source for Linux and Kubernetes
+  troubleshooting
+- shared cross-domain AI prompt policy
+- Kubernetes-to-Linux evidence-gap and correlation requirements
+- prompt regression tests for RCA, combined analysis, and remediation
+
+### Changed
+
+- AI must distinguish confirmed evidence from hypotheses
+- AI must identify missing Linux node evidence instead of inventing host facts
+- AI recommends the next read-only `aop linux` diagnostic when node evidence is
+  required but unavailable
+
+---
+
 ## v0.8.0 - Native Linux SRE Commands
 
 Date: 2026-06-10

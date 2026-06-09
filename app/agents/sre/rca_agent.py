@@ -9,6 +9,9 @@ from app.memory.fingerprints.signature import extract_failure_reason
 from app.memory.retrieval.hybrid_search import (
     hybrid_incident_search,
 )
+from app.prompts.shared.cross_domain import (
+    KUBERNETES_LINUX_CORRELATION_POLICY,
+)
 from app.schemas.ai import RCAResponse
 from app.schemas.classification import IncidentClassification
 from app.schemas.incident import IncidentContext
@@ -121,6 +124,8 @@ Operational responsibilities:
 
 Important telemetry note:
 Prometheus metrics represent point-in-time observations and may not reflect historical peak resource usage before failure.
+
+{KUBERNETES_LINUX_CORRELATION_POLICY}
 
 Output format:
 

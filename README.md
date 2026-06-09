@@ -10,7 +10,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-blue" alt="Python 3.11+" />
-  <img src="https://img.shields.io/badge/AOP-v0.8.0-success" alt="AOP v0.8.0" />
+  <img src="https://img.shields.io/badge/AOP-v0.8.1-success" alt="AOP v0.8.1" />
   <img src="https://img.shields.io/badge/Kubernetes-SRE%20Shortcuts-326CE5" alt="Kubernetes SRE Shortcuts" />
   <img src="https://img.shields.io/badge/Observability-Prometheus-red" alt="Prometheus" />
   <img src="https://img.shields.io/badge/LLM-Ollama-green" alt="Ollama" />
@@ -64,7 +64,7 @@ The durable cross-domain product direction is documented in
 Current version:
 
 ```text
-AOP v0.8.0
+AOP v0.8.1
 ```
 
 The implemented and tested paths currently cover Kubernetes incident
@@ -89,7 +89,7 @@ intelligence and the first deterministic Linux troubleshooting CLI.
 - graceful exact-memory fallback
 - Markdown and JSON incident reports
 - typed Pydantic contracts
-- twenty-one offline regression tests
+- twenty-five offline regression tests
 
 ### Not Yet Implemented
 
@@ -400,6 +400,17 @@ Programming errors are not silently hidden behind fallback behavior.
 AI reasoning consumes normalized infrastructure evidence. Agents do not begin
 from an alert title alone.
 
+### Linux and Kubernetes Correlation
+
+Kubernetes symptoms are not assumed to be Kubernetes-only failures. Current AI
+prompts require relevant Linux node correlation for memory, CPU, disk, inode,
+network, DNS, storage, runtime, scheduling, and node-readiness incidents. If
+host evidence is unavailable, AOP must state the gap and recommend the next
+read-only `aop linux` command rather than inventing node facts.
+
+This criterion comes from the founder's authored SRE knowledge record:
+[`linkedin_kubernetes_linux_criteria.md`](app/memory/knowledgebase/linkedin_kubernetes_linux_criteria.md).
+
 ### Deterministic Before Probabilistic
 
 Known operational failure signals are classified through explicit rules before
@@ -600,7 +611,7 @@ python -m unittest discover -s tests -v
 Current baseline:
 
 ```text
-21 tests passing
+25 tests passing
 ```
 
 The tests cover:
