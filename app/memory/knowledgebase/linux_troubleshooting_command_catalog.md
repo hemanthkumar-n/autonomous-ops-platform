@@ -280,6 +280,24 @@ collection.
 
 ## 4. Disk Capacity, Inodes, Filesystems, and I/O
 
+Implemented AOP workflow:
+
+```bash
+aop linux disk --path <PATH>
+aop linux space --path <PATH>
+aop linux fs --path <PATH>
+```
+
+Bound recent growth searches:
+
+```bash
+aop linux disk --path /var/log --top 20 \
+  --recent-minutes 30 --large-size-mb 500
+```
+
+AOP executes capacity/type, inode, mount, directory usage, recent large-file,
+deleted-open file, and kernel-error evidence in that order.
+
 ### Capacity and filesystem type
 
 ```bash

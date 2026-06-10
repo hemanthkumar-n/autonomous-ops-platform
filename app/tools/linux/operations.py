@@ -427,6 +427,171 @@ def collect_domain(
     }
 
 
+def collect_disk(
+    scan_path: str = "/",
+    top: int = 10,
+    recent_minutes: int = 60,
+    large_size_mb: int = 1024,
+) -> dict:
+    """
+    Collect ordered disk-space evidence for one filesystem path.
+    """
+
+    if platform.system() != "Linux":
+        return {
+            "domain": "disk",
+            "status": "unsupported",
+            "host": socket.gethostname(),
+            "platform": platform.platform(),
+            "message": "Linux diagnostics require a Linux host",
+            "path": scan_path,
+            "results": [],
+        }
+
+    specs = [
+        _spec(
+            "filesystem",
+            f"Filesystem capacity and type for {scan_path}",
+            "df",
+            "-hT",
+            "--",
+            scan_path,
+        ),
+        _spec(
+            "inodes",
+            f"Filesystem inode usage for {scan_path}",
+            "df",
+            "-i",
+            "--",
+            scan_path,
+        ),
+        _spec(
+            "mount",
+            f"Mount source, type, and options for {scan_path}",
+            "findmnt",
+            "-T",
+            scan_path,
+            "-o",
+            "SOURCE,FSTYPE,OPTIONS,TARGET",
+        ),
+        _spec(
+            "directory_usage",
+            f"Largest directories under {scan_path}",
+            "du",
+            "-x",
+            "-B1",
+            "--max-depth=1",
+            scan_path,
+        ),
+        _spec(
+            "large_recent_files",
+            (
+                f"Files larger than {large_size_mb} MiB changed within "
+                f"{recent_minutes} minutes"
+            ),
+            "find",
+            scan_path,
+            "-xdev",
+            "-type",
+            "f",
+            "-size",
+            f"+{large_size_mb}M",
+            "-mmin",
+            f"-{recent_minutes}",
+            "-printf",
+            "%s\t%TY-%Tm-%TdT%TH:%TM:%TS\t%p\n",
+        ),
+        _spec(
+            "deleted_open_files",
+            f"Deleted files still held open under {scan_path}",
+            "lsof",
+            "+L1",
+            scan_path,
+            requires_root=True,
+        ),
+        _spec(
+            "kernel_storage_errors",
+            f"Recent kernel storage and filesystem errors ({recent_minutes}m)",
+            "journalctl",
+            "-k",
+            "--since",
+            f"{recent_minutes} minutes ago",
+            "--grep",
+            (
+                "I/O error|EXT4-fs|XFS|BTRFS|nvme|scsi|"
+                "reset|read-only"
+            ),
+            "--no-pager",
+        ),
+    ]
+    results = [run_command(spec) for spec in specs]
+
+    for result in results:
+        if result.key == "directory_usage" and result.status == "ok":
+            result.output = _sort_sized_lines(
+                result.output,
+                top=top,
+                include_header=False,
+            )
+        elif result.key == "large_recent_files" and result.status == "ok":
+            result.output = _sort_sized_lines(
+                result.output,
+                top=top,
+                include_header=False,
+            )
+
+    return {
+        "domain": "disk",
+        "status": "collected",
+        "host": socket.gethostname(),
+        "platform": platform.platform(),
+        "message": "",
+        "path": scan_path,
+        "top": top,
+        "recent_minutes": recent_minutes,
+        "large_size_mb": large_size_mb,
+        "results": [result.to_dict() for result in results],
+    }
+
+
+def _sort_sized_lines(
+    output: str,
+    top: int,
+    include_header: bool = False,
+) -> str:
+    """
+    Sort command lines beginning with a byte count, largest first.
+    """
+
+    parsed = []
+    unparsed = []
+
+    for line in output.splitlines():
+        first, separator, remainder = line.partition("\t")
+        if not separator:
+            first, separator, remainder = line.partition(" ")
+        try:
+            size = int(first)
+        except ValueError:
+            unparsed.append(line)
+            continue
+        parsed.append((size, remainder.lstrip()))
+
+    selected = sorted(
+        parsed,
+        key=lambda item: item[0],
+        reverse=True,
+    )[:top]
+    lines = [
+        f"{size}\t{remainder}"
+        for size, remainder in selected
+    ]
+
+    if include_header:
+        return "\n".join([*unparsed, *lines])
+    return "\n".join(lines)
+
+
 def collect_health() -> dict:
     """
     Return a concise, deterministic Linux host health snapshot.

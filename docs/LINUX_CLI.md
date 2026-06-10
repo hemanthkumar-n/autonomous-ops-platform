@@ -11,6 +11,8 @@ aop linux health
 aop linux cpu
 aop linux memory
 aop linux disk --path /var
+aop linux space --path /var
+aop linux fs --path /var
 aop linux network
 aop linux services
 aop linux logs
@@ -24,6 +26,8 @@ aop linux logs
 | `aop linux cpu` | CPU topology, load, run queue, and top consumers |
 | `aop linux memory` | Available memory, swap activity, kernel counters, and consumers |
 | `aop linux disk` | Capacity, inodes, mounts, directory usage, and deleted-open files |
+| `aop linux space` | Shortcut for `aop linux disk` |
+| `aop linux fs` | Shortcut for `aop linux disk` |
 | `aop linux network` | Interfaces, errors, routes, neighbors, sockets, and resolvers |
 | `aop linux processes` | Process state, age, hierarchy, and resource usage |
 | `aop linux services` | Failed and running systemd services |
@@ -137,7 +141,58 @@ aop linux disk --path /var
 aop linux disk --path /opt
 ```
 
-Directory scans remain on the selected filesystem through `du -x`.
+### Disk Space Investigation
+
+```bash
+aop linux disk --path /var
+aop linux space --path /var
+aop linux fs --path /var
+```
+
+The command follows this order:
+
+```text
+filesystem bytes and type
+  -> inode usage
+  -> source, filesystem, mount options, and mount point
+  -> largest immediate directories
+  -> recently changed large files
+  -> deleted files still held open
+  -> recent kernel filesystem and storage errors
+```
+
+Tune the bounded searches:
+
+```bash
+aop linux disk \
+  --path /var/log \
+  --top 20 \
+  --recent-minutes 30 \
+  --large-size-mb 500
+```
+
+Options:
+
+- `--path`: select the path and its backing filesystem.
+- `--top`: limit sorted directory and recent-file records.
+- `--recent-minutes`: set the recent-change and kernel-log window.
+- `--large-size-mb`: set the recent-file size threshold.
+- `--json`: emit structured output.
+
+Directory and file searches remain on the selected filesystem through `du -x`
+and `find -xdev`.
+
+Interpretation:
+
+```text
+df bytes full       -> follow directory and large-file evidence
+df inodes full      -> investigate excessive small-file creation
+df larger than du   -> inspect deleted-open files, snapshots, or hidden data
+read-only/I/O error -> investigate filesystem or storage health
+```
+
+`lsof +L1` and some process details may require elevated read access. AOP
+reports permission limits but does not invoke `sudo`.
 
 ## Safety
 

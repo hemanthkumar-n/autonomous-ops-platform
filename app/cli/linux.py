@@ -392,6 +392,73 @@ def cgroups(
             click.echo(f"- {item}")
 
 
+@linux.command("disk")
+@click.option(
+    "--path",
+    "scan_path",
+    type=click.Path(
+        exists=True,
+        file_okay=False,
+        path_type=str,
+    ),
+    default="/",
+    show_default=True,
+    help="Path whose backing filesystem and visible usage should be inspected.",
+)
+@click.option(
+    "--top",
+    type=click.IntRange(1, 100),
+    default=10,
+    show_default=True,
+    help="Maximum directory and recent-file records to display.",
+)
+@click.option(
+    "--recent-minutes",
+    type=click.IntRange(1, 10_080),
+    default=60,
+    show_default=True,
+    help="Recent-change window for large-file and kernel evidence.",
+)
+@click.option(
+    "--large-size-mb",
+    type=click.IntRange(1),
+    default=1024,
+    show_default=True,
+    help="Minimum recent-file size in MiB.",
+)
+@click.option("--json", "as_json", is_flag=True)
+def disk(
+    scan_path: str,
+    top: int,
+    recent_minutes: int,
+    large_size_mb: int,
+    as_json: bool,
+) -> None:
+    """
+    Trace disk usage through capacity, inodes, mounts, files, and errors.
+
+    The command remains on the filesystem backing PATH and does not delete,
+    truncate, unmount, repair, or resize anything.
+    """
+
+    from app.tools.linux.operations import collect_disk
+
+    payload = collect_disk(
+        scan_path=scan_path,
+        top=top,
+        recent_minutes=recent_minutes,
+        large_size_mb=large_size_mb,
+    )
+    if as_json:
+        _echo_json(payload)
+    else:
+        _render_domain(payload)
+
+
+linux.add_command(disk, name="space")
+linux.add_command(disk, name="fs")
+
+
 def _domain_command(name: str, help_text: str):
     def command(
         as_json: bool,
@@ -425,20 +492,6 @@ def _domain_command(name: str, help_text: str):
             help="Number of process records to display.",
         )(decorated)
 
-    if name == "disk":
-        decorated = click.option(
-            "--path",
-            "scan_path",
-            type=click.Path(
-                exists=True,
-                file_okay=False,
-                path_type=str,
-            ),
-            default="/",
-            show_default=True,
-            help="Filesystem path used for bounded directory usage.",
-        )(decorated)
-
     return linux.command(
         name,
         help=help_text,
@@ -448,7 +501,6 @@ def _domain_command(name: str, help_text: str):
 for _name, _help in (
     ("cpu", "Inspect load, CPU topology, run queue, and top consumers."),
     ("memory", "Inspect available memory, swap activity, and top consumers."),
-    ("disk", "Inspect capacity, inodes, mounts, growth, and deleted files."),
     ("network", "Inspect link, address, route, DNS, ports, and connections."),
     ("processes", "Inspect process states, hierarchy, age, and resource use."),
     ("services", "Inspect failed and running systemd services."),

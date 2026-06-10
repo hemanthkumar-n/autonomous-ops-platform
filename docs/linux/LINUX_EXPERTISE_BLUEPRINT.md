@@ -261,6 +261,8 @@ variables must be redacted from reports.
 - [x] implement CPU, memory, disk, network, process, service, and log commands
 - [x] add bounded human-readable and JSON reports
 - [x] add kernel, boot, and security evidence commands
+- [x] add ordered filesystem capacity, inode, mount, growth, deleted-open file,
+  and storage-error investigation
 - [ ] encode advanced expert correlation and next-step rules
 
 ### Phase 4: Deep Linux Intelligence

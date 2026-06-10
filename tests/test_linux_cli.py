@@ -19,6 +19,8 @@ class LinuxCLITests(unittest.TestCase):
             "cpu",
             "memory",
             "disk",
+            "space",
+            "fs",
             "network",
             "processes",
             "services",
@@ -142,6 +144,73 @@ class LinuxCLITests(unittest.TestCase):
             scan_path="/",
             top=10,
         )
+
+    @patch("app.tools.linux.operations.collect_disk")
+    def test_disk_forwards_safe_scope_options(
+        self,
+        collect_disk,
+    ) -> None:
+        collect_disk.return_value = {
+            "domain": "disk",
+            "status": "collected",
+            "host": "worker-1",
+            "platform": "Linux",
+            "message": "",
+            "path": "/var",
+            "results": [],
+        }
+
+        result = CliRunner().invoke(
+            main,
+            [
+                "linux",
+                "disk",
+                "--path",
+                "/var",
+                "--top",
+                "20",
+                "--recent-minutes",
+                "30",
+                "--large-size-mb",
+                "500",
+                "--json",
+            ],
+        )
+
+        self.assertEqual(result.exit_code, 0)
+        payload = json.loads(result.output)
+        self.assertEqual(payload["path"], "/var")
+        collect_disk.assert_called_once_with(
+            scan_path="/var",
+            top=20,
+            recent_minutes=30,
+            large_size_mb=500,
+        )
+
+    @patch("app.tools.linux.operations.collect_disk")
+    def test_disk_shortcuts_use_same_collector(
+        self,
+        collect_disk,
+    ) -> None:
+        collect_disk.return_value = {
+            "domain": "disk",
+            "status": "collected",
+            "host": "worker-1",
+            "platform": "Linux",
+            "message": "",
+            "path": "/",
+            "results": [],
+        }
+
+        for alias in ("space", "fs"):
+            with self.subTest(alias=alias):
+                result = CliRunner().invoke(
+                    main,
+                    ["linux", alias, "--json"],
+                )
+                self.assertEqual(result.exit_code, 0)
+
+        self.assertEqual(collect_disk.call_count, 2)
 
     @patch("app.tools.linux.internals.collect_internals")
     def test_internals_renders_pressure_and_findings(

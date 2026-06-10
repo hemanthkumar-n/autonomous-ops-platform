@@ -10,7 +10,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-blue" alt="Python 3.11+" />
-  <img src="https://img.shields.io/badge/AOP-v0.10.0-success" alt="AOP v0.10.0" />
+  <img src="https://img.shields.io/badge/AOP-v0.11.0-success" alt="AOP v0.11.0" />
   <img src="https://img.shields.io/badge/Kubernetes-SRE%20Shortcuts-326CE5" alt="Kubernetes SRE Shortcuts" />
   <img src="https://img.shields.io/badge/Observability-Prometheus-red" alt="Prometheus" />
   <img src="https://img.shields.io/badge/LLM-Ollama-green" alt="Ollama" />
@@ -64,7 +64,7 @@ The durable cross-domain product direction is documented in
 Current version:
 
 ```text
-AOP v0.10.0
+AOP v0.11.0
 ```
 
 The implemented and tested paths currently cover Kubernetes incident
@@ -80,6 +80,8 @@ intelligence and the first deterministic Linux troubleshooting CLI.
 - Linux scheduler, process-state, PSI, VM-counter, and cgroup evidence
 - cgroup v1/v2 detection and cgroup v2 limits, events, and pressure
 - timed VM, PSI, and cgroup counter deltas with active-event findings
+- ordered disk-space investigation with inode, mount, growth, deleted-file,
+  and kernel-error evidence
 - read-only Kubernetes SRE shortcuts
 - Kubernetes pod and container evidence collection
 - node, namespace, deployment, service, event, and log inspection
@@ -92,7 +94,7 @@ intelligence and the first deterministic Linux troubleshooting CLI.
 - graceful exact-memory fallback
 - Markdown and JSON incident reports
 - typed Pydantic contracts
-- thirty-nine offline regression tests
+- forty-three offline regression tests
 
 ### Not Yet Implemented
 
@@ -158,6 +160,8 @@ aop linux health
 aop linux cpu
 aop linux memory
 aop linux disk --path /var
+aop linux space --path /var
+aop linux fs --path /var
 aop linux network
 aop linux processes --top 20
 aop linux services
@@ -187,6 +191,21 @@ restart, kill, delete, unmount, firewall, and log-clearing actions.
 
 The deeper Linux intelligence roadmap is documented in
 [`docs/linux/LINUX_EXPERTISE_BLUEPRINT.md`](docs/linux/LINUX_EXPERTISE_BLUEPRINT.md).
+
+Disk-space investigation follows an evidence-first sequence:
+
+```bash
+aop linux disk --path /var
+aop linux disk \
+  --path /var/log \
+  --top 20 \
+  --recent-minutes 30 \
+  --large-size-mb 500
+```
+
+The `space` and `fs` aliases run the same workflow. AOP checks filesystem
+capacity/type, inodes, mount context, bounded directory usage, recent large
+files, deleted-open files, and recent kernel storage errors.
 
 Linux internals commands read the kernel's virtual filesystems directly:
 
@@ -634,7 +653,7 @@ python -m unittest discover -s tests -v
 Current baseline:
 
 ```text
-39 tests passing
+43 tests passing
 ```
 
 The tests cover:
@@ -647,6 +666,8 @@ The tests cover:
 - cgroup v1/v2 detection and cgroup v2 limit/event interpretation
 - timed counter deltas, stall percentages, reset handling, and cgroup identity
   validation
+- disk evidence ordering, one-filesystem bounds, numeric sorting, CLI options,
+  and aliases
 - Kubernetes health and JSON output
 - healthy and completed pod normalization
 - primary incident classification

@@ -34,11 +34,11 @@ Remediation is advisory and non-destructive.
 
 ## Current Baseline
 
-- Version: `0.10.0`
+- Version: `0.11.0`
 - Branch: `feature/aop-cli-transition`
 - Python: `3.11+`
 - CLI entry point: `aop`
-- Tests: thirty-nine offline regression tests passing
+- Tests: forty-three offline regression tests passing
 - Real Ollama generation and 768-dimensional embeddings verified
 - Full live demo still requires Kubernetes and Prometheus to be running
 
@@ -66,6 +66,7 @@ host health
   -> CPU, memory, disk, network, process, service, log, kernel, boot, security
   -> scheduler/load, task states, PSI, VM counters, and cgroup evidence
   -> optional timed counter deltas and measured pressure
+  -> ordered disk-space and inode investigation
   -> normalized unavailable, permission, timeout, and error evidence
   -> human-readable or JSON output
 ```
@@ -137,6 +138,7 @@ aop kb health
 aop kb po
 aop kb ev
 aop linux health
+aop linux disk --path /var
 aop linux network
 aop linux internals --interval 5
 aop linux cgroups --pid 1 --interval 5

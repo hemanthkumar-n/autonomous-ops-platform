@@ -4,6 +4,28 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.11.0 - Ordered Disk Space Investigation
+
+Date: 2026-06-10
+
+### Added
+
+- dedicated `aop linux disk` troubleshooting workflow
+- `aop linux space` and `aop linux fs` shortcuts
+- filesystem-targeted capacity, type, inode, source, and mount-option checks
+- bounded and numerically sorted directory usage
+- configurable recent large-file discovery
+- deleted-open file evidence
+- bounded kernel filesystem and storage-error evidence
+- disk command help, manual guidance, and regression tests
+
+### Safety
+
+Disk collection remains on the filesystem backing the selected path and does
+not delete, truncate, restart, unmount, repair, or resize anything.
+
+---
+
 ## v0.10.0 - Timed Linux Pressure and Cgroup Sampling
 
 Date: 2026-06-10

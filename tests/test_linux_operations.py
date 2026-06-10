@@ -7,6 +7,7 @@ from unittest.mock import Mock, patch
 from app.tools.linux.operations import (
     CommandResult,
     CommandSpec,
+    collect_disk,
     collect_domain,
     domain_specs,
     run_command,
@@ -117,6 +118,98 @@ class LinuxOperationsTests(unittest.TestCase):
             keys[:4],
             ["addresses", "link_stats", "routes", "neighbors"],
         )
+
+    @patch(
+        "app.tools.linux.operations.platform.system",
+        return_value="Linux",
+    )
+    @patch("app.tools.linux.operations.run_command")
+    def test_disk_collection_is_ordered_and_bounded(
+        self,
+        run_command_mock,
+        _platform_system,
+    ) -> None:
+        def result(spec):
+            output = ""
+            if spec.key == "directory_usage":
+                output = (
+                    "100\t/var/small\n"
+                    "5000\t/var/large\n"
+                    "1000\t/var/medium\n"
+                )
+            if spec.key == "large_recent_files":
+                output = (
+                    "200\t2026-06-10T10:00:00\t/var/a.log\n"
+                    "900\t2026-06-10T10:01:00\t/var/b.log\n"
+                )
+            return CommandResult(
+                key=spec.key,
+                label=spec.label,
+                command=" ".join(spec.argv),
+                status="ok",
+                output=output,
+                requires_root=spec.requires_root,
+            )
+
+        run_command_mock.side_effect = result
+
+        payload = collect_disk(
+            scan_path="/var",
+            top=2,
+            recent_minutes=30,
+            large_size_mb=500,
+        )
+
+        keys = [item["key"] for item in payload["results"]]
+        self.assertEqual(
+            keys,
+            [
+                "filesystem",
+                "inodes",
+                "mount",
+                "directory_usage",
+                "large_recent_files",
+                "deleted_open_files",
+                "kernel_storage_errors",
+            ],
+        )
+        self.assertEqual(
+            payload["results"][3]["output"].splitlines(),
+            ["5000\t/var/large", "1000\t/var/medium"],
+        )
+        self.assertEqual(
+            payload["results"][4]["output"].splitlines(),
+            [
+                "900\t2026-06-10T10:01:00\t/var/b.log",
+                "200\t2026-06-10T10:00:00\t/var/a.log",
+            ],
+        )
+
+        specs = [
+            call.args[0]
+            for call in run_command_mock.call_args_list
+        ]
+        find_spec = next(
+            spec
+            for spec in specs
+            if spec.key == "large_recent_files"
+        )
+        self.assertIn("-xdev", find_spec.argv)
+        self.assertIn("+500M", find_spec.argv)
+        self.assertIn("-30", find_spec.argv)
+
+    @patch(
+        "app.tools.linux.operations.platform.system",
+        return_value="Darwin",
+    )
+    def test_disk_collection_rejects_non_linux(
+        self,
+        _platform_system,
+    ) -> None:
+        payload = collect_disk(scan_path="/")
+
+        self.assertEqual(payload["status"], "unsupported")
+        self.assertEqual(payload["results"], [])
 
 
 if __name__ == "__main__":
