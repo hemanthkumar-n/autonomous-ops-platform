@@ -267,7 +267,8 @@ variables must be redacted from reports.
 
 - [x] add initial scheduler, PSI, VM-counter, and cgroup v2 diagnostics
 - [x] detect cgroup v1/hybrid without applying v2 assumptions
-- [ ] add timed counter sampling and rate calculations
+- [x] add timed counter sampling and rate calculations
+- [x] protect timed cgroup comparisons from PID/membership changes
 - [ ] add full cgroup v1 controller normalization
 - [ ] add deeper kernel, storage-stack, namespace, NUMA, and IRQ diagnostics
 - support incident time windows and recent-change correlation

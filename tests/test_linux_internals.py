@@ -11,6 +11,12 @@ from app.tools.linux.internals import (
     parse_cgroup_memberships,
     parse_loadavg,
     parse_pressure,
+    sample_cgroups,
+    sample_internals,
+)
+from app.schemas.linux import (
+    CgroupEvidence,
+    LinuxInternalsEvidence,
 )
 
 
@@ -220,6 +226,201 @@ class LinuxInternalsTests(unittest.TestCase):
         self.assertIn(
             "v1",
             evidence.findings[0].summary.lower(),
+        )
+
+    @patch("app.tools.linux.internals.collect_internals")
+    def test_samples_vm_and_pressure_deltas(
+        self,
+        collect_internals_mock,
+    ) -> None:
+        before = LinuxInternalsEvidence(
+            status="collected",
+            hostname="worker-1",
+            cpu_count=4,
+            vm_counters={
+                "pgmajfault": 100,
+                "pswpin": 10,
+                "pswpout": 20,
+                "oom_kill": 1,
+            },
+            pressure={
+                "memory": parse_pressure(
+                    "some avg10=0 avg60=0 avg300=0 total=1000000\n"
+                    "full avg10=0 avg60=0 avg300=0 total=200000\n"
+                )
+            },
+        )
+        after = before.model_copy(
+            update={
+                "vm_counters": {
+                    "pgmajfault": 120,
+                    "pswpin": 15,
+                    "pswpout": 20,
+                    "oom_kill": 2,
+                },
+                "pressure": {
+                    "memory": parse_pressure(
+                        "some avg10=0 avg60=0 avg300=0 total=2000000\n"
+                        "full avg10=0 avg60=0 avg300=0 total=300000\n"
+                    )
+                },
+            }
+        )
+        collect_internals_mock.side_effect = [before, after]
+
+        sample = sample_internals(
+            interval=5,
+            sleep=lambda _seconds: None,
+        )
+
+        self.assertEqual(sample.vm_deltas["pgmajfault"].delta, 20)
+        self.assertEqual(sample.vm_deltas["pgmajfault"].per_second, 4.0)
+        self.assertEqual(
+            sample.pressure_deltas["memory"].some_stall_percent,
+            20.0,
+        )
+        areas = {finding.area for finding in sample.findings}
+        self.assertIn("memory", areas)
+        self.assertIn("memory_pressure", areas)
+
+    @patch("app.tools.linux.internals.collect_cgroups")
+    def test_samples_active_cgroup_events(
+        self,
+        collect_cgroups_mock,
+    ) -> None:
+        before = CgroupEvidence(
+            status="collected",
+            hostname="worker-1",
+            pid=4242,
+            version=2,
+            cpu={
+                "nr_throttled": 3,
+                "throttled_usec": 500,
+                "usage_usec": 1000,
+            },
+            memory={
+                "current": 800,
+                "max": 1000,
+                "event_high": 1,
+                "event_oom_kill": 0,
+            },
+            pids={
+                "current": 8,
+                "max": 10,
+                "event_max": 0,
+            },
+            pressure={
+                "cpu": parse_pressure(
+                    "some avg10=0 avg60=0 avg300=0 total=100000\n"
+                )
+            },
+        )
+        after = before.model_copy(
+            update={
+                "cpu": {
+                    "nr_throttled": 5,
+                    "throttled_usec": 2500,
+                    "usage_usec": 6000,
+                },
+                "memory": {
+                    "current": 950,
+                    "max": 1000,
+                    "event_high": 3,
+                    "event_oom_kill": 1,
+                },
+                "pids": {
+                    "current": 9,
+                    "max": 10,
+                    "event_max": 1,
+                },
+                "pressure": {
+                    "cpu": parse_pressure(
+                        "some avg10=0 avg60=0 avg300=0 total=1100000\n"
+                    )
+                },
+            }
+        )
+        collect_cgroups_mock.side_effect = [before, after]
+
+        sample = sample_cgroups(
+            pid=4242,
+            interval=5,
+            sleep=lambda _seconds: None,
+        )
+
+        self.assertEqual(sample.cpu_deltas["nr_throttled"].delta, 2)
+        self.assertEqual(
+            sample.memory_event_deltas["event_oom_kill"].delta,
+            1,
+        )
+        self.assertEqual(
+            sample.pids_event_deltas["event_max"].delta,
+            1,
+        )
+        self.assertEqual(
+            sample.pressure_deltas["cpu"].some_stall_percent,
+            20.0,
+        )
+        areas = {finding.area for finding in sample.findings}
+        self.assertIn("cgroup_cpu", areas)
+        self.assertIn("cgroup_memory", areas)
+        self.assertIn("cgroup_pids", areas)
+
+    @patch("app.tools.linux.internals.collect_internals")
+    def test_ignores_counter_reset_in_delta_output(
+        self,
+        collect_internals_mock,
+    ) -> None:
+        before = LinuxInternalsEvidence(
+            status="collected",
+            hostname="worker-1",
+            cpu_count=4,
+            vm_counters={"pgfault": 100},
+        )
+        after = before.model_copy(
+            update={"vm_counters": {"pgfault": 10}}
+        )
+        collect_internals_mock.side_effect = [before, after]
+
+        sample = sample_internals(
+            interval=5,
+            sleep=lambda _seconds: None,
+        )
+
+        self.assertNotIn("pgfault", sample.vm_deltas)
+
+    @patch("app.tools.linux.internals.collect_cgroups")
+    def test_does_not_compare_different_cgroups(
+        self,
+        collect_cgroups_mock,
+    ) -> None:
+        before = CgroupEvidence(
+            status="collected",
+            hostname="worker-1",
+            pid=4242,
+            version=2,
+            cgroup_path="/sys/fs/cgroup/old",
+            cpu={"usage_usec": 100},
+        )
+        after = before.model_copy(
+            update={
+                "cgroup_path": "/sys/fs/cgroup/new",
+                "cpu": {"usage_usec": 1000},
+            }
+        )
+        collect_cgroups_mock.side_effect = [before, after]
+
+        sample = sample_cgroups(
+            pid=4242,
+            interval=1,
+            sleep=lambda _seconds: None,
+        )
+
+        self.assertEqual(sample.status, "changed")
+        self.assertEqual(sample.cpu_deltas, {})
+        self.assertIn(
+            "membership changed",
+            sample.findings[0].summary,
         )
 
 

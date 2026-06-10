@@ -40,6 +40,8 @@ aop linux logs
 ```bash
 aop linux internals
 aop linux internals --json
+aop linux internals --interval 5
+aop linux internals --interval 5 --json
 ```
 
 This command reads:
@@ -59,11 +61,21 @@ Important interpretation:
 - PSI measures time lost to resource contention.
 - VM counters are cumulative and need timed samples for rates.
 
+Timed mode takes two snapshots and reports:
+
+- counter delta and per-second rate
+- measured CPU, memory, and I/O stall percentages
+- OOM kills that occurred during the interval
+- active swap and direct-reclaim activity
+
+The interval is bounded between 0.1 and 60 seconds.
+
 ## Cgroups
 
 ```bash
 aop linux cgroups --pid 1
 aop linux cgroups --pid 4242 --json
+aop linux cgroups --pid 4242 --interval 5
 ```
 
 A process is used as the starting point because resource controls apply to its
@@ -77,6 +89,17 @@ cgroup membership. On cgroup v2, AOP reads:
 
 Cgroup v1 and hybrid systems are detected without applying incorrect v2
 interpretation. Full controller-specific v1 normalization remains future work.
+
+Timed cgroup v2 mode reports:
+
+- CPU usage and throttling deltas
+- memory-high and OOM event deltas
+- PID-limit event deltas
+- measured per-cgroup PSI stall percentages
+- before/after `memory.current`
+
+If the process exits or moves to another cgroup between snapshots, AOP refuses
+to compare the counters and asks the operator to repeat the sample.
 
 ## Automation
 

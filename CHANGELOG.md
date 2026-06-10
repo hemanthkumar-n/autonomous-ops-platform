@@ -4,6 +4,30 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.10.0 - Timed Linux Pressure and Cgroup Sampling
+
+Date: 2026-06-10
+
+### Added
+
+- `aop linux internals --interval <seconds>`
+- `aop linux cgroups --pid <PID> --interval <seconds>`
+- two-snapshot counter deltas and per-second rates
+- measured PSI stall percentages from cumulative microsecond counters
+- active OOM, swap, direct-reclaim, CPU-throttling, memory-high, and PID-limit
+  findings
+- before/after cgroup memory gauges
+- counter-reset protection
+- PID and cgroup-membership change protection
+
+### Interpretation
+
+Snapshot mode reports current gauges and cumulative history. Timed mode proves
+which monotonic counters changed during the selected interval. Limits and
+gauges are not incorrectly treated as event counters.
+
+---
+
 ## v0.9.0 - Linux Internals and Cgroups
 
 Date: 2026-06-10

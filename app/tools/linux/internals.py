@@ -3,14 +3,19 @@ from __future__ import annotations
 import os
 import platform
 import socket
+import time
 from collections import Counter
 from pathlib import Path
 
 from app.schemas.linux import (
     CgroupEvidence,
     CgroupMembership,
+    CgroupSample,
+    CounterDelta,
     LinuxFinding,
     LinuxInternalsEvidence,
+    LinuxInternalsSample,
+    PressureDelta,
     PressureResource,
     PressureSample,
 )
@@ -29,6 +34,15 @@ IMPORTANT_VM_COUNTERS = {
     "compact_stall",
     "workingset_refault_anon",
     "workingset_refault_file",
+}
+
+CGROUP_CPU_COUNTERS = {
+    "usage_usec",
+    "user_usec",
+    "system_usec",
+    "nr_periods",
+    "nr_throttled",
+    "throttled_usec",
 }
 
 
@@ -609,6 +623,428 @@ def _cgroup_findings(
                     summary=(
                         f"Cgroup {resource} PSI {scope} avg10 is "
                         f"{sample.avg10:.2f}%."
+                    ),
+                    next=(
+                        "Compare cgroup pressure with host pressure to "
+                        "separate local limits from host contention."
+                    ),
+                )
+            )
+
+    return findings
+
+
+def _counter_deltas(
+    before: dict[str, int | str],
+    after: dict[str, int | str],
+    interval: float,
+    keys: set[str] | None = None,
+) -> dict[str, CounterDelta]:
+    deltas = {}
+    selected = keys or (set(before) & set(after))
+
+    for key in sorted(selected):
+        old = before.get(key)
+        new = after.get(key)
+        if not isinstance(old, int) or not isinstance(new, int):
+            continue
+
+        delta = new - old
+        if delta < 0:
+            continue
+
+        deltas[key] = CounterDelta(
+            before=old,
+            after=new,
+            delta=delta,
+            per_second=round(delta / interval, 3),
+        )
+
+    return deltas
+
+
+def _pressure_deltas(
+    before: dict[str, PressureResource],
+    after: dict[str, PressureResource],
+    interval: float,
+) -> dict[str, PressureDelta]:
+    results = {}
+
+    for resource in sorted(set(before) & set(after)):
+        old = before[resource]
+        new = after[resource]
+        some_percent = _stall_percent(
+            old.some,
+            new.some,
+            interval,
+        )
+        full_percent = _stall_percent(
+            old.full,
+            new.full,
+            interval,
+        )
+
+        if some_percent is not None or full_percent is not None:
+            results[resource] = PressureDelta(
+                some_stall_percent=some_percent,
+                full_stall_percent=full_percent,
+            )
+
+    return results
+
+
+def _stall_percent(
+    before: PressureSample | None,
+    after: PressureSample | None,
+    interval: float,
+) -> float | None:
+    if before is None or after is None:
+        return None
+
+    delta = after.total - before.total
+    if delta < 0:
+        return None
+
+    return round(delta / (interval * 1_000_000) * 100, 3)
+
+
+def sample_internals(
+    interval: float,
+    proc_root: Path = Path("/proc"),
+    sleep=time.sleep,
+) -> LinuxInternalsSample:
+    before = collect_internals(proc_root=proc_root)
+
+    if before.status != "collected":
+        return LinuxInternalsSample(
+            status=before.status,
+            hostname=before.hostname,
+            interval_seconds=interval,
+            before=before,
+            after=before,
+        )
+
+    sleep(interval)
+    after = collect_internals(proc_root=proc_root)
+    vm_deltas = _counter_deltas(
+        before.vm_counters,
+        after.vm_counters,
+        interval,
+    )
+    pressure_deltas = _pressure_deltas(
+        before.pressure,
+        after.pressure,
+        interval,
+    )
+    findings = _internals_sample_findings(
+        vm_deltas,
+        pressure_deltas,
+    )
+
+    return LinuxInternalsSample(
+        status=after.status,
+        hostname=after.hostname,
+        interval_seconds=interval,
+        before=before,
+        after=after,
+        vm_deltas=vm_deltas,
+        pressure_deltas=pressure_deltas,
+        findings=findings,
+    )
+
+
+def _internals_sample_findings(
+    vm_deltas: dict[str, CounterDelta],
+    pressure_deltas: dict[str, PressureDelta],
+) -> list[LinuxFinding]:
+    findings = []
+
+    if vm_deltas.get("oom_kill") and vm_deltas["oom_kill"].delta > 0:
+        findings.append(
+            LinuxFinding(
+                severity="critical",
+                area="memory",
+                summary="An OOM kill occurred during the sampling interval.",
+                next=(
+                    "Correlate kernel OOM logs, process RSS, cgroup "
+                    "memory events, and workload limits."
+                ),
+            )
+        )
+
+    swap_in = vm_deltas.get("pswpin")
+    swap_out = vm_deltas.get("pswpout")
+    if (
+        (swap_in and swap_in.delta > 0)
+        or (swap_out and swap_out.delta > 0)
+    ):
+        findings.append(
+            LinuxFinding(
+                severity="warning",
+                area="memory",
+                summary="Swap activity occurred during the sampling interval.",
+                next=(
+                    "Correlate memory PSI, available memory, reclaim, "
+                    "and process growth."
+                ),
+            )
+        )
+
+    direct_reclaim_active = any(
+        vm_deltas.get(key) and vm_deltas[key].delta > 0
+        for key in ("pgscan_direct", "pgsteal_direct")
+    )
+    if direct_reclaim_active:
+        findings.append(
+            LinuxFinding(
+                severity="warning",
+                area="memory",
+                summary="Direct memory reclaim occurred during sampling.",
+                next=(
+                    "Inspect memory PSI, major faults, cgroup limits, "
+                    "and allocation pressure."
+                ),
+            )
+        )
+
+    for resource, delta in pressure_deltas.items():
+        observed = max(
+            value
+            for value in (
+                delta.some_stall_percent,
+                delta.full_stall_percent,
+                0.0,
+            )
+            if value is not None
+        )
+        if observed >= 10:
+            findings.append(
+                LinuxFinding(
+                    severity="warning",
+                    area=f"{resource}_pressure",
+                    summary=(
+                        f"{resource} stalled work for approximately "
+                        f"{observed:.2f}% of the sampling interval."
+                    ),
+                    next=(
+                        f"Correlate active {resource} pressure with "
+                        "processes and cgroup evidence."
+                    ),
+                )
+            )
+
+    return findings
+
+
+def sample_cgroups(
+    pid: int,
+    interval: float,
+    proc_root: Path = Path("/proc"),
+    cgroup_root: Path = Path("/sys/fs/cgroup"),
+    sleep=time.sleep,
+) -> CgroupSample:
+    before = collect_cgroups(
+        pid=pid,
+        proc_root=proc_root,
+        cgroup_root=cgroup_root,
+    )
+
+    if before.status != "collected" or before.version != 2:
+        return CgroupSample(
+            status=before.status,
+            hostname=before.hostname,
+            pid=pid,
+            interval_seconds=interval,
+            before=before,
+            after=before,
+        )
+
+    sleep(interval)
+    after = collect_cgroups(
+        pid=pid,
+        proc_root=proc_root,
+        cgroup_root=cgroup_root,
+    )
+
+    if (
+        after.status != "collected"
+        or after.version != before.version
+        or after.cgroup_path != before.cgroup_path
+    ):
+        return CgroupSample(
+            status="changed",
+            hostname=after.hostname,
+            pid=pid,
+            interval_seconds=interval,
+            before=before,
+            after=after,
+            findings=[
+                LinuxFinding(
+                    severity="info",
+                    area="cgroups",
+                    summary=(
+                        "The process or its cgroup membership changed "
+                        "during sampling."
+                    ),
+                    next=(
+                        "Resolve the current PID and cgroup, then repeat "
+                        "the timed sample."
+                    ),
+                )
+            ],
+        )
+
+    cpu_deltas = _counter_deltas(
+        before.cpu,
+        after.cpu,
+        interval,
+        CGROUP_CPU_COUNTERS,
+    )
+    memory_event_deltas = _counter_deltas(
+        before.memory,
+        after.memory,
+        interval,
+        {
+            key
+            for key in set(before.memory) | set(after.memory)
+            if key.startswith("event_")
+        },
+    )
+    pids_event_deltas = _counter_deltas(
+        before.pids,
+        after.pids,
+        interval,
+        {
+            key
+            for key in set(before.pids) | set(after.pids)
+            if key.startswith("event_")
+        },
+    )
+    pressure_deltas = _pressure_deltas(
+        before.pressure,
+        after.pressure,
+        interval,
+    )
+    findings = _cgroup_sample_findings(
+        cpu_deltas=cpu_deltas,
+        memory_event_deltas=memory_event_deltas,
+        pids_event_deltas=pids_event_deltas,
+        pressure_deltas=pressure_deltas,
+        after=after,
+    )
+
+    return CgroupSample(
+        status=after.status,
+        hostname=after.hostname,
+        pid=pid,
+        interval_seconds=interval,
+        before=before,
+        after=after,
+        cpu_deltas=cpu_deltas,
+        memory_event_deltas=memory_event_deltas,
+        pids_event_deltas=pids_event_deltas,
+        pressure_deltas=pressure_deltas,
+        findings=findings,
+    )
+
+
+def _cgroup_sample_findings(
+    cpu_deltas: dict[str, CounterDelta],
+    memory_event_deltas: dict[str, CounterDelta],
+    pids_event_deltas: dict[str, CounterDelta],
+    pressure_deltas: dict[str, PressureDelta],
+    after: CgroupEvidence,
+) -> list[LinuxFinding]:
+    findings = []
+
+    throttled = cpu_deltas.get("nr_throttled")
+    if throttled and throttled.delta > 0:
+        findings.append(
+            LinuxFinding(
+                severity="warning",
+                area="cgroup_cpu",
+                summary=(
+                    f"CPU throttling occurred {throttled.delta} time(s) "
+                    "during sampling."
+                ),
+                next=(
+                    "Correlate cpu.max, throttled time, workload demand, "
+                    "host pressure, and application latency."
+                ),
+            )
+        )
+
+    oom_kill = memory_event_deltas.get("event_oom_kill")
+    if oom_kill and oom_kill.delta > 0:
+        findings.append(
+            LinuxFinding(
+                severity="critical",
+                area="cgroup_memory",
+                summary="A cgroup OOM kill occurred during sampling.",
+                next=(
+                    "Correlate memory.current/max, process RSS, kernel "
+                    "logs, and Kubernetes memory limits."
+                ),
+            )
+        )
+    elif (
+        memory_event_deltas.get("event_high")
+        and memory_event_deltas["event_high"].delta > 0
+    ):
+        findings.append(
+            LinuxFinding(
+                severity="warning",
+                area="cgroup_memory",
+                summary="The cgroup crossed memory.high during sampling.",
+                next=(
+                    "Inspect reclaim pressure, memory growth, and the "
+                    "relationship between memory.high and memory.max."
+                ),
+            )
+        )
+
+    pid_max = pids_event_deltas.get("event_max")
+    if pid_max and pid_max.delta > 0:
+        findings.append(
+            LinuxFinding(
+                severity="critical",
+                area="cgroup_pids",
+                summary="The cgroup hit its PID limit during sampling.",
+                next="Inspect process/thread growth before changing pids.max.",
+            )
+        )
+
+    current = after.pids.get("current")
+    maximum = after.pids.get("max")
+    if isinstance(current, int) and isinstance(maximum, int) and maximum > 0:
+        if current / maximum >= 0.9:
+            findings.append(
+                LinuxFinding(
+                    severity="warning",
+                    area="cgroup_pids",
+                    summary=f"Current PID usage is {current}/{maximum}.",
+                    next="Inspect process and thread growth.",
+                )
+            )
+
+    for resource, delta in pressure_deltas.items():
+        observed = max(
+            value
+            for value in (
+                delta.some_stall_percent,
+                delta.full_stall_percent,
+                0.0,
+            )
+            if value is not None
+        )
+        if observed >= 10:
+            findings.append(
+                LinuxFinding(
+                    severity="warning",
+                    area=f"cgroup_{resource}_pressure",
+                    summary=(
+                        f"The cgroup experienced {resource} stalls for "
+                        f"approximately {observed:.2f}% of sampling."
                     ),
                     next=(
                         "Compare cgroup pressure with host pressure to "

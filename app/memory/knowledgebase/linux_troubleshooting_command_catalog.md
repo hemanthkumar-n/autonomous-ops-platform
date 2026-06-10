@@ -1032,6 +1032,17 @@ consequential changes.
 - service result versus logs, dependencies, limits, and resource pressure
 - route versus DNS, port, TLS, listener, firewall, and conntrack evidence
 
+Implemented timed evidence commands:
+
+```bash
+aop linux internals --interval 5
+aop linux cgroups --pid <PID> --interval 5
+```
+
+Timed mode converts cumulative VM, PSI, and cgroup counters into interval
+deltas and rates. It also verifies that the process remains in the same cgroup
+before comparing counters.
+
 ### Tier 3: Deep investigation
 
 - process maps, threads, syscalls, namespaces, and limits

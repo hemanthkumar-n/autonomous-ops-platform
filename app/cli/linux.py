@@ -53,6 +53,41 @@ def _render_findings(findings: list[dict]) -> None:
         click.echo(f"         Next: {finding['next']}")
 
 
+def _render_counter_deltas(
+    title: str,
+    deltas: dict[str, dict],
+) -> None:
+    if not deltas:
+        return
+
+    click.echo()
+    click.echo(title)
+    for key, value in deltas.items():
+        click.echo(
+            f"{key:28} delta={value['delta']}  "
+            f"rate={value['per_second']}/s"
+        )
+
+
+def _render_pressure_deltas(deltas: dict[str, dict]) -> None:
+    if not deltas:
+        return
+
+    click.echo()
+    click.echo("Measured stall time")
+    for resource, value in deltas.items():
+        parts = []
+        if value["some_stall_percent"] is not None:
+            parts.append(
+                f"some={value['some_stall_percent']:.3f}%"
+            )
+        if value["full_stall_percent"] is not None:
+            parts.append(
+                f"full={value['full_stall_percent']:.3f}%"
+            )
+        click.echo(f"{resource:8} {'  '.join(parts)}")
+
+
 @click.group("linux")
 def linux() -> None:
     """
@@ -128,12 +163,42 @@ def health(as_json: bool, strict: bool) -> None:
 
 @linux.command("internals")
 @click.option("--json", "as_json", is_flag=True)
-def internals(as_json: bool) -> None:
+@click.option(
+    "--interval",
+    type=click.FloatRange(min=0.1, max=60),
+    help="Take two snapshots and calculate deltas over this many seconds.",
+)
+def internals(as_json: bool, interval: float | None) -> None:
     """
     Inspect scheduler, process state, PSI, and VM kernel counters.
     """
 
-    from app.tools.linux.internals import collect_internals
+    from app.tools.linux.internals import (
+        collect_internals,
+        sample_internals,
+    )
+
+    if interval is not None:
+        payload = sample_internals(interval).model_dump()
+        if as_json:
+            _echo_json(payload)
+            return
+
+        click.echo(
+            f"Linux internals sample: {payload['status'].upper()} "
+            f"host={payload['hostname']} "
+            f"interval={payload['interval_seconds']}s"
+        )
+        if payload["status"] != "collected":
+            for item in payload["before"]["unavailable"]:
+                click.echo(f"Unavailable: {item}")
+            return
+
+        _render_counter_deltas("VM counter deltas", payload["vm_deltas"])
+        _render_pressure_deltas(payload["pressure_deltas"])
+        click.echo()
+        _render_findings(payload["findings"])
+        return
 
     payload = collect_internals().model_dump()
     if as_json:
@@ -196,12 +261,78 @@ def internals(as_json: bool) -> None:
     help="Process whose cgroup membership and limits should be inspected.",
 )
 @click.option("--json", "as_json", is_flag=True)
-def cgroups(pid: int, as_json: bool) -> None:
+@click.option(
+    "--interval",
+    type=click.FloatRange(min=0.1, max=60),
+    help="Take two snapshots and calculate deltas over this many seconds.",
+)
+def cgroups(
+    pid: int,
+    as_json: bool,
+    interval: float | None,
+) -> None:
     """
     Inspect cgroup version, membership, limits, events, and pressure.
     """
 
-    from app.tools.linux.internals import collect_cgroups
+    from app.tools.linux.internals import (
+        collect_cgroups,
+        sample_cgroups,
+    )
+
+    if interval is not None:
+        payload = sample_cgroups(
+            pid=pid,
+            interval=interval,
+        ).model_dump()
+        if as_json:
+            _echo_json(payload)
+            return
+
+        click.echo(
+            f"Linux cgroup sample: {payload['status'].upper()} "
+            f"host={payload['hostname']} pid={payload['pid']} "
+            f"interval={payload['interval_seconds']}s"
+        )
+        if (
+            payload["status"] != "collected"
+            or payload["after"]["version"] != 2
+        ):
+            for item in payload["before"]["unavailable"]:
+                click.echo(f"Unavailable: {item}")
+            if payload["before"]["version"] == 1:
+                click.echo(
+                    "Timed normalized deltas currently require cgroup v2."
+                )
+            _render_findings(payload["findings"])
+            return
+
+        _render_counter_deltas(
+            "CPU counter deltas",
+            payload["cpu_deltas"],
+        )
+        _render_counter_deltas(
+            "Memory event deltas",
+            payload["memory_event_deltas"],
+        )
+        _render_counter_deltas(
+            "PID event deltas",
+            payload["pids_event_deltas"],
+        )
+        _render_pressure_deltas(payload["pressure_deltas"])
+
+        before_memory = payload["before"]["memory"]
+        after_memory = payload["after"]["memory"]
+        if "current" in before_memory and "current" in after_memory:
+            click.echo()
+            click.echo(
+                "Memory current: "
+                f"{before_memory['current']} -> {after_memory['current']}"
+            )
+
+        click.echo()
+        _render_findings(payload["findings"])
+        return
 
     payload = collect_cgroups(pid).model_dump()
     if as_json:

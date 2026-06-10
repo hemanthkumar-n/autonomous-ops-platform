@@ -59,3 +59,40 @@ class CgroupEvidence(BaseModel):
     pressure: dict[str, PressureResource] = Field(default_factory=dict)
     findings: list[LinuxFinding] = Field(default_factory=list)
     unavailable: list[str] = Field(default_factory=list)
+
+
+class CounterDelta(BaseModel):
+    before: int
+    after: int
+    delta: int
+    per_second: float
+
+
+class PressureDelta(BaseModel):
+    some_stall_percent: float | None = None
+    full_stall_percent: float | None = None
+
+
+class LinuxInternalsSample(BaseModel):
+    status: str
+    hostname: str
+    interval_seconds: float
+    before: LinuxInternalsEvidence
+    after: LinuxInternalsEvidence
+    vm_deltas: dict[str, CounterDelta] = Field(default_factory=dict)
+    pressure_deltas: dict[str, PressureDelta] = Field(default_factory=dict)
+    findings: list[LinuxFinding] = Field(default_factory=list)
+
+
+class CgroupSample(BaseModel):
+    status: str
+    hostname: str
+    pid: int
+    interval_seconds: float
+    before: CgroupEvidence
+    after: CgroupEvidence
+    cpu_deltas: dict[str, CounterDelta] = Field(default_factory=dict)
+    memory_event_deltas: dict[str, CounterDelta] = Field(default_factory=dict)
+    pids_event_deltas: dict[str, CounterDelta] = Field(default_factory=dict)
+    pressure_deltas: dict[str, PressureDelta] = Field(default_factory=dict)
+    findings: list[LinuxFinding] = Field(default_factory=list)

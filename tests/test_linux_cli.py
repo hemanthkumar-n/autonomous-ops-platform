@@ -226,6 +226,99 @@ class LinuxCLITests(unittest.TestCase):
         self.assertEqual(payload["memory"]["max"], 2048)
         collect_cgroups.assert_called_once_with(4242)
 
+    @patch("app.tools.linux.internals.sample_internals")
+    def test_internals_interval_uses_timed_sampling(
+        self,
+        sample_internals,
+    ) -> None:
+        sample_internals.return_value.model_dump.return_value = {
+            "status": "collected",
+            "hostname": "worker-1",
+            "interval_seconds": 5.0,
+            "before": {
+                "unavailable": [],
+            },
+            "after": {},
+            "vm_deltas": {
+                "pgmajfault": {
+                    "before": 10,
+                    "after": 20,
+                    "delta": 10,
+                    "per_second": 2.0,
+                }
+            },
+            "pressure_deltas": {
+                "io": {
+                    "some_stall_percent": 12.5,
+                    "full_stall_percent": 2.0,
+                }
+            },
+            "findings": [],
+        }
+
+        result = CliRunner().invoke(
+            main,
+            ["linux", "internals", "--interval", "5"],
+        )
+
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn("delta=10", result.output)
+        self.assertIn("some=12.500%", result.output)
+        sample_internals.assert_called_once_with(5.0)
+
+    @patch("app.tools.linux.internals.sample_cgroups")
+    def test_cgroups_interval_uses_timed_sampling(
+        self,
+        sample_cgroups,
+    ) -> None:
+        sample_cgroups.return_value.model_dump.return_value = {
+            "status": "collected",
+            "hostname": "worker-1",
+            "pid": 4242,
+            "interval_seconds": 3.0,
+            "before": {
+                "version": 2,
+                "memory": {"current": 800},
+                "unavailable": [],
+            },
+            "after": {
+                "version": 2,
+                "memory": {"current": 950},
+            },
+            "cpu_deltas": {
+                "nr_throttled": {
+                    "before": 1,
+                    "after": 3,
+                    "delta": 2,
+                    "per_second": 0.667,
+                }
+            },
+            "memory_event_deltas": {},
+            "pids_event_deltas": {},
+            "pressure_deltas": {},
+            "findings": [],
+        }
+
+        result = CliRunner().invoke(
+            main,
+            [
+                "linux",
+                "cgroups",
+                "--pid",
+                "4242",
+                "--interval",
+                "3",
+            ],
+        )
+
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn("delta=2", result.output)
+        self.assertIn("800 -> 950", result.output)
+        sample_cgroups.assert_called_once_with(
+            pid=4242,
+            interval=3.0,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
