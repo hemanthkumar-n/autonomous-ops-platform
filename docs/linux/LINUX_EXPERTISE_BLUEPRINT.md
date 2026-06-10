@@ -64,6 +64,8 @@ aop linux logs
 aop linux kernel
 aop linux boot
 aop linux security
+aop linux internals
+aop linux cgroups
 aop linux all
 ```
 
@@ -263,7 +265,11 @@ variables must be redacted from reports.
 
 ### Phase 4: Deep Linux Intelligence
 
-- add kernel, boot, security, storage-stack, namespace, and cgroup diagnostics
+- [x] add initial scheduler, PSI, VM-counter, and cgroup v2 diagnostics
+- [x] detect cgroup v1/hybrid without applying v2 assumptions
+- [ ] add timed counter sampling and rate calculations
+- [ ] add full cgroup v1 controller normalization
+- [ ] add deeper kernel, storage-stack, namespace, NUMA, and IRQ diagnostics
 - support incident time windows and recent-change correlation
 - add redaction and portable support bundles
 

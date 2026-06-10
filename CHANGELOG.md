@@ -4,6 +4,33 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.9.0 - Linux Internals and Cgroups
+
+Date: 2026-06-10
+
+### Added
+
+- `aop linux internals`
+- `aop linux cgroups --pid <PID>`
+- typed Linux internals, PSI, finding, membership, and cgroup evidence models
+- direct read-only parsing of `/proc` and `/sys/fs/cgroup`
+- scheduler load and process-state correlation
+- CPU, memory, and I/O pressure stall information
+- selected VM reclaim, swap, major-fault, compaction, and OOM counters
+- cgroup v1/hybrid detection
+- cgroup v2 CPU, memory, I/O, PID, event, and pressure evidence
+- deterministic findings for blocked tasks, pressure, throttling, OOM events,
+  and PID-limit pressure
+- fixture-based Linux virtual-filesystem tests
+
+### Current Boundary
+
+Counters in `/proc` and cgroup stat files are cumulative. This release
+captures a safe point-in-time snapshot. Timed sampling and rate calculations
+remain future work.
+
+---
+
 ## v0.8.1 - Linux and Kubernetes AI Correlation Policy
 
 Date: 2026-06-10

@@ -34,11 +34,11 @@ Remediation is advisory and non-destructive.
 
 ## Current Baseline
 
-- Version: `0.8.1`
+- Version: `0.9.0`
 - Branch: `feature/aop-cli-transition`
 - Python: `3.11+`
 - CLI entry point: `aop`
-- Tests: twenty-five offline regression tests passing
+- Tests: thirty-three offline regression tests passing
 - Real Ollama generation and 768-dimensional embeddings verified
 - Full live demo still requires Kubernetes and Prometheus to be running
 
@@ -64,6 +64,7 @@ Linux CLI:
 host health
   -> bounded read-only command collection
   -> CPU, memory, disk, network, process, service, log, kernel, boot, security
+  -> scheduler/load, task states, PSI, VM counters, and cgroup evidence
   -> normalized unavailable, permission, timeout, and error evidence
   -> human-readable or JSON output
 ```
@@ -107,6 +108,8 @@ app/orchestration/incident_workflow.py
 app/tools/kubernetes/incident_context.py
 app/tools/kubernetes/operations.py
 app/tools/linux/operations.py
+app/tools/linux/internals.py
+app/schemas/linux.py
 app/agents/sre/incident_classifier.py
 app/agents/sre/rca_agent.py
 app/agents/sre/remediation_agent.py

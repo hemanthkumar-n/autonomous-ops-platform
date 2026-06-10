@@ -10,7 +10,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-blue" alt="Python 3.11+" />
-  <img src="https://img.shields.io/badge/AOP-v0.8.1-success" alt="AOP v0.8.1" />
+  <img src="https://img.shields.io/badge/AOP-v0.9.0-success" alt="AOP v0.9.0" />
   <img src="https://img.shields.io/badge/Kubernetes-SRE%20Shortcuts-326CE5" alt="Kubernetes SRE Shortcuts" />
   <img src="https://img.shields.io/badge/Observability-Prometheus-red" alt="Prometheus" />
   <img src="https://img.shields.io/badge/LLM-Ollama-green" alt="Ollama" />
@@ -64,7 +64,7 @@ The durable cross-domain product direction is documented in
 Current version:
 
 ```text
-AOP v0.8.1
+AOP v0.9.0
 ```
 
 The implemented and tested paths currently cover Kubernetes incident
@@ -77,6 +77,8 @@ intelligence and the first deterministic Linux troubleshooting CLI.
 - bounded, shell-free Linux command execution with JSON output
 - CPU, memory, disk, network, process, service, log, kernel, boot, and security
   evidence collection
+- Linux scheduler, process-state, PSI, VM-counter, and cgroup evidence
+- cgroup v1/v2 detection and cgroup v2 limits, events, and pressure
 - read-only Kubernetes SRE shortcuts
 - Kubernetes pod and container evidence collection
 - node, namespace, deployment, service, event, and log inspection
@@ -89,7 +91,7 @@ intelligence and the first deterministic Linux troubleshooting CLI.
 - graceful exact-memory fallback
 - Markdown and JSON incident reports
 - typed Pydantic contracts
-- twenty-five offline regression tests
+- thirty-three offline regression tests
 
 ### Not Yet Implemented
 
@@ -162,6 +164,8 @@ aop linux logs
 aop linux kernel
 aop linux boot
 aop linux security
+aop linux internals
+aop linux cgroups --pid 1
 aop linux all
 ```
 
@@ -180,6 +184,20 @@ restart, kill, delete, unmount, firewall, and log-clearing actions.
 
 The deeper Linux intelligence roadmap is documented in
 [`docs/linux/LINUX_EXPERTISE_BLUEPRINT.md`](docs/linux/LINUX_EXPERTISE_BLUEPRINT.md).
+
+Linux internals commands read the kernel's virtual filesystems directly:
+
+```bash
+aop linux internals
+aop linux internals --json
+aop linux cgroups --pid 4242
+aop linux cgroups --pid 4242 --json
+```
+
+`internals` covers load, task states, PSI, and selected VM counters.
+`cgroups` maps a PID to its resource-control hierarchy and reports CPU,
+memory, I/O, PID, event, and pressure evidence. Current counters are
+point-in-time cumulative values; rate analysis requires later timed sampling.
 
 ---
 
@@ -611,7 +629,7 @@ python -m unittest discover -s tests -v
 Current baseline:
 
 ```text
-25 tests passing
+33 tests passing
 ```
 
 The tests cover:
@@ -620,6 +638,8 @@ The tests cover:
 - Linux CLI discovery, JSON output, and prioritized health findings
 - shell-free Linux command execution, timeout handling, and missing utilities
 - bounded Linux process output and diagnostic ordering
+- `/proc` load, PSI, process-state, and VM-counter parsing
+- cgroup v1/v2 detection and cgroup v2 limit/event interpretation
 - Kubernetes health and JSON output
 - healthy and completed pod normalization
 - primary incident classification

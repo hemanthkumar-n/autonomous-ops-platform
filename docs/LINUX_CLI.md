@@ -31,7 +31,52 @@ aop linux logs
 | `aop linux kernel` | Kernel identity, warnings, and errors |
 | `aop linux boot` | Current boot state, performance, and previous-boot warnings |
 | `aop linux security` | Identity, failed logins, SELinux, and AppArmor state |
+| `aop linux internals` | Scheduler load, process states, PSI, and VM counters |
+| `aop linux cgroups` | PID membership, cgroup version, limits, events, and pressure |
 | `aop linux all` | Baseline health followed by the primary diagnostic domains |
+
+## Linux Internals
+
+```bash
+aop linux internals
+aop linux internals --json
+```
+
+This command reads:
+
+- `/proc/loadavg`
+- `/proc/uptime`
+- `/proc/<PID>/stat` for process-state counts
+- `/proc/pressure/cpu`
+- `/proc/pressure/memory`
+- `/proc/pressure/io`
+- selected `/proc/vmstat` counters
+
+Important interpretation:
+
+- Load includes runnable and uninterruptible tasks; it is not CPU percentage.
+- `D` state usually means a task is blocked inside the kernel.
+- PSI measures time lost to resource contention.
+- VM counters are cumulative and need timed samples for rates.
+
+## Cgroups
+
+```bash
+aop linux cgroups --pid 1
+aop linux cgroups --pid 4242 --json
+```
+
+A process is used as the starting point because resource controls apply to its
+cgroup membership. On cgroup v2, AOP reads:
+
+- `cpu.max`, `cpu.weight`, and `cpu.stat`
+- `memory.current`, `memory.high`, `memory.max`, swap, and events
+- `io.max`, `io.weight`, and `io.stat`
+- `pids.current`, `pids.max`, and events
+- CPU, memory, and I/O pressure
+
+Cgroup v1 and hybrid systems are detected without applying incorrect v2
+interpretation. Full controller-specific v1 normalization remains future work.
 
 ## Automation
 

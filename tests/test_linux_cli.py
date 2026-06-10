@@ -26,6 +26,8 @@ class LinuxCLITests(unittest.TestCase):
             "kernel",
             "boot",
             "security",
+            "internals",
+            "cgroups",
             "all",
         ):
             self.assertIn(command, result.output)
@@ -140,6 +142,89 @@ class LinuxCLITests(unittest.TestCase):
             scan_path="/",
             top=10,
         )
+
+    @patch("app.tools.linux.internals.collect_internals")
+    def test_internals_renders_pressure_and_findings(
+        self,
+        collect_internals,
+    ) -> None:
+        collect_internals.return_value.model_dump.return_value = {
+            "status": "collected",
+            "hostname": "worker-1",
+            "load_average": [8.0, 6.0, 4.0],
+            "running_tasks": 6,
+            "total_tasks": 200,
+            "last_pid": 900,
+            "uptime_seconds": 1000.0,
+            "cpu_count": 4,
+            "process_states": {"D": 2, "R": 6, "S": 192},
+            "pressure": {
+                "io": {
+                    "some": {
+                        "avg10": 18.0,
+                        "avg60": 10.0,
+                        "avg300": 5.0,
+                        "total": 100,
+                    },
+                    "full": {
+                        "avg10": 4.0,
+                        "avg60": 3.0,
+                        "avg300": 2.0,
+                        "total": 50,
+                    },
+                }
+            },
+            "vm_counters": {},
+            "findings": [
+                {
+                    "severity": "warning",
+                    "area": "scheduler",
+                    "summary": "Two tasks are blocked.",
+                    "next": "Inspect storage and NFS.",
+                }
+            ],
+            "unavailable": [],
+        }
+
+        result = CliRunner().invoke(main, ["linux", "internals"])
+
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn("worker-1", result.output)
+        self.assertIn("some=18.00%", result.output)
+        self.assertIn("Inspect storage and NFS", result.output)
+
+    @patch("app.tools.linux.internals.collect_cgroups")
+    def test_cgroups_supports_pid_and_json(
+        self,
+        collect_cgroups,
+    ) -> None:
+        collect_cgroups.return_value.model_dump.return_value = {
+            "status": "collected",
+            "hostname": "worker-1",
+            "pid": 4242,
+            "version": 2,
+            "memberships": [],
+            "cgroup_path": "/sys/fs/cgroup/kubepods/pod-a",
+            "controllers": ["cpu", "memory", "pids"],
+            "cpu": {"max": "200000 100000"},
+            "memory": {"current": 1024, "max": 2048},
+            "io": {},
+            "pids": {"current": 5, "max": 100},
+            "pressure": {},
+            "findings": [],
+            "unavailable": [],
+        }
+
+        result = CliRunner().invoke(
+            main,
+            ["linux", "cgroups", "--pid", "4242", "--json"],
+        )
+
+        self.assertEqual(result.exit_code, 0)
+        payload = json.loads(result.output)
+        self.assertEqual(payload["pid"], 4242)
+        self.assertEqual(payload["memory"]["max"], 2048)
+        collect_cgroups.assert_called_once_with(4242)
 
 
 if __name__ == "__main__":
