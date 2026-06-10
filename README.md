@@ -684,6 +684,7 @@ Live Kubernetes and Prometheus validation remains a separate environment test.
 
 | Document | Purpose |
 |---|---|
+| [`docs/PROJECT_HANDOVER.md`](docs/PROJECT_HANDOVER.md) | Verified baseline, implementation boundaries, engineering rules, and next work |
 | [`docs/AOP_PRODUCT_VISION.md`](docs/AOP_PRODUCT_VISION.md) | Linux, Kubernetes, AWS, UI, Slack/Teams, and onboarding vision |
 | [`docs/AUTONOMOUS_OPS_PLATFORM_MEMORY_LANE.md`](docs/AUTONOMOUS_OPS_PLATFORM_MEMORY_LANE.md) | Compact current implementation memory |
 | [`docs/KUBERNETES_CLI.md`](docs/KUBERNETES_CLI.md) | Kubernetes shortcut reference |
@@ -714,13 +715,17 @@ Live Kubernetes and Prometheus validation remains a separate environment test.
 
 ### 3. Linux Operational Intelligence
 
-- CPU, memory, process, disk, filesystem, inode, and swap diagnostics
-- systemd and service troubleshooting
-- networking, DNS, ports, sockets, and routes
-- kernel, boot, OOM, security, and journal evidence
-- reusable Linux operational memory and runbooks
+- convert collected Linux evidence into normalized incident findings
+- add cross-signal classification without replacing operator reasoning
+- persist Linux incidents in structured and semantic operational memory
+- add AI-assisted RCA grounded only in collected Linux evidence
+- correlate Kubernetes node symptoms with relevant Linux evidence
+- continue expanding command knowledge from real administration experience
 
 Linux is a first-class product domain and a core source of project expertise.
+The deterministic collection foundation already covers CPU, memory, process,
+disk, filesystem, inode, network, service, kernel, boot, security, PSI, VM,
+and cgroup evidence.
 
 ### 4. Operator UI
 

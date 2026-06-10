@@ -35,7 +35,9 @@ Remediation is advisory and non-destructive.
 ## Current Baseline
 
 - Version: `0.11.0`
-- Branch: `feature/aop-cli-transition`
+- Branch: `main`
+- Remote baseline: `origin/main`
+- Release code commit: `eb2c4e7`
 - Python: `3.11+`
 - CLI entry point: `aop`
 - Tests: forty-three offline regression tests passing
@@ -234,7 +236,8 @@ ENABLE_DESTRUCTIVE_REMEDIATION=false
 
 ## Codex Startup Rule
 
-Start with this file. Then inspect only the files needed for the requested
-task. Also read `docs/AOP_PRODUCT_VISION.md` when the task affects product
-direction or roadmap. Treat current source and tests as truth for implemented
-behavior when older docs disagree.
+Start with `docs/PROJECT_HANDOVER.md`, then use this file as compact
+implementation memory. Inspect only the files needed for the requested task.
+Also read `docs/AOP_PRODUCT_VISION.md` when the task affects product direction
+or roadmap. Treat current source and tests as truth for implemented behavior
+when older docs disagree.
