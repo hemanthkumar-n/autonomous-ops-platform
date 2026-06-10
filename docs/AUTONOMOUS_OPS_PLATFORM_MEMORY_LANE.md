@@ -154,6 +154,7 @@ Linux references:
 docs/LINUX_CLI.md
 docs/linux/LINUX_EXPERTISE_BLUEPRINT.md
 docs/linux/tshelper-original/
+app/memory/knowledgebase/linux_troubleshooting_command_catalog.md
 ```
 
 Sample incidents:
@@ -194,6 +195,8 @@ ENABLE_DESTRUCTIVE_REMEDIATION=false
 - Evidence before AI reasoning.
 - Correlate Kubernetes symptoms with Linux node evidence when relevant.
 - State missing host evidence explicitly; never infer invented Linux facts.
+- Use the Linux command catalog as the canonical source for safe diagnostic
+  commands, arguments, interpretation, and future collector expansion.
 - Deterministic classification before LLM analysis.
 - Keep typed Pydantic contracts between layers.
 - Agents use provider clients, not vendor transports directly.

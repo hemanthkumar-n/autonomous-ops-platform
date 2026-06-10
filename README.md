@@ -642,6 +642,7 @@ Live Kubernetes and Prometheus validation remains a separate environment test.
 | [`docs/LINUX_CLI.md`](docs/LINUX_CLI.md) | Native Linux troubleshooting command reference |
 | [`docs/linux/LINUX_EXPERTISE_BLUEPRINT.md`](docs/linux/LINUX_EXPERTISE_BLUEPRINT.md) | Linux administration expertise and implementation direction |
 | [`docs/linux/tshelper-original/`](docs/linux/tshelper-original/) | Preserved original `tshelper` source materials |
+| [`linux_troubleshooting_command_catalog.md`](app/memory/knowledgebase/linux_troubleshooting_command_catalog.md) | Canonical Linux commands, arguments, interpretation, and safety memory |
 | [`docs/setup/installation.md`](docs/setup/installation.md) | Detailed local installation |
 | [`docs/architecture/adr/`](docs/architecture/adr/) | Architecture decision records |
 | [`CHANGELOG.md`](CHANGELOG.md) | Version history |

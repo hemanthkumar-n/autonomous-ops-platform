@@ -13,6 +13,10 @@ The founder's authored Linux and Kubernetes correlation criterion is preserved
 in
 [`../../app/memory/knowledgebase/linkedin_kubernetes_linux_criteria.md`](../../app/memory/knowledgebase/linkedin_kubernetes_linux_criteria.md).
 
+The canonical Linux troubleshooting command and argument catalog is preserved
+in
+[`../../app/memory/knowledgebase/linux_troubleshooting_command_catalog.md`](../../app/memory/knowledgebase/linux_troubleshooting_command_catalog.md).
+
 This document is the editable design space. The archived source files remain
 unchanged.
 
@@ -284,6 +288,10 @@ New Linux knowledge from the author should be recorded as one of:
 
 This converts individual experience into durable, testable operational
 intelligence.
+
+Command syntax, safe arguments, interpretation notes, and collection priority
+must be maintained in the canonical command catalog rather than duplicated
+across implementation files.
 
 ## Kubernetes Correlation Rule
 
