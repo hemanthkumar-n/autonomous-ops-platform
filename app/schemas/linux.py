@@ -22,6 +22,39 @@ class LinuxFinding(BaseModel):
     next: str
 
 
+class LinuxDiskFinding(BaseModel):
+    code: str
+    severity: str
+    confidence: int = Field(ge=0, le=100)
+    summary: str
+    evidence: list[str] = Field(default_factory=list)
+    next: str
+
+
+class LinuxDiskInvestigation(BaseModel):
+    status: str
+    hostname: str
+    path: str
+    platform: str
+    primary_diagnosis: str
+    severity: str
+    confidence: int = Field(ge=0, le=100)
+    summary: str
+    filesystem_use_percent: float | None = None
+    inode_use_percent: float | None = None
+    mount_source: str | None = None
+    filesystem_type: str | None = None
+    mount_point: str | None = None
+    mount_options: list[str] = Field(default_factory=list)
+    largest_paths: list[str] = Field(default_factory=list)
+    recent_large_files: list[str] = Field(default_factory=list)
+    deleted_open_files: list[str] = Field(default_factory=list)
+    kernel_storage_errors: list[str] = Field(default_factory=list)
+    findings: list[LinuxDiskFinding] = Field(default_factory=list)
+    evidence_gaps: list[str] = Field(default_factory=list)
+    raw_evidence: dict = Field(default_factory=dict)
+
+
 class LinuxInternalsEvidence(BaseModel):
     status: str
     hostname: str

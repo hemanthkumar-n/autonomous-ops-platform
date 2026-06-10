@@ -4,6 +4,31 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.12.0 - Linux Disk Incident Intelligence
+
+Date: 2026-06-10
+
+### Added
+
+- `aop investigate linux disk`
+- typed disk investigation and finding contracts
+- deterministic classification for capacity exhaustion, inode exhaustion,
+  deleted-open files, rapid growth, read-only filesystems, storage errors, and
+  insufficient evidence
+- evidence-based severity, confidence, next checks, and evidence gaps
+- Linux-native structured incident memory
+- semantic indexing with structured-memory fallback
+- regression tests for classification precedence, CLI behavior, orchestration,
+  and persistence fallback
+
+### Architecture
+
+Raw collection remains available through `aop linux disk`. The investigation
+command adds interpretation and memory without requiring an LLM. General Linux
+AI RCA and Kubernetes-to-Linux live correlation remain future work.
+
+---
+
 ## v0.11.0 - Ordered Disk Space Investigation
 
 Date: 2026-06-10

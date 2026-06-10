@@ -124,6 +124,48 @@ aop linux health --strict
 The command exits non-zero when deterministic warning or critical findings
 exist.
 
+## Disk Incident Investigation
+
+Raw evidence collection and incident diagnosis are separate commands:
+
+```bash
+aop linux disk --path /var
+aop investigate linux disk --path /var
+```
+
+`aop linux disk` shows the ordered command evidence. The investigation command
+parses that evidence and classifies:
+
+- filesystem byte exhaustion
+- inode exhaustion
+- deleted-open files
+- rapid large-file growth
+- read-only filesystem state
+- kernel filesystem or storage I/O errors
+- insufficient evidence
+
+Examples:
+
+```bash
+aop investigate linux disk --path /var
+aop investigate linux disk \
+  --path /var/log \
+  --top 20 \
+  --recent-minutes 30 \
+  --large-size-mb 500
+aop investigate linux disk --path /var --format json
+aop investigate linux disk --path /var --no-persist
+```
+
+The result includes a primary diagnosis, severity, confidence, supporting
+evidence, alternative findings, recommended next checks, and evidence gaps.
+By default it persists a Linux-native JSON memory record and attempts semantic
+indexing. Structured memory remains available if embeddings or the vector
+store are unavailable.
+
+This workflow is deterministic. It does not call an LLM and does not delete,
+restart, remount, repair, resize, or otherwise modify the host.
+
 ## Bounded Collection
 
 Limit process records:

@@ -23,11 +23,10 @@ Do not treat empty modules or directory names as implemented capabilities.
 ## Verified Baseline
 
 ```text
-Release: 0.11.0
+Release: 0.12.0
 Branch: main
 Remote: origin/main
-Release code commit: eb2c4e7
-Offline tests: 43 passing
+Offline tests: 55 passing
 CLI entry point: aop
 Python: 3.11+
 ```
@@ -45,7 +44,7 @@ git status --short --branch
 Expected version:
 
 ```text
-aop, version 0.11.0
+aop, version 0.12.0
 ```
 
 ## What AOP Is
@@ -102,6 +101,10 @@ aop kb inv -n ai-lab
   directory usage, recent large files, deleted-open files, and kernel storage
   errors
 - human-readable and JSON output
+- deterministic `aop investigate linux disk` classification
+- disk severity, confidence, supporting evidence, evidence gaps, and safe next
+  checks
+- Linux-native disk incident memory with semantic-indexing fallback
 
 Useful commands:
 
@@ -113,6 +116,7 @@ aop linux fs --path /var
 aop linux internals --interval 5
 aop linux cgroups --pid 1 --interval 5
 aop linux all --json
+aop investigate linux disk --path /var
 ```
 
 The original authored `tshelper` materials remain preserved under
@@ -120,8 +124,7 @@ The original authored `tshelper` materials remain preserved under
 
 ## What Is Not Implemented
 
-- Linux incident classification, cross-signal diagnosis, memory persistence,
-  and AI RCA
+- general Linux cross-signal diagnosis and AI RCA beyond the disk domain
 - automatic Kubernetes-to-Linux live node evidence collection
 - AWS and CloudWatch collectors
 - operator web UI or FastAPI service
@@ -164,11 +167,11 @@ frameworks.
 
 1. Validate and record the live Kubernetes plus Prometheus showcase.
 2. Add CI for tests, formatting, linting, and type checks.
-3. Convert Linux collector output into normalized findings and incident
-   contracts.
-4. Build the first Linux reasoning workflow for one domain, starting with disk
-   space because its evidence order is now implemented and tested.
-5. Persist Linux investigations in the same operational-memory model.
+3. Validate the Linux disk workflow against real ext4, XFS, LVM, container,
+   NFS, and cloud-volume examples.
+4. Add the next deterministic Linux reasoning workflow, starting with memory
+   pressure and OOM.
+5. Add recurrence search across Linux incident memory.
 6. Correlate Kubernetes node symptoms with collected Linux evidence.
 7. Add the operator UI after Linux and Kubernetes share one stable incident
    contract.

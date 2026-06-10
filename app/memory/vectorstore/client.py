@@ -58,12 +58,9 @@ Remediation: {memory.remediation_summary}
         memory: IncidentMemory,
     ) -> None:
         document = self._build_document(memory)
-        embedding = self.embedding_client.embed(document)
-
-        self.upsert(
+        self.index_document(
             incident_id=memory.incident_id,
             document=document,
-            embedding=embedding,
             metadata={
                 "incident_type": memory.incident_type,
                 "namespace": memory.namespace,
@@ -73,6 +70,24 @@ Remediation: {memory.remediation_summary}
                     or "unknown"
                 ),
             },
+        )
+
+    def index_document(
+        self,
+        incident_id: str,
+        document: str,
+        metadata: dict,
+    ) -> None:
+        """
+        Embed and index a normalized operational-memory document.
+        """
+
+        embedding = self.embedding_client.embed(document)
+        self.upsert(
+            incident_id=incident_id,
+            document=document,
+            embedding=embedding,
+            metadata=metadata,
         )
 
     def upsert(

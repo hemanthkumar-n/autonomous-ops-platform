@@ -298,6 +298,31 @@ aop linux disk --path /var/log --top 20 \
 AOP executes capacity/type, inode, mount, directory usage, recent large-file,
 deleted-open file, and kernel-error evidence in that order.
 
+Deterministic incident interpretation:
+
+```bash
+aop investigate linux disk --path <PATH>
+aop investigate linux disk --path <PATH> --format json
+```
+
+Diagnosis priority:
+
+```text
+read-only filesystem
+  -> kernel filesystem or storage I/O error
+  -> inode exhaustion
+  -> filesystem byte exhaustion
+  -> deleted-open files
+  -> rapid large-file growth
+  -> insufficient evidence
+```
+
+Storage integrity outranks space usage because deleting data is not a safe
+response to a filesystem that has become read-only or is reporting I/O
+errors. Inode exhaustion remains separate from byte exhaustion because large
+file cleanup may not solve excessive small-file creation. Missing or
+permission-limited evidence reduces confidence and must be reported.
+
 ### Capacity and filesystem type
 
 ```bash

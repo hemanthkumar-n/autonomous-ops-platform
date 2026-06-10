@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional
+from typing import Any, Optional
 
 from pydantic import BaseModel
 
@@ -40,6 +40,26 @@ class IncidentMemory(BaseModel):
     rca_summary: str
     remediation_summary: str
 
+    source_workflow_version: str
+
+
+class LinuxIncidentMemory(BaseModel):
+    """
+    Persistent Linux investigation memory without Kubernetes-specific fields.
+    """
+
+    incident_id: str
+    timestamp: datetime
+    environment: str
+    domain: str
+    hostname: str
+    target: str
+    incident_type: str
+    severity: str
+    confidence: int
+    summary: str
+    findings: list[dict[str, Any]]
+    evidence_gaps: list[str]
     source_workflow_version: str
 
 

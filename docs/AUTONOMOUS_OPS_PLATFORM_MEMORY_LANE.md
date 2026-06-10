@@ -34,13 +34,12 @@ Remediation is advisory and non-destructive.
 
 ## Current Baseline
 
-- Version: `0.11.0`
+- Version: `0.12.0`
 - Branch: `main`
 - Remote baseline: `origin/main`
-- Release code commit: `eb2c4e7`
 - Python: `3.11+`
 - CLI entry point: `aop`
-- Tests: forty-three offline regression tests passing
+- Tests: fifty-five offline regression tests passing
 - Real Ollama generation and 768-dimensional embeddings verified
 - Full live demo still requires Kubernetes and Prometheus to be running
 
@@ -73,7 +72,18 @@ host health
   -> human-readable or JSON output
 ```
 
-Advanced Linux correlation, incident memory, and AI RCA are not implemented.
+Linux disk intelligence:
+
+```text
+ordered disk evidence
+  -> deterministic parsing and classification
+  -> primary diagnosis, severity, confidence, and evidence gaps
+  -> safe next diagnostic action
+  -> Linux-native JSON memory
+  -> optional semantic indexing with structured fallback
+```
+
+General Linux cross-signal correlation and AI RCA are not implemented.
 Original `tshelper` sources are preserved under
 `docs/linux/tshelper-original/`.
 
@@ -145,6 +155,7 @@ aop linux network
 aop linux internals --interval 5
 aop linux cgroups --pid 1 --interval 5
 aop linux all --json
+aop investigate linux disk --path /var
 aop investigate k8s --namespace ai-lab
 aop investigate k8s --namespace ai-lab \
   --format markdown \
@@ -229,10 +240,12 @@ ENABLE_DESTRUCTIVE_REMEDIATION=false
 
 1. Run and record a complete live Kubernetes/Prometheus showcase.
 2. Add CI for tests, formatting, linting, and type checks.
-3. Expand tests for Prometheus parsing, persistence, fingerprints, and reports.
-4. Add recurrence and incident-pattern intelligence.
-5. Introduce structured AI output contracts.
-6. Add approval-gated execution only after governance exists.
+3. Validate Linux disk diagnosis against real ext4, XFS, LVM, container, and
+   cloud-volume examples.
+4. Add deterministic memory and CPU incident workflows.
+5. Add recurrence and incident-pattern intelligence.
+6. Introduce structured AI output contracts.
+7. Add approval-gated execution only after governance exists.
 
 ## Codex Startup Rule
 

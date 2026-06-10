@@ -67,11 +67,13 @@ aop linux security
 aop linux internals
 aop linux cgroups
 aop linux all
+aop investigate linux disk
 ```
 
 These commands provide read-only, bounded evidence collection with
-human-readable and JSON output. `aop linux investigate`, cross-domain
-correlation, incident memory, and AI-assisted RCA remain future work.
+human-readable and JSON output. The disk domain now adds deterministic
+classification and Linux-native incident memory. General Linux cross-domain
+correlation and AI-assisted RCA remain future work.
 
 ## Baseline Evidence
 

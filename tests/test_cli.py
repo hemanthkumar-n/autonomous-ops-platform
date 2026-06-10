@@ -28,6 +28,18 @@ class CLITests(unittest.TestCase):
         self.assertIn("--format", result.output)
         self.assertIn("--no-persist", result.output)
 
+    def test_exposes_linux_disk_investigation_options(self) -> None:
+        result = CliRunner().invoke(
+            main,
+            ["investigate", "linux", "disk", "--help"],
+        )
+
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn("--path", result.output)
+        self.assertIn("--recent-minutes", result.output)
+        self.assertIn("--large-size-mb", result.output)
+        self.assertIn("--no-persist", result.output)
+
     def test_exposes_kubernetes_shortcuts(self) -> None:
         result = CliRunner().invoke(
             main,

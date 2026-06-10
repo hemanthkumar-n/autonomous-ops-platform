@@ -10,7 +10,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-blue" alt="Python 3.11+" />
-  <img src="https://img.shields.io/badge/AOP-v0.11.0-success" alt="AOP v0.11.0" />
+  <img src="https://img.shields.io/badge/AOP-v0.12.0-success" alt="AOP v0.12.0" />
   <img src="https://img.shields.io/badge/Kubernetes-SRE%20Shortcuts-326CE5" alt="Kubernetes SRE Shortcuts" />
   <img src="https://img.shields.io/badge/Observability-Prometheus-red" alt="Prometheus" />
   <img src="https://img.shields.io/badge/LLM-Ollama-green" alt="Ollama" />
@@ -64,7 +64,7 @@ The durable cross-domain product direction is documented in
 Current version:
 
 ```text
-AOP v0.11.0
+AOP v0.12.0
 ```
 
 The implemented and tested paths currently cover Kubernetes incident
@@ -82,6 +82,8 @@ intelligence and the first deterministic Linux troubleshooting CLI.
 - timed VM, PSI, and cgroup counter deltas with active-event findings
 - ordered disk-space investigation with inode, mount, growth, deleted-file,
   and kernel-error evidence
+- `aop investigate linux disk` deterministic diagnosis with severity,
+  confidence, evidence gaps, next checks, and operational-memory persistence
 - read-only Kubernetes SRE shortcuts
 - Kubernetes pod and container evidence collection
 - node, namespace, deployment, service, event, and log inspection
@@ -94,11 +96,11 @@ intelligence and the first deterministic Linux troubleshooting CLI.
 - graceful exact-memory fallback
 - Markdown and JSON incident reports
 - typed Pydantic contracts
-- forty-three offline regression tests
+- fifty-five offline regression tests
 
 ### Not Yet Implemented
 
-- deep Linux signal correlation, incident classification, memory, and AI RCA
+- general Linux cross-signal classification and AI RCA beyond the disk domain
 - AWS and CloudWatch troubleshooting
 - operator web UI
 - Slack or Microsoft Teams approval workflows
@@ -206,6 +208,20 @@ aop linux disk \
 The `space` and `fs` aliases run the same workflow. AOP checks filesystem
 capacity/type, inodes, mount context, bounded directory usage, recent large
 files, deleted-open files, and recent kernel storage errors.
+
+Turn that raw evidence into a deterministic incident diagnosis:
+
+```bash
+aop investigate linux disk --path /var
+aop investigate linux disk --path /var --format json
+aop investigate linux disk --path /var --no-persist
+```
+
+The investigation distinguishes byte exhaustion, inode exhaustion,
+deleted-open files, rapid growth, read-only filesystems, kernel storage errors,
+and insufficient evidence. It records confidence, evidence, next checks, and
+evidence gaps. Structured memory still persists when semantic indexing is
+unavailable.
 
 Linux internals commands read the kernel's virtual filesystems directly:
 
@@ -653,7 +669,7 @@ python -m unittest discover -s tests -v
 Current baseline:
 
 ```text
-43 tests passing
+55 tests passing
 ```
 
 The tests cover:
@@ -668,6 +684,8 @@ The tests cover:
   validation
 - disk evidence ordering, one-filesystem bounds, numeric sorting, CLI options,
   and aliases
+- Linux disk incident classification, precedence, workflow orchestration,
+  CLI output, and structured-memory fallback
 - Kubernetes health and JSON output
 - healthy and completed pod normalization
 - primary incident classification

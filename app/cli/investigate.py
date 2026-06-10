@@ -69,6 +69,133 @@ def investigate() -> None:
     """
 
 
+@investigate.group("linux")
+def investigate_linux() -> None:
+    """
+    Diagnose Linux incidents from bounded, read-only evidence.
+    """
+
+
+@investigate_linux.command("disk")
+@click.option(
+    "--path",
+    "scan_path",
+    type=click.Path(
+        exists=True,
+        file_okay=False,
+        path_type=str,
+    ),
+    default="/",
+    show_default=True,
+    help="Path whose backing filesystem should be investigated.",
+)
+@click.option(
+    "--top",
+    type=click.IntRange(1, 100),
+    default=10,
+    show_default=True,
+    help="Maximum directory and recent-file records to retain.",
+)
+@click.option(
+    "--recent-minutes",
+    type=click.IntRange(1, 10_080),
+    default=60,
+    show_default=True,
+    help="Recent-change window for large-file and kernel evidence.",
+)
+@click.option(
+    "--large-size-mb",
+    type=click.IntRange(1),
+    default=1024,
+    show_default=True,
+    help="Minimum recent-file size in MiB.",
+)
+@click.option(
+    "--format",
+    "output_format",
+    type=click.Choice(["summary", "json"], case_sensitive=False),
+    default="summary",
+    show_default=True,
+)
+@click.option(
+    "--no-persist",
+    is_flag=True,
+    help="Do not save structured or semantic Linux incident memory.",
+)
+def investigate_linux_disk(
+    scan_path: str,
+    top: int,
+    recent_minutes: int,
+    large_size_mb: int,
+    output_format: str,
+    no_persist: bool,
+) -> None:
+    """
+    Diagnose disk capacity, inode, growth, mount, and storage failures.
+    """
+
+    from app.orchestration.linux_disk_workflow import (
+        run_linux_disk_workflow,
+    )
+
+    try:
+        investigation, saved_path = run_linux_disk_workflow(
+            scan_path=scan_path,
+            top=top,
+            recent_minutes=recent_minutes,
+            large_size_mb=large_size_mb,
+            persist=not no_persist,
+        )
+    except Exception as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if output_format == "json":
+        click.echo(investigation.model_dump_json(indent=2))
+        return
+
+    click.echo(
+        f"Linux disk investigation: {investigation.severity.upper()} "
+        f"host={investigation.hostname} path={investigation.path}"
+    )
+    click.echo(
+        f"Primary diagnosis: {investigation.primary_diagnosis} "
+        f"({investigation.confidence}%)"
+    )
+    click.echo(investigation.summary)
+
+    if investigation.filesystem_use_percent is not None:
+        click.echo(
+            "Filesystem use: "
+            f"{investigation.filesystem_use_percent:.0f}%"
+        )
+    if investigation.inode_use_percent is not None:
+        click.echo(
+            f"Inode use: {investigation.inode_use_percent:.0f}%"
+        )
+
+    if investigation.findings:
+        click.echo()
+        click.echo("Findings")
+        for finding in investigation.findings:
+            click.echo(
+                f"{finding.severity.upper():8} "
+                f"{finding.code:32} "
+                f"{finding.confidence}%"
+            )
+            click.echo(f"         {finding.summary}")
+            click.echo(f"         Next: {finding.next}")
+
+    if investigation.evidence_gaps:
+        click.echo()
+        click.echo("Evidence gaps")
+        for gap in investigation.evidence_gaps:
+            click.echo(f"- {gap}")
+
+    if saved_path:
+        click.echo()
+        click.echo(f"Memory record: {saved_path}")
+
+
 @investigate.command("k8s")
 @click.option(
     "--namespace",
