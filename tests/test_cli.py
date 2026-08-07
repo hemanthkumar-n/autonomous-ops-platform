@@ -8,6 +8,12 @@ from app.cli.main import main
 
 
 class CLITests(unittest.TestCase):
+    def test_version_matches_current_release(self) -> None:
+        result = CliRunner().invoke(main, ["--version"])
+
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn("aop, version 0.14.0", result.output)
+
     def test_exposes_showcase_commands(self) -> None:
         result = CliRunner().invoke(main, ["--help"])
 

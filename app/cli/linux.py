@@ -156,6 +156,40 @@ def _render_linux_plan(plan: dict) -> None:
             click.echo(f"- {item}")
 
 
+def _render_scenario_list(scenarios: list[dict]) -> None:
+    click.echo("Linux complex troubleshooting scenarios")
+    click.echo()
+    for scenario in scenarios:
+        click.echo(f"- {scenario['key']}: {scenario['title']}")
+        click.echo(f"  {scenario['summary']}")
+
+
+def _render_linux_scenario(scenario: dict) -> None:
+    click.echo(scenario["title"])
+    click.echo(f"Key: {scenario['key']}")
+    click.echo(f"Summary: {scenario['summary']}")
+    click.echo()
+
+    sections = (
+        ("Symptoms", "symptoms"),
+        ("Likely causes", "likely_causes"),
+        ("First safe checks", "first_safe_checks"),
+        ("Interpretation", "interpretation"),
+        ("Common traps", "common_traps"),
+        ("Kubernetes correlation", "kubernetes_correlation"),
+        ("AWS correlation", "aws_correlation"),
+        ("Cgroup context", "cgroup_context"),
+    )
+    for title, key in sections:
+        values = scenario.get(key, ())
+        if not values:
+            continue
+        click.echo(title)
+        for value in values:
+            click.echo(f"- {value}")
+        click.echo()
+
+
 @click.group("linux")
 def linux() -> None:
     """
@@ -242,6 +276,54 @@ def plan_disk(scan_path: str, as_json: bool) -> None:
         return
 
     _render_linux_plan(payload)
+
+
+@plan.command("scenario")
+@click.argument("scenario_name", required=False)
+@click.option("--list", "list_only", is_flag=True)
+@click.option("--json", "as_json", is_flag=True)
+def plan_scenario(
+    scenario_name: str | None,
+    list_only: bool,
+    as_json: bool,
+) -> None:
+    """
+    Show read-only plans for complex Linux troubleshooting scenarios.
+    """
+
+    from app.tools.troubleshooting.linux_scenarios import (
+        get_linux_scenario,
+        list_linux_scenarios,
+    )
+
+    scenarios = list_linux_scenarios()
+    if list_only or not scenario_name:
+        payload = {
+            "status": "ok",
+            "scenarios": scenarios,
+        }
+        if as_json:
+            _echo_json(payload)
+            return
+        _render_scenario_list(scenarios)
+        return
+
+    scenario = get_linux_scenario(scenario_name)
+    if scenario is None:
+        choices = ", ".join(item["key"] for item in scenarios)
+        raise click.ClickException(
+            f"Unknown Linux scenario '{scenario_name}'. Available: {choices}"
+        )
+
+    payload = {
+        "status": "found",
+        "scenario": scenario,
+    }
+    if as_json:
+        _echo_json(payload)
+        return
+
+    _render_linux_scenario(scenario)
 
 
 @linux.command("health")

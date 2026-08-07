@@ -11,6 +11,8 @@ aop linux health
 aop linux explain "df -hT"
 aop linux explain "netstat -plane | grep :3045"
 aop linux plan disk --path /var
+aop linux plan scenario --list
+aop linux plan scenario high-load
 aop linux cpu
 aop linux memory
 aop linux disk --path /var
@@ -85,6 +87,9 @@ df -hT
 aop linux plan disk --path /var
 aop linux plan disk --path /var --json
 aop linux plan disk --path /company/app/logs
+aop linux plan scenario --list
+aop linux plan scenario high-load
+aop linux plan scenario oom --json
 ```
 
 `aop linux plan disk` prints the ordered disk troubleshooting path before any
@@ -104,6 +109,33 @@ collector runs. It explains:
 The plan command does not require the path to exist on the local machine. This
 allows an SRE to prepare an investigation for a remote host, a Kubernetes node,
 or a company-specific application path before logging into the target system.
+
+`aop linux plan scenario` exposes senior Linux scenario plans from AOP's
+complex troubleshooting catalog. It does not execute the listed checks. It
+prints symptoms, likely causes, first safe checks, interpretation, common
+traps, and Kubernetes/AWS/cgroup correlation where relevant.
+
+Current scenario keys:
+
+- `high-load`
+- `memory-pressure`
+- `df-du-mismatch`
+- `inode-exhaustion`
+- `read-only-filesystem`
+- `file-descriptor-exhaustion`
+- `port-conflict`
+- `systemd-restart-loop`
+- `kernel-panic`
+- `lvm-expansion-mismatch`
+- `container-runtime-disk-pressure`
+
+Useful aliases are accepted for common operator language, for example:
+
+```bash
+aop linux plan scenario oom
+aop linux plan scenario fdisk
+aop linux plan scenario diskpressure
+```
 
 ## Linux Internals
 

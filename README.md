@@ -10,7 +10,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-blue" alt="Python 3.11+" />
-  <img src="https://img.shields.io/badge/AOP-v0.13.0-success" alt="AOP v0.13.0" />
+  <img src="https://img.shields.io/badge/AOP-v0.14.0-success" alt="AOP v0.14.0" />
   <img src="https://img.shields.io/badge/Kubernetes-SRE%20Shortcuts-326CE5" alt="Kubernetes SRE Shortcuts" />
   <img src="https://img.shields.io/badge/Observability-Prometheus-red" alt="Prometheus" />
   <img src="https://img.shields.io/badge/LLM-Ollama-green" alt="Ollama" />
@@ -80,17 +80,18 @@ release exists.
 Current version:
 
 ```text
-AOP v0.13.0
+AOP v0.14.0
 ```
 
 The implemented and tested paths currently cover Kubernetes incident
 intelligence, deterministic Linux troubleshooting, Linux disk incident
-intelligence, and command-reasoning workflows.
+intelligence, command-reasoning workflows, and complex Linux scenario plans.
 
 ### Release Memory
 
 | Release | What it proves | Human reference |
 |---|---|---|
+| `v0.14.0` | AOP can expose complex senior Linux troubleshooting scenarios as read-only plans | [`docs/releases/v0.14-linux-complex-scenario-plans.md`](docs/releases/v0.14-linux-complex-scenario-plans.md) |
 | `v0.13.0` | AOP can explain Linux command intent and plan disk investigations before execution | [`docs/releases/v0.13-linux-explain-and-plan.md`](docs/releases/v0.13-linux-explain-and-plan.md) |
 | `v0.12.0` | AOP can classify Linux disk incidents deterministically and preserve memory | [`docs/releases/v0.12-linux-disk-incident-intelligence.md`](docs/releases/v0.12-linux-disk-incident-intelligence.md) |
 
@@ -111,6 +112,7 @@ intelligence, and command-reasoning workflows.
   operational-memory persistence
 - Linux command explanation through `aop linux explain`
 - read-only disk investigation planning through `aop linux plan disk`
+- read-only complex Linux scenario plans through `aop linux plan scenario`
 - read-only Kubernetes SRE shortcuts
 - Kubernetes pod and container evidence collection
 - node, namespace, deployment, service, event, and log inspection
@@ -123,7 +125,7 @@ intelligence, and command-reasoning workflows.
 - graceful exact-memory fallback
 - Markdown and JSON incident reports
 - typed Pydantic contracts
-- sixty-two offline regression tests
+- sixty-seven offline regression tests
 
 ### Not Yet Implemented
 
@@ -190,6 +192,9 @@ aop linux health
 aop linux explain "df -hT"
 aop linux explain "netstat -plane | grep :3045"
 aop linux plan disk --path /var
+aop linux plan scenario --list
+aop linux plan scenario high-load
+aop linux plan scenario oom --json
 aop linux cpu
 aop linux memory
 aop linux disk --path /var
@@ -248,12 +253,21 @@ Plan the investigation before collecting evidence:
 aop linux plan disk --path /var
 aop linux plan disk --path /company/app/logs
 aop linux plan disk --path /var --json
+aop linux plan scenario --list
+aop linux plan scenario high-load
+aop linux plan scenario oom --json
 ```
 
 The disk plan is read-only and does not require the path to exist locally. It
 shows the ordered Linux admin reasoning for capacity, inodes, mount identity,
 bounded growth checks, deleted-open files, kernel storage errors, Kubernetes
 node paths, and AWS/EBS follow-up.
+
+Complex scenario plans expose senior Linux troubleshooting patterns before
+collection starts. Current scenarios include high load with low CPU, memory
+pressure and OOM, `df`/`du` mismatch, inode exhaustion, read-only filesystems,
+file descriptor exhaustion, port conflicts, systemd restart loops, kernel
+panic clues, LVM expansion mismatch, and container runtime disk pressure.
 
 Disk-space investigation follows an evidence-first sequence:
 
@@ -736,7 +750,7 @@ python -m unittest discover -s tests -v
 Current baseline:
 
 ```text
-62 tests passing
+67 tests passing
 ```
 
 The tests cover:
@@ -753,6 +767,8 @@ The tests cover:
   and aliases
 - Linux disk incident classification, precedence, workflow orchestration,
   CLI output, and structured-memory fallback
+- Linux complex scenario catalog listing, alias lookup, human output, and JSON
+  output
 - Kubernetes health and JSON output
 - healthy and completed pod normalization
 - primary incident classification
@@ -770,7 +786,7 @@ Live Kubernetes and Prometheus validation remains a separate environment test.
 | Document | Purpose |
 |---|---|
 | [`docs/PROJECT_HANDOVER.md`](docs/PROJECT_HANDOVER.md) | Verified baseline, implementation boundaries, engineering rules, and next work |
-| [`docs/ROADMAP.md`](docs/ROADMAP.md) | Current release state and planned v0.14/v0.15 direction |
+| [`docs/ROADMAP.md`](docs/ROADMAP.md) | Current release state and planned v0.15 direction |
 | [`docs/AOP_PRODUCT_VISION.md`](docs/AOP_PRODUCT_VISION.md) | Linux, Kubernetes, AWS, UI, Slack/Teams, and onboarding vision |
 | [`docs/architecture/observability-dashboard-strategy.md`](docs/architecture/observability-dashboard-strategy.md) | Observability, dashboard, alert-signal, and future provider strategy |
 | [`docs/AUTONOMOUS_OPS_PLATFORM_MEMORY_LANE.md`](docs/AUTONOMOUS_OPS_PLATFORM_MEMORY_LANE.md) | Compact current implementation memory |
@@ -806,7 +822,8 @@ The current detailed roadmap is maintained in [`docs/ROADMAP.md`](docs/ROADMAP.m
 
 ### 3. Linux Operational Intelligence
 
-- build the v0.14 Linux complex troubleshooting catalog
+- extend the v0.14 Linux complex troubleshooting catalog into deterministic
+  investigations
 - convert collected Linux evidence into normalized incident findings
 - add cross-signal classification without replacing operator reasoning
 - persist Linux incidents in structured and semantic operational memory

@@ -10,6 +10,7 @@ unfinished.
 
 | Release | Focus | Reference |
 |---|---|---|
+| `v0.14.0` | Linux complex scenario planning | [`v0.14-linux-complex-scenario-plans.md`](v0.14-linux-complex-scenario-plans.md) |
 | `v0.13.0` | Linux command explanation and disk investigation planning | [`v0.13-linux-explain-and-plan.md`](v0.13-linux-explain-and-plan.md) |
 | `v0.12.0` | Deterministic Linux disk incident intelligence | [`v0.12-linux-disk-incident-intelligence.md`](v0.12-linux-disk-incident-intelligence.md) |
 

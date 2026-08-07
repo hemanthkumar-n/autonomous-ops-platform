@@ -4,6 +4,29 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.14.0 - Linux Complex Scenario Plans
+
+Date: 2026-08-08
+
+### Added
+
+- `aop linux plan scenario --list`
+- `aop linux plan scenario <scenario>`
+- structured Linux complex troubleshooting scenario catalog
+- human-readable and JSON output for symptoms, likely causes, first safe
+  checks, interpretation, common traps, and cross-domain correlations
+- aliases for common operator language such as `oom`, `fdisk`, `diskpressure`,
+  `listener`, and `d-state`
+- regression tests for scenario listing, rendering, alias lookup, JSON output,
+  and unknown-scenario handling
+
+### Safety
+
+Scenario plans are read-only. They expose senior troubleshooting order and
+interpretation, but they do not execute host commands or remediate systems.
+
+---
+
 ## v0.13.0 - Linux Explain and Command Reasoning
 
 Date: 2026-08-07

@@ -28,10 +28,10 @@ Do not treat empty modules or directory names as implemented capabilities.
 ## Verified Baseline
 
 ```text
-Release: 0.13.0
+Release: 0.14.0
 Branch: main
 Remote: origin/main
-Offline tests: 62 passing
+Offline tests: 67 passing
 CLI entry point: aop
 Python: 3.11+
 ```
@@ -49,7 +49,7 @@ git status --short --branch
 Expected version:
 
 ```text
-aop, version 0.13.0
+aop, version 0.14.0
 ```
 
 ## What AOP Is
@@ -107,12 +107,13 @@ aop kb inv -n ai-lab
   errors
 - command explanation through `aop linux explain`
 - read-only disk investigation planning through `aop linux plan disk`
+- read-only complex scenario plans through `aop linux plan scenario`
 - human-readable and JSON output
 - deterministic `aop investigate linux disk` classification
 - disk severity, confidence, supporting evidence, evidence gaps, and safe next
   checks
 - Linux-native disk incident memory with semantic-indexing fallback
-- complex Linux scenario memory prepared for v0.14 planning
+- complex Linux scenario catalog exposed through v0.14 planning commands
 
 Useful commands:
 
@@ -120,6 +121,8 @@ Useful commands:
 aop linux health
 aop linux explain "df -hT"
 aop linux plan disk --path /var
+aop linux plan scenario --list
+aop linux plan scenario high-load
 aop linux disk --path /var
 aop linux space --path /var
 aop linux fs --path /var
@@ -189,8 +192,8 @@ support until the provider, settings, health checks, tests, and docs exist.
 2. Add CI for tests, formatting, linting, and type checks.
 3. Validate the Linux disk workflow against real ext4, XFS, LVM, container,
    NFS, and cloud-volume examples.
-4. Build v0.14 Linux complex troubleshooting catalog into plan and
-   investigation workflows.
+4. Extend v0.14 Linux complex scenario plans into deterministic investigation
+   workflows.
 5. Add provider-neutral evidence and dashboard data contracts.
 6. Add the next deterministic Linux reasoning workflow, starting with memory
    pressure and OOM.

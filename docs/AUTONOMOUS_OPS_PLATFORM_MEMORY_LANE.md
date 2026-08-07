@@ -53,12 +53,12 @@ Remediation is advisory and non-destructive.
 
 ## Current Baseline
 
-- Version: `0.13.0`
+- Version: `0.14.0`
 - Branch: `main`
 - Remote baseline: `origin/main`
 - Python: `3.11+`
 - CLI entry point: `aop`
-- Tests: sixty-two offline regression tests passing
+- Tests: sixty-seven offline regression tests passing
 - Real Ollama generation and 768-dimensional embeddings verified
 - Full live demo still requires Kubernetes and Prometheus to be running
 
@@ -116,6 +116,11 @@ aop linux plan disk --path <path>
   -> read-only investigation order
   -> capacity, inode, mount, growth, deleted-open file, kernel, and I/O checks
   -> Kubernetes node and AWS/EBS correlation
+
+aop linux plan scenario <scenario>
+  -> senior Linux scenario planning
+  -> symptoms, likely causes, first safe checks, interpretation, and traps
+  -> Kubernetes, AWS, and cgroup correlation where relevant
 ```
 
 Linux complex scenario memory:
@@ -124,11 +129,11 @@ Linux complex scenario memory:
 app/memory/knowledgebase/linux_complex_troubleshooting_scenarios.md
 ```
 
-This is the v0.14 planning source for high load with low CPU, `D` state,
-memory/OOM, swap storms, `df`/`du` mismatch, inode exhaustion, read-only
-filesystems, file descriptor pressure, port conflicts, systemd restart loops,
-kernel panic clues, LVM expansion mismatch, and container runtime disk
-pressure.
+This is the source memory behind the v0.14 scenario planning CLI for high load
+with low CPU, `D` state, memory/OOM, `df`/`du` mismatch, inode exhaustion,
+read-only filesystems, file descriptor pressure, port conflicts, systemd
+restart loops, kernel panic clues, LVM expansion mismatch, and container
+runtime disk pressure.
 
 General Linux cross-signal correlation and AI RCA are not implemented.
 Original `tshelper` sources are preserved under
@@ -314,8 +319,8 @@ ENABLE_DESTRUCTIVE_REMEDIATION=false
 2. Add CI for tests, formatting, linting, and type checks.
 3. Validate Linux disk diagnosis against real ext4, XFS, LVM, container, and
    cloud-volume examples.
-4. Build v0.14 Linux complex troubleshooting catalog into plan and
-   investigation workflows.
+4. Extend v0.14 Linux complex scenario plans into deterministic investigation
+   workflows.
 5. Add provider-neutral evidence and dashboard contracts.
 6. Add recurrence and incident-pattern intelligence.
 7. Introduce structured AI output contracts.

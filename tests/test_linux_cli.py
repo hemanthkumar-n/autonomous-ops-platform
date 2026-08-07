@@ -135,6 +135,59 @@ class LinuxCLITests(unittest.TestCase):
             result.output,
         )
 
+    def test_plan_scenario_lists_complex_scenarios(self) -> None:
+        result = CliRunner().invoke(
+            main,
+            ["linux", "plan", "scenario", "--list"],
+        )
+
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn("Linux complex troubleshooting scenarios", result.output)
+        self.assertIn("high-load", result.output)
+        self.assertIn("memory-pressure", result.output)
+        self.assertIn("container-runtime-disk-pressure", result.output)
+
+    def test_plan_scenario_renders_high_load(self) -> None:
+        result = CliRunner().invoke(
+            main,
+            ["linux", "plan", "scenario", "high-load"],
+        )
+
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn("High Load With Low CPU Usage", result.output)
+        self.assertIn("First safe checks", result.output)
+        self.assertIn("ps -eo state,pid,ppid,comm,wchan:32,cmd", result.output)
+        self.assertIn("Kubernetes correlation", result.output)
+        self.assertIn("Cgroup context", result.output)
+
+    def test_plan_scenario_supports_aliases_and_json(self) -> None:
+        result = CliRunner().invoke(
+            main,
+            ["linux", "plan", "scenario", "oom", "--json"],
+        )
+
+        self.assertEqual(result.exit_code, 0)
+        payload = json.loads(result.output)
+        self.assertEqual(payload["status"], "found")
+        self.assertEqual(
+            payload["scenario"]["key"],
+            "memory-pressure",
+        )
+        self.assertIn(
+            "journalctl -k -g 'Out of memory|Killed process|oom' --no-pager",
+            payload["scenario"]["first_safe_checks"],
+        )
+
+    def test_plan_scenario_unknown_exits_nonzero(self) -> None:
+        result = CliRunner().invoke(
+            main,
+            ["linux", "plan", "scenario", "made-up-scenario"],
+        )
+
+        self.assertNotEqual(result.exit_code, 0)
+        self.assertIn("Unknown Linux scenario", result.output)
+        self.assertIn("high-load", result.output)
+
     @patch("app.tools.linux.operations.collect_health")
     def test_health_renders_prioritized_findings(
         self,

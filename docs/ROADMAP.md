@@ -9,8 +9,29 @@ so the project remains honest and easy to explain.
 ## Current Baseline
 
 ```text
-Current release: v0.13.0
+Current release: v0.14.0
 Status: implemented and pushed
+```
+
+v0.14 exposes complex Linux troubleshooting scenarios through the CLI while
+keeping the workflow read-only:
+
+```text
+list scenario
+  -> select senior Linux incident pattern
+  -> review symptoms, likely causes, first safe checks, traps, and correlations
+  -> use JSON output for future UI, agents, and dashboard context
+```
+
+Implemented commands:
+
+```bash
+aop linux explain "df -hT"
+aop linux plan disk --path /var
+aop linux plan scenario --list
+aop linux plan scenario high-load
+aop linux disk --path /var
+aop investigate linux disk --path /var
 ```
 
 v0.13 completed the Linux disk reasoning loop:
@@ -23,26 +44,10 @@ explain command
   -> explain why the next check matters
 ```
 
-Implemented commands:
-
-```bash
-aop linux explain "df -hT"
-aop linux plan disk --path /var
-aop linux disk --path /var
-aop investigate linux disk --path /var
-```
-
-## Next Release: v0.14
+## Current Linux Expansion: v0.14
 
 ```text
-v0.14: Linux Complex Troubleshooting Catalog
-```
-
-Purpose:
-
-```text
-Capture senior Linux troubleshooting scenarios as structured AOP memory before
-turning them into more automated investigation workflows.
+v0.14: Linux Complex Troubleshooting Catalog and Scenario Plans
 ```
 
 This keeps AOP aligned with the founder's Linux administration strength. The
@@ -50,28 +55,32 @@ goal is not to dump commands into a file. The goal is to preserve the
 diagnostic order, interpretation, traps, and next safe checks behind complex
 Linux incidents.
 
-Target scenarios:
+Implemented scenario plans:
 
 - high load with low CPU usage
 - `D` state and blocked tasks
 - memory pressure and OOM killer evidence
-- swap storms
 - file descriptor exhaustion
 - port conflicts and missing listeners
-- DNS and route failures
 - systemd restart loops
 - kernel panic and previous-boot evidence
 - `df` and `du` mismatch
 - inode exhaustion
 - deleted-open files
 - read-only filesystem remounts
-- NFS stale mounts
 - LVM, partition, and filesystem expansion mismatch
 - container runtime disk pressure
 - Kubernetes symptoms that require Linux node correlation
 
 Cgroups are part of this Linux internals context, especially for containers
 and Kubernetes workloads, but they are not the standalone v0.14 headline.
+
+Still pending inside the larger Linux expansion:
+
+- DNS and route failure scenario plans
+- NFS stale mount scenario plans
+- deterministic investigation workflows beyond the disk domain
+- Linux AI RCA grounded only in collected Linux evidence
 
 ## Then: v0.15
 
