@@ -266,10 +266,11 @@ Do not hardcode these assumptions:
 
 ## Recommended Next Architecture Step
 
-After v0.13, the next code-oriented foundation should be:
+After the v0.14 Linux complex troubleshooting catalog, the next
+code-oriented dashboard foundation should be:
 
 ```text
-v0.14: Evidence and Dashboard Data Contracts
+v0.15: Evidence and Dashboard Data Contracts
 ```
 
 Suggested first contracts:

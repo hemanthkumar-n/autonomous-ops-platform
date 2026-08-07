@@ -770,6 +770,7 @@ Live Kubernetes and Prometheus validation remains a separate environment test.
 | Document | Purpose |
 |---|---|
 | [`docs/PROJECT_HANDOVER.md`](docs/PROJECT_HANDOVER.md) | Verified baseline, implementation boundaries, engineering rules, and next work |
+| [`docs/ROADMAP.md`](docs/ROADMAP.md) | Current release state and planned v0.14/v0.15 direction |
 | [`docs/AOP_PRODUCT_VISION.md`](docs/AOP_PRODUCT_VISION.md) | Linux, Kubernetes, AWS, UI, Slack/Teams, and onboarding vision |
 | [`docs/architecture/observability-dashboard-strategy.md`](docs/architecture/observability-dashboard-strategy.md) | Observability, dashboard, alert-signal, and future provider strategy |
 | [`docs/AUTONOMOUS_OPS_PLATFORM_MEMORY_LANE.md`](docs/AUTONOMOUS_OPS_PLATFORM_MEMORY_LANE.md) | Compact current implementation memory |
@@ -779,6 +780,7 @@ Live Kubernetes and Prometheus validation remains a separate environment test.
 | [`docs/linux/LINUX_EXPERTISE_BLUEPRINT.md`](docs/linux/LINUX_EXPERTISE_BLUEPRINT.md) | Linux administration expertise and implementation direction |
 | [`docs/linux/tshelper-original/`](docs/linux/tshelper-original/) | Preserved original `tshelper` source materials |
 | [`linux_troubleshooting_command_catalog.md`](app/memory/knowledgebase/linux_troubleshooting_command_catalog.md) | Canonical Linux commands, arguments, interpretation, and safety memory |
+| [`linux_complex_troubleshooting_scenarios.md`](app/memory/knowledgebase/linux_complex_troubleshooting_scenarios.md) | Complex Linux scenario memory for v0.14 planning |
 | [`docs/setup/installation.md`](docs/setup/installation.md) | Detailed local installation |
 | [`docs/architecture/adr/`](docs/architecture/adr/) | Architecture decision records |
 | [`CHANGELOG.md`](CHANGELOG.md) | Version history |
@@ -786,6 +788,8 @@ Live Kubernetes and Prometheus validation remains a separate environment test.
 ---
 
 ## Roadmap
+
+The current detailed roadmap is maintained in [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ### 1. Kubernetes Live Showcase
 
@@ -802,6 +806,7 @@ Live Kubernetes and Prometheus validation remains a separate environment test.
 
 ### 3. Linux Operational Intelligence
 
+- build the v0.14 Linux complex troubleshooting catalog
 - convert collected Linux evidence into normalized incident findings
 - add cross-signal classification without replacing operator reasoning
 - persist Linux incidents in structured and semantic operational memory

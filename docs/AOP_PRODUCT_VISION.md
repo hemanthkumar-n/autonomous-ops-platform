@@ -7,6 +7,7 @@ when the long-term vision changes, not during ordinary implementation work.
 
 Related records:
 
+- Current roadmap: `docs/ROADMAP.md`
 - Current implementation memory:
   `docs/AUTONOMOUS_OPS_PLATFORM_MEMORY_LANE.md`
 - Observability, dashboard, and provider strategy:
@@ -48,6 +49,12 @@ The platform is grounded in extensive practical experience across:
 Linux knowledge is a core product advantage, not a secondary integration.
 Future Linux diagnostics should capture real operational troubleshooting
 patterns and lessons accumulated through the founder's career.
+
+Complex Linux scenario memory is preserved at:
+
+```text
+app/memory/knowledgebase/linux_complex_troubleshooting_scenarios.md
+```
 
 An authored Linux/Kubernetes troubleshooting criterion is preserved at:
 

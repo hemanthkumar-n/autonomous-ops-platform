@@ -12,13 +12,14 @@ Read next:
 1. `README.md` for the product overview and showcase commands.
 2. `docs/AUTONOMOUS_OPS_PLATFORM_MEMORY_LANE.md` for compact implementation
    memory.
-3. `docs/AOP_PRODUCT_VISION.md` for the durable Linux, Kubernetes, AWS, UI,
+3. `docs/ROADMAP.md` for current release state and planned next releases.
+4. `docs/AOP_PRODUCT_VISION.md` for the durable Linux, Kubernetes, AWS, UI,
    Slack/Teams, and company-onboarding direction.
-4. `docs/architecture/observability-dashboard-strategy.md` before adding
+5. `docs/architecture/observability-dashboard-strategy.md` before adding
    dashboards, graphing, alert processing, telemetry contracts, or LLM
    providers.
-5. `docs/releases/` for release-by-release human context.
-6. `docs/LINUX_CLI.md` and
+6. `docs/releases/` for release-by-release human context.
+7. `docs/LINUX_CLI.md` and
    `app/memory/knowledgebase/linux_troubleshooting_command_catalog.md` before
    extending Linux diagnostics.
 
@@ -111,6 +112,7 @@ aop kb inv -n ai-lab
 - disk severity, confidence, supporting evidence, evidence gaps, and safe next
   checks
 - Linux-native disk incident memory with semantic-indexing fallback
+- complex Linux scenario memory prepared for v0.14 planning
 
 Useful commands:
 
@@ -187,7 +189,8 @@ support until the provider, settings, health checks, tests, and docs exist.
 2. Add CI for tests, formatting, linting, and type checks.
 3. Validate the Linux disk workflow against real ext4, XFS, LVM, container,
    NFS, and cloud-volume examples.
-4. Enrich `aop investigate linux disk` findings with command explanations.
+4. Build v0.14 Linux complex troubleshooting catalog into plan and
+   investigation workflows.
 5. Add provider-neutral evidence and dashboard data contracts.
 6. Add the next deterministic Linux reasoning workflow, starting with memory
    pressure and OOM.

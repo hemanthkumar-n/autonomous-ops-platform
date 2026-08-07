@@ -13,6 +13,7 @@ Long-term product direction is preserved in:
 
 ```text
 docs/AOP_PRODUCT_VISION.md
+docs/ROADMAP.md
 ```
 
 Read that file for roadmap, product, Linux, AWS, UI, Slack/Teams, company
@@ -117,6 +118,18 @@ aop linux plan disk --path <path>
   -> Kubernetes node and AWS/EBS correlation
 ```
 
+Linux complex scenario memory:
+
+```text
+app/memory/knowledgebase/linux_complex_troubleshooting_scenarios.md
+```
+
+This is the v0.14 planning source for high load with low CPU, `D` state,
+memory/OOM, swap storms, `df`/`du` mismatch, inode exhaustion, read-only
+filesystems, file descriptor pressure, port conflicts, systemd restart loops,
+kernel panic clues, LVM expansion mismatch, and container runtime disk
+pressure.
+
 General Linux cross-signal correlation and AI RCA are not implemented.
 Original `tshelper` sources are preserved under
 `docs/linux/tshelper-original/`.
@@ -179,6 +192,7 @@ app/agents/sre/rca_agent.py
 app/agents/sre/remediation_agent.py
 app/prompts/shared/cross_domain.py
 app/memory/knowledgebase/linkedin_kubernetes_linux_criteria.md
+app/memory/knowledgebase/linux_complex_troubleshooting_scenarios.md
 app/llm/client.py
 app/llm/providers/ollama_provider.py
 docs/architecture/observability-dashboard-strategy.md
@@ -220,6 +234,7 @@ Kubernetes shortcut reference:
 
 ```text
 docs/KUBERNETES_CLI.md
+docs/ROADMAP.md
 docs/releases/
 docs/architecture/observability-dashboard-strategy.md
 ```
@@ -299,8 +314,9 @@ ENABLE_DESTRUCTIVE_REMEDIATION=false
 2. Add CI for tests, formatting, linting, and type checks.
 3. Validate Linux disk diagnosis against real ext4, XFS, LVM, container, and
    cloud-volume examples.
-4. Add provider-neutral evidence and dashboard contracts.
-5. Add deterministic memory and CPU incident workflows.
+4. Build v0.14 Linux complex troubleshooting catalog into plan and
+   investigation workflows.
+5. Add provider-neutral evidence and dashboard contracts.
 6. Add recurrence and incident-pattern intelligence.
 7. Introduce structured AI output contracts.
 8. Add approval-gated execution only after governance exists.
