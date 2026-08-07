@@ -1,6 +1,6 @@
 # Autonomous Ops Platform: Codex Memory
 
-Updated: 2026-08-07
+Updated: 2026-08-08
 
 ## Purpose
 
@@ -26,6 +26,15 @@ docs/releases/
 
 Use those files when handing the project to a future teammate, ChatGPT
 conversation, or Codex session.
+
+Observability, dashboard, alert-signal, and future provider strategy:
+
+```text
+docs/architecture/observability-dashboard-strategy.md
+```
+
+Use that file before building dashboards, graphs, telemetry contracts, alert
+processing, or Kimi/Moonshot support.
 
 The previous detailed 555-line memory remains recoverable from Git:
 
@@ -112,6 +121,22 @@ General Linux cross-signal correlation and AI RCA are not implemented.
 Original `tshelper` sources are preserved under
 `docs/linux/tshelper-original/`.
 
+Observability/dashboard direction:
+
+```text
+Prometheus and Grafana are useful integrations, not the whole AOP model.
+AOP should own normalized evidence, alert-signal, timeline, and dashboard
+contracts so CLI, UI, reports, chat, memory, and AI can share the same truth.
+```
+
+AI provider direction:
+
+```text
+Current implemented LLM provider: Ollama.
+Planned future provider: Kimi/Moonshot.
+Kimi is not implemented yet; do not claim runtime support.
+```
+
 ## Kubernetes and Linux AI Criterion
 
 Founder's authored LinkedIn source:
@@ -156,6 +181,7 @@ app/prompts/shared/cross_domain.py
 app/memory/knowledgebase/linkedin_kubernetes_linux_criteria.md
 app/llm/client.py
 app/llm/providers/ollama_provider.py
+docs/architecture/observability-dashboard-strategy.md
 app/memory/retrieval/hybrid_search.py
 app/memory/incident_history/store_incident.py
 app/memory/vectorstore/client.py
@@ -195,6 +221,7 @@ Kubernetes shortcut reference:
 ```text
 docs/KUBERNETES_CLI.md
 docs/releases/
+docs/architecture/observability-dashboard-strategy.md
 ```
 
 Linux references:
@@ -249,6 +276,7 @@ ENABLE_DESTRUCTIVE_REMEDIATION=false
 - Deterministic classification before LLM analysis.
 - Keep typed Pydantic contracts between layers.
 - Agents use provider clients, not vendor transports directly.
+- Do not hardcode Grafana-only, Prometheus-only, or Ollama-only assumptions.
 - Preserve exact-memory fallback when semantic memory is unavailable.
 - Do not hide programming errors behind fallback behavior.
 - No destructive remediation without explicit policy and approval controls.
@@ -258,6 +286,7 @@ ENABLE_DESTRUCTIVE_REMEDIATION=false
 ## Known Gaps
 
 - Kubernetes and Prometheus live integration is not currently validated.
+- Kimi/Moonshot provider runtime support is not implemented.
 - FastAPI and most non-Kubernetes domain modules are placeholders.
 - Test coverage is focused, not comprehensive.
 - RCA/remediation outputs are prose rather than structured action contracts.
@@ -270,10 +299,11 @@ ENABLE_DESTRUCTIVE_REMEDIATION=false
 2. Add CI for tests, formatting, linting, and type checks.
 3. Validate Linux disk diagnosis against real ext4, XFS, LVM, container, and
    cloud-volume examples.
-4. Add deterministic memory and CPU incident workflows.
-5. Add recurrence and incident-pattern intelligence.
-6. Introduce structured AI output contracts.
-7. Add approval-gated execution only after governance exists.
+4. Add provider-neutral evidence and dashboard contracts.
+5. Add deterministic memory and CPU incident workflows.
+6. Add recurrence and incident-pattern intelligence.
+7. Introduce structured AI output contracts.
+8. Add approval-gated execution only after governance exists.
 
 ## Codex Startup Rule
 
@@ -282,3 +312,5 @@ implementation memory. Inspect only the files needed for the requested task.
 Also read `docs/AOP_PRODUCT_VISION.md` when the task affects product direction
 or roadmap. Treat current source and tests as truth for implemented behavior
 when older docs disagree.
+Read `docs/architecture/observability-dashboard-strategy.md` before dashboard,
+graph, telemetry, alert-processing, or provider-routing work.

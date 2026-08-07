@@ -1,6 +1,6 @@
 # Autonomous Ops Platform: Project Handover
 
-Updated: 2026-08-07
+Updated: 2026-08-08
 
 ## Start Here
 
@@ -14,8 +14,11 @@ Read next:
    memory.
 3. `docs/AOP_PRODUCT_VISION.md` for the durable Linux, Kubernetes, AWS, UI,
    Slack/Teams, and company-onboarding direction.
-4. `docs/releases/` for release-by-release human context.
-5. `docs/LINUX_CLI.md` and
+4. `docs/architecture/observability-dashboard-strategy.md` before adding
+   dashboards, graphing, alert processing, telemetry contracts, or LLM
+   providers.
+5. `docs/releases/` for release-by-release human context.
+6. `docs/LINUX_CLI.md` and
    `app/memory/knowledgebase/linux_troubleshooting_command_catalog.md` before
    extending Linux diagnostics.
 
@@ -132,6 +135,7 @@ The original authored `tshelper` materials remain preserved under
 - general Linux cross-signal diagnosis and AI RCA beyond the disk domain
 - automatic Kubernetes-to-Linux live node evidence collection
 - AWS and CloudWatch collectors
+- Kimi/Moonshot provider runtime support
 - operator web UI or FastAPI service
 - Slack or Microsoft Teams notifications and approvals
 - authentication, RBAC, tenant isolation, and company onboarding
@@ -168,6 +172,15 @@ Chroma, and hybrid retrieval. The next memory work should improve retrieval
 quality, provenance, recurrence detection, and evaluation before adding more
 frameworks.
 
+Do not assume Grafana is the only dashboard or Prometheus is the only future
+metrics source. AOP should own provider-neutral evidence and dashboard
+contracts before building custom UI, graphing, alert triage, or multi-source
+observability. See `docs/architecture/observability-dashboard-strategy.md`.
+
+Kimi/Moonshot is a planned future reasoning provider only. Current implemented
+LLM runtime is Ollama. Do not add Kimi environment variables or claim runtime
+support until the provider, settings, health checks, tests, and docs exist.
+
 ## Recommended Next Sequence
 
 1. Validate and record the live Kubernetes plus Prometheus showcase.
@@ -175,13 +188,14 @@ frameworks.
 3. Validate the Linux disk workflow against real ext4, XFS, LVM, container,
    NFS, and cloud-volume examples.
 4. Enrich `aop investigate linux disk` findings with command explanations.
-5. Add the next deterministic Linux reasoning workflow, starting with memory
+5. Add provider-neutral evidence and dashboard data contracts.
+6. Add the next deterministic Linux reasoning workflow, starting with memory
    pressure and OOM.
-6. Add recurrence search across Linux incident memory.
-7. Correlate Kubernetes node symptoms with collected Linux evidence.
-8. Add the operator UI after Linux and Kubernetes share one stable incident
+7. Add recurrence search across Linux incident memory.
+8. Correlate Kubernetes node symptoms with collected Linux evidence.
+9. Add the operator UI after Linux and Kubernetes share one stable incident
    contract.
-9. Add Slack/Teams approval surfaces, then AWS evidence adapters.
+10. Add Slack/Teams approval surfaces, then AWS evidence adapters.
 
 For the next Linux disk phase, the workflow should distinguish:
 
@@ -215,6 +229,9 @@ remediation.
 Do not claim placeholder modules as implemented. Do not introduce LangGraph or
 another framework unless the requested workflow requires branching,
 checkpointing, resumability, or approval pauses.
+
+Do not hardcode Grafana-only, Prometheus-only, or Ollama-only assumptions.
+Kimi/Moonshot is planned but not implemented.
 
 Explain the operational reasoning before making substantial Linux changes,
 then implement, test, document, commit, and push the completed work.

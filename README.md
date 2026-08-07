@@ -62,6 +62,12 @@ Observe
 The durable cross-domain product direction is documented in
 [`docs/AOP_PRODUCT_VISION.md`](docs/AOP_PRODUCT_VISION.md).
 
+The dashboard and observability strategy is documented in
+[`docs/architecture/observability-dashboard-strategy.md`](docs/architecture/observability-dashboard-strategy.md).
+AOP will use Prometheus and Grafana where useful, but will keep its own
+provider-neutral evidence and dashboard model for custom UI, reports, AI
+context, alert triage, and incident memory.
+
 For release-by-release human context, read
 [`docs/releases/`](docs/releases/). These notes are written for future team
 members, ChatGPT handoffs, and Codex sessions that need to understand why a
@@ -128,6 +134,7 @@ intelligence, and command-reasoning workflows.
 - authentication and RBAC
 - automatic remediation execution
 - multi-tenant company onboarding
+- Kimi/Moonshot provider runtime support
 
 These are roadmap capabilities, not current claims.
 
@@ -613,6 +620,7 @@ future placeholders.
 | CLI | Click |
 | HTTP | HTTPX and Requests |
 | Future service layer | FastAPI |
+| Planned AI provider | Kimi/Moonshot, not implemented |
 
 ---
 
@@ -762,6 +770,7 @@ Live Kubernetes and Prometheus validation remains a separate environment test.
 |---|---|
 | [`docs/PROJECT_HANDOVER.md`](docs/PROJECT_HANDOVER.md) | Verified baseline, implementation boundaries, engineering rules, and next work |
 | [`docs/AOP_PRODUCT_VISION.md`](docs/AOP_PRODUCT_VISION.md) | Linux, Kubernetes, AWS, UI, Slack/Teams, and onboarding vision |
+| [`docs/architecture/observability-dashboard-strategy.md`](docs/architecture/observability-dashboard-strategy.md) | Observability, dashboard, alert-signal, and future provider strategy |
 | [`docs/AUTONOMOUS_OPS_PLATFORM_MEMORY_LANE.md`](docs/AUTONOMOUS_OPS_PLATFORM_MEMORY_LANE.md) | Compact current implementation memory |
 | [`docs/releases/`](docs/releases/) | Human-readable release notes for future team members and AI handoffs |
 | [`docs/KUBERNETES_CLI.md`](docs/KUBERNETES_CLI.md) | Kubernetes shortcut reference |

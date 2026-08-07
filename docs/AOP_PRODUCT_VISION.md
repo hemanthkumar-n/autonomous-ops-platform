@@ -1,6 +1,6 @@
 # Autonomous Ops Platform: Product Vision
 
-Updated: 2026-06-09
+Updated: 2026-08-08
 
 This document preserves the founding product direction. It should change only
 when the long-term vision changes, not during ordinary implementation work.
@@ -9,6 +9,8 @@ Related records:
 
 - Current implementation memory:
   `docs/AUTONOMOUS_OPS_PLATFORM_MEMORY_LANE.md`
+- Observability, dashboard, and provider strategy:
+  `docs/architecture/observability-dashboard-strategy.md`
 - Early vision notes: `Main and power.md`
 - Full pre-compaction project memory:
   `git show 526bdbc:docs/AUTONOMOUS_OPS_PLATFORM_MEMORY_LANE.md`
@@ -95,6 +97,29 @@ Target capabilities include:
 - Prometheus correlation
 - safe RCA and remediation guidance
 - deployment, service, ingress, storage, and cluster-level intelligence
+
+### Observability and Dashboards
+
+AOP should use Prometheus and Grafana where they fit, but should not depend on
+them as the only observability or dashboard model.
+
+Target direction:
+
+- OpenTelemetry-compatible signal thinking for metrics, logs, traces,
+  resources, and context
+- Prometheus as the first metrics source
+- Grafana as an external dashboard path
+- AOP-owned evidence and dashboard contracts for custom UI, reports, memory,
+  chat summaries, and AI context
+- alert signals treated as investigation inputs, not root-cause conclusions
+- raw metrics processed into normalized evidence, deterministic findings,
+  incident timelines, and graphical values
+
+Detailed strategy is preserved in:
+
+```text
+docs/architecture/observability-dashboard-strategy.md
+```
 
 ### AWS
 
@@ -207,6 +232,24 @@ Required enterprise characteristics:
 - read-only mode by default
 - provider and integration adapters
 - portable deployment using containers and Kubernetes
+
+## AI Provider Direction
+
+Current implemented provider:
+
+```text
+Ollama
+```
+
+Planned future reasoning provider:
+
+```text
+Kimi / Moonshot
+```
+
+Kimi is a roadmap provider, not current runtime support. Do not claim Kimi
+execution until a provider implementation, configuration, health check, tests,
+and documentation exist.
 
 ## System Direction
 

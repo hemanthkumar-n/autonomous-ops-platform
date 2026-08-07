@@ -18,6 +18,10 @@ unfinished.
 - Read `CHANGELOG.md` for the concise version history.
 - Read these release notes for product intent, demo commands, important files,
   boundaries, and next steps.
+- Read
+  [`../architecture/observability-dashboard-strategy.md`](../architecture/observability-dashboard-strategy.md)
+  before dashboard, graphing, alert-signal, telemetry, or provider-routing
+  work.
 - Treat source code and tests as final truth when older docs disagree.
 - Keep future release notes practical enough for a new SRE or teammate to
   understand the workflow without needing the original chat history.
