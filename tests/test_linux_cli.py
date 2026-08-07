@@ -17,6 +17,7 @@ class LinuxCLITests(unittest.TestCase):
         for command in (
             "health",
             "explain",
+            "plan",
             "cpu",
             "memory",
             "disk",
@@ -91,6 +92,46 @@ class LinuxCLITests(unittest.TestCase):
         self.assertNotEqual(result.exit_code, 0)
         self.assertIn(
             "No Linux command explanation is available",
+            result.output,
+        )
+
+    def test_plan_disk_renders_ordered_troubleshooting_steps(self) -> None:
+        result = CliRunner().invoke(
+            main,
+            ["linux", "plan", "disk", "--path", "/var"],
+        )
+
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn("Linux disk investigation plan for /var", result.output)
+        self.assertIn("1. Confirm filesystem bytes and type", result.output)
+        self.assertIn("Command: df -hT /var", result.output)
+        self.assertIn("Command: df -i /var", result.output)
+        self.assertIn("Command: lsof +L1 /var", result.output)
+        self.assertIn("Kubernetes correlation", result.output)
+        self.assertIn("AWS correlation", result.output)
+
+    def test_plan_disk_supports_json(self) -> None:
+        result = CliRunner().invoke(
+            main,
+            ["linux", "plan", "disk", "--path", "/var", "--json"],
+        )
+
+        self.assertEqual(result.exit_code, 0)
+        payload = json.loads(result.output)
+        self.assertEqual(payload["key"], "linux.disk")
+        self.assertEqual(payload["path"], "/var")
+        self.assertEqual(payload["steps"][0]["command"], "df -hT /var")
+        self.assertTrue(payload["steps"][5]["requires_root"])
+
+    def test_plan_disk_does_not_require_local_path(self) -> None:
+        result = CliRunner().invoke(
+            main,
+            ["linux", "plan", "disk", "--path", "/company/app/logs"],
+        )
+
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn(
+            "Linux disk investigation plan for /company/app/logs",
             result.output,
         )
 

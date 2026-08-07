@@ -11,7 +11,10 @@ Date: 2026-08-07
 ### Added
 
 - `aop linux explain <command>`
+- `aop linux plan disk --path <path>`
 - command explanation lookup backed by the Linux argument reasoning catalog
+- read-only disk investigation plan with ordered evidence steps,
+  interpretations, Kubernetes correlation, and AWS/EBS correlation
 - placeholder-aware matching for commands such as `lsof -p 4242` and
   `netstat -plane | grep :3045`
 - human-readable and JSON output for command purpose, argument meaning,
@@ -21,9 +24,9 @@ Date: 2026-08-07
 
 ### Safety
 
-`aop linux explain` does not execute the requested command. It only explains
-cataloged troubleshooting commands so operators can understand why a command
-is useful before running it.
+`aop linux explain` and `aop linux plan` do not execute the requested
+troubleshooting commands. They explain cataloged commands and planned evidence
+steps so operators can understand why a command is useful before running it.
 
 ---
 

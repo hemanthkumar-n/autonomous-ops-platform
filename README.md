@@ -161,6 +161,7 @@ The preserved `tshelper` workflow is now available through native AOP commands:
 aop linux health
 aop linux explain "df -hT"
 aop linux explain "netstat -plane | grep :3045"
+aop linux plan disk --path /var
 aop linux cpu
 aop linux memory
 aop linux disk --path /var
@@ -211,6 +212,19 @@ The explain workflow is backed by the Linux argument reasoning catalog. It
 does not execute the command. It returns the command purpose, argument meaning,
 troubleshooting value, risk, incident fit, AOP guidance, and related next
 commands.
+
+Plan the investigation before collecting evidence:
+
+```bash
+aop linux plan disk --path /var
+aop linux plan disk --path /company/app/logs
+aop linux plan disk --path /var --json
+```
+
+The disk plan is read-only and does not require the path to exist locally. It
+shows the ordered Linux admin reasoning for capacity, inodes, mount identity,
+bounded growth checks, deleted-open files, kernel storage errors, Kubernetes
+node paths, and AWS/EBS follow-up.
 
 Disk-space investigation follows an evidence-first sequence:
 

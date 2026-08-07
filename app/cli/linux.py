@@ -126,6 +126,36 @@ def _render_command_explanation(explanation: dict) -> None:
             click.echo(f"- {command}")
 
 
+def _render_linux_plan(plan: dict) -> None:
+    click.echo(plan["title"])
+    click.echo(f"Symptom: {plan['symptom']}")
+    click.echo(f"Safety: {plan['safety']}")
+    click.echo()
+
+    for step in plan["steps"]:
+        root_note = " [root may be required]" if step["requires_root"] else ""
+        click.echo(f"{step['order']}. {step['title']}{root_note}")
+        click.echo(f"   Command: {step['command']}")
+        click.echo(f"   Why: {step['why']}")
+        click.echo(f"   Interpret: {step['interpretation']}")
+        if step["risk"] != "safe":
+            click.echo(f"   Risk: {step['risk']}")
+        if step["aop_command"]:
+            click.echo(f"   AOP: {step['aop_command']}")
+        click.echo()
+
+    if plan["kubernetes_correlation"]:
+        click.echo("Kubernetes correlation")
+        for item in plan["kubernetes_correlation"]:
+            click.echo(f"- {item}")
+        click.echo()
+
+    if plan["aws_correlation"]:
+        click.echo("AWS correlation")
+        for item in plan["aws_correlation"]:
+            click.echo(f"- {item}")
+
+
 @click.group("linux")
 def linux() -> None:
     """
@@ -180,6 +210,38 @@ def explain(command_line: tuple[str, ...], as_json: bool) -> None:
         return
 
     _render_command_explanation(explanation)
+
+
+@linux.group("plan")
+def plan() -> None:
+    """
+    Build a read-only Linux troubleshooting plan without executing commands.
+    """
+
+
+@plan.command("disk")
+@click.option(
+    "--path",
+    "scan_path",
+    type=click.Path(file_okay=False, path_type=str),
+    default="/",
+    show_default=True,
+    help="Path whose backing filesystem should anchor the plan.",
+)
+@click.option("--json", "as_json", is_flag=True)
+def plan_disk(scan_path: str, as_json: bool) -> None:
+    """
+    Show the ordered Linux disk troubleshooting plan.
+    """
+
+    from app.tools.troubleshooting.linux_plans import build_disk_plan
+
+    payload = build_disk_plan(scan_path)
+    if as_json:
+        _echo_json(payload)
+        return
+
+    _render_linux_plan(payload)
 
 
 @linux.command("health")

@@ -10,6 +10,7 @@ practices.
 aop linux health
 aop linux explain "df -hT"
 aop linux explain "netstat -plane | grep :3045"
+aop linux plan disk --path /var
 aop linux cpu
 aop linux memory
 aop linux disk --path /var
@@ -26,6 +27,7 @@ aop linux logs
 |---|---|
 | `aop linux health` | Prioritized host, load, memory, filesystem, and service health |
 | `aop linux explain` | Explain a Linux troubleshooting command and its arguments |
+| `aop linux plan` | Build a read-only troubleshooting plan before collecting evidence |
 | `aop linux cpu` | CPU topology, load, run queue, and top consumers |
 | `aop linux memory` | Available memory, swap activity, kernel counters, and consumers |
 | `aop linux disk` | Capacity, inodes, mounts, directory usage, and deleted-open files |
@@ -76,6 +78,32 @@ df -hT
   -T -> filesystem type
   useful for DiskFull, KubernetesDiskPressure, and FilesystemCapacity
 ```
+
+## Plan Commands
+
+```bash
+aop linux plan disk --path /var
+aop linux plan disk --path /var --json
+aop linux plan disk --path /company/app/logs
+```
+
+`aop linux plan disk` prints the ordered disk troubleshooting path before any
+collector runs. It explains:
+
+- filesystem byte and type confirmation
+- inode exhaustion checks
+- mount identity and read-only state
+- bounded directory growth investigation
+- recent large-file discovery
+- deleted-open file checks
+- kernel filesystem and storage-error review
+- I/O latency separation
+- Kubernetes node correlation
+- AWS/EBS correlation
+
+The plan command does not require the path to exist on the local machine. This
+allows an SRE to prepare an investigation for a remote host, a Kubernetes node,
+or a company-specific application path before logging into the target system.
 
 ## Linux Internals
 
