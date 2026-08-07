@@ -86,6 +86,10 @@ class LinuxDiskAgentTests(unittest.TestCase):
             "inode_exhaustion",
         )
         self.assertIn("small files", investigation.findings[0].next)
+        self.assertIn(
+            "No space left on device",
+            investigation.findings[0].next_explanation,
+        )
 
     def test_read_only_mount_outranks_capacity(self) -> None:
         investigation = analyze_disk_evidence(
@@ -120,6 +124,12 @@ class LinuxDiskAgentTests(unittest.TestCase):
         codes = [item.code for item in investigation.findings]
         self.assertIn("deleted_open_files", codes)
         self.assertIn("rapid_file_growth", codes)
+        deleted_open = next(
+            item
+            for item in investigation.findings
+            if item.code == "deleted_open_files"
+        )
+        self.assertIn("process still has them open", deleted_open.next_explanation)
 
     def test_missing_df_becomes_insufficient_evidence(self) -> None:
         evidence = _evidence()

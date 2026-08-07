@@ -107,7 +107,8 @@ intelligence, and command-reasoning workflows.
 - ordered disk-space investigation with inode, mount, growth, deleted-file,
   and kernel-error evidence
 - `aop investigate linux disk` deterministic diagnosis with severity,
-  confidence, evidence gaps, next checks, and operational-memory persistence
+  confidence, evidence gaps, next checks, command reasoning, and
+  operational-memory persistence
 - Linux command explanation through `aop linux explain`
 - read-only disk investigation planning through `aop linux plan disk`
 - read-only Kubernetes SRE shortcuts
@@ -279,9 +280,9 @@ aop investigate linux disk --path /var --no-persist
 
 The investigation distinguishes byte exhaustion, inode exhaustion,
 deleted-open files, rapid growth, read-only filesystems, kernel storage errors,
-and insufficient evidence. It records confidence, evidence, next checks, and
-evidence gaps. Structured memory still persists when semantic indexing is
-unavailable.
+and insufficient evidence. It records confidence, evidence, next checks, why
+those checks matter, and evidence gaps. Structured memory still persists when
+semantic indexing is unavailable.
 
 Linux internals commands read the kernel's virtual filesystems directly:
 

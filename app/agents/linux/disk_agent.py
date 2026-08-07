@@ -90,7 +90,50 @@ def _finding(
         summary=summary,
         evidence=evidence,
         next=next_step,
+        next_explanation=_next_explanation(code),
     )
+
+
+def _next_explanation(code: str) -> str:
+    explanations = {
+        "read_only_filesystem": (
+            "A read-only remount usually means the kernel or storage layer "
+            "protected the filesystem after an error. Cleanup is not the "
+            "first action; inspect mount options and kernel storage logs."
+        ),
+        "storage_io_errors": (
+            "Filesystem and block-device errors can cause latency, failed "
+            "writes, or read-only remounts even when capacity is available. "
+            "Correlate kernel messages with the affected device and storage "
+            "backend."
+        ),
+        "inode_exhaustion": (
+            "Inode exhaustion can produce 'No space left on device' even "
+            "when byte capacity is still available. The next check should "
+            "look for directories creating many small files."
+        ),
+        "filesystem_capacity_exhaustion": (
+            "High byte usage must be explained before cleanup. Compare "
+            "visible directory growth, recent large files, deleted-open "
+            "files, snapshots, and retention expectations."
+        ),
+        "deleted_open_files": (
+            "Deleted files can keep consuming disk blocks while a process "
+            "still has them open. Space is released only when the process "
+            "closes the file, so identify the owner before restarting."
+        ),
+        "rapid_file_growth": (
+            "Recent large files show what changed near the incident window. "
+            "Map the file to the writer, service, deployment, rotation, or "
+            "backup behavior before remediation."
+        ),
+        "insufficient_evidence": (
+            "AOP cannot make a reliable disk diagnosis without filesystem "
+            "and mount evidence. Restore read access to the missing command "
+            "outputs and repeat the investigation."
+        ),
+    }
+    return explanations.get(code, "")
 
 
 def analyze_disk_evidence(evidence: dict) -> LinuxDiskInvestigation:

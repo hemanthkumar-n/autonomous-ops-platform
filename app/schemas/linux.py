@@ -29,6 +29,7 @@ class LinuxDiskFinding(BaseModel):
     summary: str
     evidence: list[str] = Field(default_factory=list)
     next: str
+    next_explanation: str = ""
 
 
 class LinuxDiskInvestigation(BaseModel):

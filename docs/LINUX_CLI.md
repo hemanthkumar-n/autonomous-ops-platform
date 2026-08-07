@@ -224,10 +224,19 @@ aop investigate linux disk --path /var --no-persist
 ```
 
 The result includes a primary diagnosis, severity, confidence, supporting
-evidence, alternative findings, recommended next checks, and evidence gaps.
+evidence, alternative findings, recommended next checks, why those checks
+matter, and evidence gaps.
 By default it persists a Linux-native JSON memory record and attempts semantic
 indexing. Structured memory remains available if embeddings or the vector
 store are unavailable.
+
+Example finding explanation:
+
+```text
+Finding: inode_exhaustion
+Next: Find directories creating many small files on this filesystem.
+Why: Inode exhaustion can produce "No space left on device" even when byte capacity is available.
+```
 
 This workflow is deterministic. It does not call an LLM and does not delete,
 restart, remount, repair, resize, or otherwise modify the host.

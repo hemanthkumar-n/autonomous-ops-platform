@@ -20,6 +20,8 @@ Date: 2026-08-07
 - human-readable and JSON output for command purpose, argument meaning,
   troubleshooting value, risk, incident fit, AOP guidance, and related next
   commands
+- `aop investigate linux disk` finding output now includes why the recommended
+  next diagnostic check matters
 - regression tests for Linux explain CLI behavior
 
 ### Safety

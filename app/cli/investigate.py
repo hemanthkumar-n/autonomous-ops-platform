@@ -184,6 +184,8 @@ def investigate_linux_disk(
             )
             click.echo(f"         {finding.summary}")
             click.echo(f"         Next: {finding.next}")
+            if finding.next_explanation:
+                click.echo(f"         Why: {finding.next_explanation}")
 
     if investigation.evidence_gaps:
         click.echo()

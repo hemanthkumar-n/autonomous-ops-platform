@@ -33,6 +33,10 @@ def _investigation() -> LinuxDiskInvestigation:
                 summary="Inode utilization is 97%.",
                 evidence=["/dev/sda1 100000 97000 3000 97% /var"],
                 next="Find directories creating many small files.",
+                next_explanation=(
+                    "Inode exhaustion can cause writes to fail even when "
+                    "byte capacity is available."
+                ),
             )
         ],
     )
@@ -62,6 +66,8 @@ class LinuxInvestigateCLITests(unittest.TestCase):
         self.assertEqual(result.exit_code, 0)
         self.assertIn("inode_exhaustion", result.output)
         self.assertIn("Inode use: 97%", result.output)
+        self.assertIn("Why:", result.output)
+        self.assertIn("byte capacity is available", result.output)
         self.assertIn("memory.json", result.output)
 
     @patch(
@@ -96,6 +102,10 @@ class LinuxInvestigateCLITests(unittest.TestCase):
         self.assertEqual(result.exit_code, 0)
         payload = json.loads(result.output)
         self.assertEqual(payload["primary_diagnosis"], "inode_exhaustion")
+        self.assertIn(
+            "byte capacity is available",
+            payload["findings"][0]["next_explanation"],
+        )
         run_workflow.assert_called_once_with(
             scan_path="/var",
             top=20,
