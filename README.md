@@ -10,7 +10,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-blue" alt="Python 3.11+" />
-  <img src="https://img.shields.io/badge/AOP-v0.12.0-success" alt="AOP v0.12.0" />
+  <img src="https://img.shields.io/badge/AOP-v0.13.0-success" alt="AOP v0.13.0" />
   <img src="https://img.shields.io/badge/Kubernetes-SRE%20Shortcuts-326CE5" alt="Kubernetes SRE Shortcuts" />
   <img src="https://img.shields.io/badge/Observability-Prometheus-red" alt="Prometheus" />
   <img src="https://img.shields.io/badge/LLM-Ollama-green" alt="Ollama" />
@@ -24,6 +24,11 @@
 Autonomous Ops Platform (AOP) is an operational intelligence platform for
 Site Reliability Engineering, platform engineering, and infrastructure
 operations.
+
+> **Mission:** Build a unique SRE tool that captures experienced Linux,
+> Kubernetes, AWS, observability, and incident-response judgment as one source
+> of operational truth. AOP should teach, investigate, remember, and guide
+> safe action instead of behaving like a generic command wrapper.
 
 AOP combines:
 
@@ -57,6 +62,11 @@ Observe
 The durable cross-domain product direction is documented in
 [`docs/AOP_PRODUCT_VISION.md`](docs/AOP_PRODUCT_VISION.md).
 
+For release-by-release human context, read
+[`docs/releases/`](docs/releases/). These notes are written for future team
+members, ChatGPT handoffs, and Codex sessions that need to understand why a
+release exists.
+
 ---
 
 ## Current Release
@@ -64,11 +74,19 @@ The durable cross-domain product direction is documented in
 Current version:
 
 ```text
-AOP v0.12.0
+AOP v0.13.0
 ```
 
 The implemented and tested paths currently cover Kubernetes incident
-intelligence and the first deterministic Linux troubleshooting CLI.
+intelligence, deterministic Linux troubleshooting, Linux disk incident
+intelligence, and command-reasoning workflows.
+
+### Release Memory
+
+| Release | What it proves | Human reference |
+|---|---|---|
+| `v0.13.0` | AOP can explain Linux command intent and plan disk investigations before execution | [`docs/releases/v0.13-linux-explain-and-plan.md`](docs/releases/v0.13-linux-explain-and-plan.md) |
+| `v0.12.0` | AOP can classify Linux disk incidents deterministically and preserve memory | [`docs/releases/v0.12-linux-disk-incident-intelligence.md`](docs/releases/v0.12-linux-disk-incident-intelligence.md) |
 
 ### Implemented
 
@@ -84,6 +102,8 @@ intelligence and the first deterministic Linux troubleshooting CLI.
   and kernel-error evidence
 - `aop investigate linux disk` deterministic diagnosis with severity,
   confidence, evidence gaps, next checks, and operational-memory persistence
+- Linux command explanation through `aop linux explain`
+- read-only disk investigation planning through `aop linux plan disk`
 - read-only Kubernetes SRE shortcuts
 - Kubernetes pod and container evidence collection
 - node, namespace, deployment, service, event, and log inspection
@@ -96,7 +116,7 @@ intelligence and the first deterministic Linux troubleshooting CLI.
 - graceful exact-memory fallback
 - Markdown and JSON incident reports
 - typed Pydantic contracts
-- fifty-five offline regression tests
+- sixty-two offline regression tests
 
 ### Not Yet Implemented
 
@@ -189,10 +209,11 @@ aop linux network --json
 aop linux all --json > linux-report.json
 ```
 
-The first release is read-only and deterministic. It uses explicit command
+The Linux CLI remains read-only and deterministic. It uses explicit command
 arguments without shell evaluation, applies timeouts and output limits,
-records missing commands and permission failures as evidence, and avoids
-restart, kill, delete, unmount, firewall, and log-clearing actions.
+records missing commands and permission failures as evidence, explains command
+intent before execution, and avoids restart, kill, delete, unmount, firewall,
+and log-clearing actions.
 
 The deeper Linux intelligence roadmap is documented in
 [`docs/linux/LINUX_EXPERTISE_BLUEPRINT.md`](docs/linux/LINUX_EXPERTISE_BLUEPRINT.md).
@@ -552,12 +573,17 @@ autonomous-ops-platform/
 │   ├── orchestration/              # incident workflow
 │   ├── schemas/                    # typed platform contracts
 │   └── tools/
+│       ├── linux/                  # Linux evidence collection
 │       ├── kubernetes/             # Kubernetes evidence and operations
-│       └── prometheus/             # metrics enrichment
+│       ├── prometheus/             # metrics enrichment
+│       └── troubleshooting/        # command catalogs and plans
 ├── docs/
 │   ├── architecture/adr/           # architecture decisions
+│   ├── releases/                   # human-readable release memory
+│   ├── linux/                      # Linux expertise and preserved tshelper
 │   ├── AOP_PRODUCT_VISION.md       # durable product direction
 │   ├── AUTONOMOUS_OPS_PLATFORM_MEMORY_LANE.md
+│   ├── LINUX_CLI.md
 │   └── KUBERNETES_CLI.md
 ├── kubernetes/
 │   ├── incidents/                  # reproducible failure scenarios
@@ -701,7 +727,7 @@ python -m unittest discover -s tests -v
 Current baseline:
 
 ```text
-55 tests passing
+62 tests passing
 ```
 
 The tests cover:
@@ -737,6 +763,7 @@ Live Kubernetes and Prometheus validation remains a separate environment test.
 | [`docs/PROJECT_HANDOVER.md`](docs/PROJECT_HANDOVER.md) | Verified baseline, implementation boundaries, engineering rules, and next work |
 | [`docs/AOP_PRODUCT_VISION.md`](docs/AOP_PRODUCT_VISION.md) | Linux, Kubernetes, AWS, UI, Slack/Teams, and onboarding vision |
 | [`docs/AUTONOMOUS_OPS_PLATFORM_MEMORY_LANE.md`](docs/AUTONOMOUS_OPS_PLATFORM_MEMORY_LANE.md) | Compact current implementation memory |
+| [`docs/releases/`](docs/releases/) | Human-readable release notes for future team members and AI handoffs |
 | [`docs/KUBERNETES_CLI.md`](docs/KUBERNETES_CLI.md) | Kubernetes shortcut reference |
 | [`docs/LINUX_CLI.md`](docs/LINUX_CLI.md) | Native Linux troubleshooting command reference |
 | [`docs/linux/LINUX_EXPERTISE_BLUEPRINT.md`](docs/linux/LINUX_EXPERTISE_BLUEPRINT.md) | Linux administration expertise and implementation direction |

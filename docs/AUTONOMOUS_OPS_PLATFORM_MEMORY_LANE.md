@@ -1,6 +1,6 @@
 # Autonomous Ops Platform: Codex Memory
 
-Updated: 2026-06-10
+Updated: 2026-08-07
 
 ## Purpose
 
@@ -18,6 +18,15 @@ docs/AOP_PRODUCT_VISION.md
 Read that file for roadmap, product, Linux, AWS, UI, Slack/Teams, company
 onboarding, or platform-positioning work. It is the durable vision source.
 
+Human-readable release notes are preserved in:
+
+```text
+docs/releases/
+```
+
+Use those files when handing the project to a future teammate, ChatGPT
+conversation, or Codex session.
+
 The previous detailed 555-line memory remains recoverable from Git:
 
 ```bash
@@ -34,12 +43,12 @@ Remediation is advisory and non-destructive.
 
 ## Current Baseline
 
-- Version: `0.12.0`
+- Version: `0.13.0`
 - Branch: `main`
 - Remote baseline: `origin/main`
 - Python: `3.11+`
 - CLI entry point: `aop`
-- Tests: fifty-five offline regression tests passing
+- Tests: sixty-two offline regression tests passing
 - Real Ollama generation and 768-dimensional embeddings verified
 - Full live demo still requires Kubernetes and Prometheus to be running
 
@@ -81,6 +90,22 @@ ordered disk evidence
   -> safe next diagnostic action
   -> Linux-native JSON memory
   -> optional semantic indexing with structured fallback
+```
+
+Linux command reasoning:
+
+```text
+aop linux explain <command>
+  -> command purpose
+  -> argument meaning
+  -> troubleshooting value
+  -> risk and root-read notes
+  -> related next commands
+
+aop linux plan disk --path <path>
+  -> read-only investigation order
+  -> capacity, inode, mount, growth, deleted-open file, kernel, and I/O checks
+  -> Kubernetes node and AWS/EBS correlation
 ```
 
 General Linux cross-signal correlation and AI RCA are not implemented.
@@ -150,6 +175,8 @@ aop kb health
 aop kb po
 aop kb ev
 aop linux health
+aop linux explain "df -hT"
+aop linux plan disk --path /var
 aop linux disk --path /var
 aop linux network
 aop linux internals --interval 5
@@ -167,6 +194,7 @@ Kubernetes shortcut reference:
 
 ```text
 docs/KUBERNETES_CLI.md
+docs/releases/
 ```
 
 Linux references:

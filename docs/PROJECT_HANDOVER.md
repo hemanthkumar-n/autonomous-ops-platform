@@ -1,6 +1,6 @@
 # Autonomous Ops Platform: Project Handover
 
-Updated: 2026-06-10
+Updated: 2026-08-07
 
 ## Start Here
 
@@ -14,7 +14,8 @@ Read next:
    memory.
 3. `docs/AOP_PRODUCT_VISION.md` for the durable Linux, Kubernetes, AWS, UI,
    Slack/Teams, and company-onboarding direction.
-4. `docs/LINUX_CLI.md` and
+4. `docs/releases/` for release-by-release human context.
+5. `docs/LINUX_CLI.md` and
    `app/memory/knowledgebase/linux_troubleshooting_command_catalog.md` before
    extending Linux diagnostics.
 
@@ -23,10 +24,10 @@ Do not treat empty modules or directory names as implemented capabilities.
 ## Verified Baseline
 
 ```text
-Release: 0.12.0
+Release: 0.13.0
 Branch: main
 Remote: origin/main
-Offline tests: 55 passing
+Offline tests: 62 passing
 CLI entry point: aop
 Python: 3.11+
 ```
@@ -44,7 +45,7 @@ git status --short --branch
 Expected version:
 
 ```text
-aop, version 0.12.0
+aop, version 0.13.0
 ```
 
 ## What AOP Is
@@ -100,6 +101,8 @@ aop kb inv -n ai-lab
 - ordered disk investigation covering capacity, inodes, mount context,
   directory usage, recent large files, deleted-open files, and kernel storage
   errors
+- command explanation through `aop linux explain`
+- read-only disk investigation planning through `aop linux plan disk`
 - human-readable and JSON output
 - deterministic `aop investigate linux disk` classification
 - disk severity, confidence, supporting evidence, evidence gaps, and safe next
@@ -110,6 +113,8 @@ Useful commands:
 
 ```bash
 aop linux health
+aop linux explain "df -hT"
+aop linux plan disk --path /var
 aop linux disk --path /var
 aop linux space --path /var
 aop linux fs --path /var
@@ -169,13 +174,14 @@ frameworks.
 2. Add CI for tests, formatting, linting, and type checks.
 3. Validate the Linux disk workflow against real ext4, XFS, LVM, container,
    NFS, and cloud-volume examples.
-4. Add the next deterministic Linux reasoning workflow, starting with memory
+4. Enrich `aop investigate linux disk` findings with command explanations.
+5. Add the next deterministic Linux reasoning workflow, starting with memory
    pressure and OOM.
-5. Add recurrence search across Linux incident memory.
-6. Correlate Kubernetes node symptoms with collected Linux evidence.
-7. Add the operator UI after Linux and Kubernetes share one stable incident
+6. Add recurrence search across Linux incident memory.
+7. Correlate Kubernetes node symptoms with collected Linux evidence.
+8. Add the operator UI after Linux and Kubernetes share one stable incident
    contract.
-8. Add Slack/Teams approval surfaces, then AWS evidence adapters.
+9. Add Slack/Teams approval surfaces, then AWS evidence adapters.
 
 For the next Linux disk phase, the workflow should distinguish:
 
