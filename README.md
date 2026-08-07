@@ -159,6 +159,8 @@ The preserved `tshelper` workflow is now available through native AOP commands:
 
 ```bash
 aop linux health
+aop linux explain "df -hT"
+aop linux explain "netstat -plane | grep :3045"
 aop linux cpu
 aop linux memory
 aop linux disk --path /var
@@ -193,6 +195,22 @@ restart, kill, delete, unmount, firewall, and log-clearing actions.
 
 The deeper Linux intelligence roadmap is documented in
 [`docs/linux/LINUX_EXPERTISE_BLUEPRINT.md`](docs/linux/LINUX_EXPERTISE_BLUEPRINT.md).
+
+Explain command intent before running deeper checks:
+
+```bash
+aop linux explain "df -hT"
+aop linux explain "ps aux"
+aop linux explain "lsof -p 4242"
+aop linux explain "netstat -plane | grep :3045"
+aop linux explain "strace -tt -T -f -y -yy -s 1024 -p 4242"
+aop linux explain "df -hT" --json
+```
+
+The explain workflow is backed by the Linux argument reasoning catalog. It
+does not execute the command. It returns the command purpose, argument meaning,
+troubleshooting value, risk, incident fit, AOP guidance, and related next
+commands.
 
 Disk-space investigation follows an evidence-first sequence:
 

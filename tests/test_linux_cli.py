@@ -16,6 +16,7 @@ class LinuxCLITests(unittest.TestCase):
         self.assertEqual(result.exit_code, 0)
         for command in (
             "health",
+            "explain",
             "cpu",
             "memory",
             "disk",
@@ -33,6 +34,65 @@ class LinuxCLITests(unittest.TestCase):
             "all",
         ):
             self.assertIn(command, result.output)
+
+    def test_explain_renders_command_argument_reasoning(self) -> None:
+        result = CliRunner().invoke(
+            main,
+            ["linux", "explain", "df -hT"],
+        )
+
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn("Command: df -hT", result.output)
+        self.assertIn("filesystem type", result.output)
+        self.assertIn("-h", result.output)
+        self.assertIn("-T", result.output)
+        self.assertIn("KubernetesDiskPressure", result.output)
+
+    def test_explain_matches_runtime_placeholders(self) -> None:
+        result = CliRunner().invoke(
+            main,
+            [
+                "linux",
+                "explain",
+                "netstat",
+                "-plane",
+                "|",
+                "grep",
+                ":3045",
+            ],
+        )
+
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn("Command: netstat -plane | grep <port>", result.output)
+        self.assertIn("Show PID/program name", result.output)
+        self.assertIn("Prefer ss on modern Linux", result.output)
+
+    def test_explain_supports_json(self) -> None:
+        result = CliRunner().invoke(
+            main,
+            ["linux", "explain", "lsof", "-p", "4242", "--json"],
+        )
+
+        self.assertEqual(result.exit_code, 0)
+        payload = json.loads(result.output)
+        self.assertEqual(payload["status"], "found")
+        self.assertEqual(
+            payload["explanation"]["variant"],
+            "lsof -p <pid>",
+        )
+        self.assertTrue(payload["explanation"]["requires_root"])
+
+    def test_explain_unknown_command_exits_nonzero(self) -> None:
+        result = CliRunner().invoke(
+            main,
+            ["linux", "explain", "unknownctl", "--magic"],
+        )
+
+        self.assertNotEqual(result.exit_code, 0)
+        self.assertIn(
+            "No Linux command explanation is available",
+            result.output,
+        )
 
     @patch("app.tools.linux.operations.collect_health")
     def test_health_renders_prioritized_findings(

@@ -4,6 +4,29 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.13.0 - Linux Explain and Command Reasoning
+
+Date: 2026-08-07
+
+### Added
+
+- `aop linux explain <command>`
+- command explanation lookup backed by the Linux argument reasoning catalog
+- placeholder-aware matching for commands such as `lsof -p 4242` and
+  `netstat -plane | grep :3045`
+- human-readable and JSON output for command purpose, argument meaning,
+  troubleshooting value, risk, incident fit, AOP guidance, and related next
+  commands
+- regression tests for Linux explain CLI behavior
+
+### Safety
+
+`aop linux explain` does not execute the requested command. It only explains
+cataloged troubleshooting commands so operators can understand why a command
+is useful before running it.
+
+---
+
 ## v0.12.0 - Linux Disk Incident Intelligence
 
 Date: 2026-06-10

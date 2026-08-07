@@ -88,11 +88,98 @@ def _render_pressure_deltas(deltas: dict[str, dict]) -> None:
         click.echo(f"{resource:8} {'  '.join(parts)}")
 
 
+def _render_command_explanation(explanation: dict) -> None:
+    click.echo(f"Command: {explanation['variant']}")
+    click.echo(f"Category: {explanation['category']}")
+    click.echo(f"Risk: {explanation['risk']}")
+    if explanation["requires_root"]:
+        click.echo("Root: may require elevated read access")
+    click.echo()
+    click.echo(explanation["description"])
+
+    if explanation["arguments"]:
+        click.echo()
+        click.echo("Arguments")
+        for argument in explanation["arguments"]:
+            click.echo(f"- {argument['flag']}: {argument['meaning']}")
+            click.echo(
+                f"  Troubleshooting value: "
+                f"{argument['troubleshooting_value']}"
+            )
+            if argument["risk"] != "safe":
+                click.echo(f"  Risk: {argument['risk']}")
+
+    if explanation["incident_types"]:
+        click.echo()
+        click.echo("Useful for")
+        for incident_type in explanation["incident_types"]:
+            click.echo(f"- {incident_type}")
+
+    if explanation["agent_hint"]:
+        click.echo()
+        click.echo(f"AOP guidance: {explanation['agent_hint']}")
+
+    if explanation["related_commands"]:
+        click.echo()
+        click.echo("Related next commands")
+        for command in explanation["related_commands"]:
+            click.echo(f"- {command}")
+
+
 @click.group("linux")
 def linux() -> None:
     """
     Read-only Linux troubleshooting based on experienced admin workflows.
     """
+
+
+@linux.command(
+    "explain",
+    context_settings={
+        "ignore_unknown_options": True,
+    },
+)
+@click.argument("command_line", nargs=-1, required=True)
+@click.option("--json", "as_json", is_flag=True)
+def explain(command_line: tuple[str, ...], as_json: bool) -> None:
+    """
+    Explain a Linux troubleshooting command and its arguments.
+
+    The command is matched against AOP's Linux argument reasoning catalog.
+    It is not executed.
+    """
+
+    from app.tools.troubleshooting.linux_argument_catalog import (
+        explain_linux_command,
+    )
+
+    requested_command = " ".join(command_line)
+    explanation = explain_linux_command(requested_command)
+    if explanation is None:
+        message = {
+            "status": "not_found",
+            "command": requested_command,
+            "message": (
+                "No Linux command explanation is available yet. "
+                "Add this command to the AOP argument catalog before "
+                "using it for guided troubleshooting."
+            ),
+        }
+        if as_json:
+            _echo_json(message)
+            return
+        raise click.ClickException(message["message"])
+
+    payload = {
+        "status": "found",
+        "requested_command": requested_command,
+        "explanation": explanation,
+    }
+    if as_json:
+        _echo_json(payload)
+        return
+
+    _render_command_explanation(explanation)
 
 
 @linux.command("health")

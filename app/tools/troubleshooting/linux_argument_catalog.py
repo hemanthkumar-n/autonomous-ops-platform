@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
+import re
 from typing import Literal
 
 
@@ -394,3 +395,64 @@ def get_argument_aware_command(key: str) -> dict | None:
         if command.key == key:
             return command.to_dict()
     return None
+
+
+def explain_linux_command(command_line: str) -> dict | None:
+    """
+    Return the best explanation for a Linux command line.
+
+    The matcher is intentionally conservative. It recognizes exact catalog
+    variants and placeholder-shaped examples such as ``lsof -p 4242`` or
+    ``netstat -plane | grep :3045`` without attempting to parse or execute
+    shell syntax.
+    """
+
+    normalized = _normalize_command_line(command_line)
+    if not normalized:
+        return None
+
+    for command in LINUX_ARGUMENT_AWARE_COMMANDS:
+        if normalized == _normalize_command_line(command.variant):
+            return command.to_dict()
+
+    for command in LINUX_ARGUMENT_AWARE_COMMANDS:
+        pattern = _variant_pattern(command.variant)
+        if re.fullmatch(pattern, normalized):
+            return command.to_dict()
+
+    return None
+
+
+def _normalize_command_line(command_line: str) -> str:
+    """
+    Normalize spacing and common sudo prefixes for catalog matching.
+    """
+
+    normalized = " ".join(command_line.strip().split())
+    if normalized.startswith("sudo "):
+        normalized = normalized[5:]
+    return normalized
+
+
+def _variant_pattern(variant: str) -> str:
+    """
+    Convert catalog placeholders into conservative regular expressions.
+    """
+
+    normalized = _normalize_command_line(variant)
+    escaped = re.escape(normalized)
+    placeholder_pattern = re.compile(r"<([a-zA-Z0-9_-]+)>")
+
+    def replacement(match: re.Match[str]) -> str:
+        name = match.group(1).lower()
+        if name == "pid":
+            return r"\d+"
+        if name == "port":
+            return r":?\d+"
+        if name in {"path", "file", "directory"}:
+            return r"\S+"
+        if name in {"pattern", "host", "server"}:
+            return r"\S+"
+        return r"\S+"
+
+    return placeholder_pattern.sub(replacement, escaped)

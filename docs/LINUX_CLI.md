@@ -8,6 +8,8 @@ practices.
 
 ```bash
 aop linux health
+aop linux explain "df -hT"
+aop linux explain "netstat -plane | grep :3045"
 aop linux cpu
 aop linux memory
 aop linux disk --path /var
@@ -23,6 +25,7 @@ aop linux logs
 | Command | Purpose |
 |---|---|
 | `aop linux health` | Prioritized host, load, memory, filesystem, and service health |
+| `aop linux explain` | Explain a Linux troubleshooting command and its arguments |
 | `aop linux cpu` | CPU topology, load, run queue, and top consumers |
 | `aop linux memory` | Available memory, swap activity, kernel counters, and consumers |
 | `aop linux disk` | Capacity, inodes, mounts, directory usage, and deleted-open files |
@@ -38,6 +41,41 @@ aop linux logs
 | `aop linux internals` | Scheduler load, process states, PSI, and VM counters |
 | `aop linux cgroups` | PID membership, cgroup version, limits, events, and pressure |
 | `aop linux all` | Baseline health followed by the primary diagnostic domains |
+
+## Explain Commands
+
+```bash
+aop linux explain "df -hT"
+aop linux explain "ps aux"
+aop linux explain "lsof -p 4242"
+aop linux explain "netstat -plane | grep :3045"
+aop linux explain "strace -tt -T -f -y -yy -s 1024 -p 4242"
+aop linux explain "tcpdump host 10.0.0.10"
+aop linux explain "df -hT" --json
+```
+
+`aop linux explain` uses AOP's Linux argument reasoning catalog. It explains:
+
+- command purpose
+- argument meaning
+- troubleshooting value
+- risk level
+- whether elevated read access may be required
+- incident types where the command is useful
+- related next commands
+- AOP guidance for safe use
+
+The command is not executed. It is a teaching and planning interface for the
+operator and for future specialist agents.
+
+Example interpretation:
+
+```text
+df -hT
+  -h -> human-readable units
+  -T -> filesystem type
+  useful for DiskFull, KubernetesDiskPressure, and FilesystemCapacity
+```
 
 ## Linux Internals
 
