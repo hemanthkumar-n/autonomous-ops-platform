@@ -4,6 +4,29 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.16.0 - Linux CPU, Load, and D-State Investigation
+
+Date: 2026-08-08
+
+### Added
+
+- `aop investigate linux cpu`
+- deterministic CPU/load investigation workflow
+- classification for D-state blocked tasks, I/O pressure behind load, CPU
+  saturation, steal-time pressure, high-load/low-CPU ambiguity, and
+  insufficient evidence
+- CPU/load incident persistence with semantic-memory fallback
+- tests for CPU agent classification, workflow persistence, CLI output, and
+  CPU evidence collection
+
+### Safety
+
+CPU investigation is read-only. It does not kill processes, change priorities,
+restart services, tune kernel parameters, alter cgroup limits, or change cloud
+instance capacity.
+
+---
+
 ## v0.15.0 - Evidence and Dashboard Data Contracts
 
 Date: 2026-08-08

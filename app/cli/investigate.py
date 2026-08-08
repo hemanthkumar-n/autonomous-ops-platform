@@ -316,6 +316,109 @@ def investigate_linux_memory(
         click.echo(f"Memory record: {saved_path}")
 
 
+@investigate_linux.command("cpu")
+@click.option(
+    "--top",
+    type=click.IntRange(1, 100),
+    default=10,
+    show_default=True,
+    help="Maximum CPU process records to retain.",
+)
+@click.option(
+    "--format",
+    "output_format",
+    type=click.Choice(["summary", "json"], case_sensitive=False),
+    default="summary",
+    show_default=True,
+)
+@click.option(
+    "--no-persist",
+    is_flag=True,
+    help="Do not save structured or semantic Linux incident memory.",
+)
+def investigate_linux_cpu(
+    top: int,
+    output_format: str,
+    no_persist: bool,
+) -> None:
+    """
+    Diagnose CPU saturation, high load, D-state tasks, I/O wait, and steal.
+    """
+
+    from app.orchestration.linux_cpu_workflow import (
+        run_linux_cpu_workflow,
+    )
+
+    try:
+        investigation, saved_path = run_linux_cpu_workflow(
+            top=top,
+            persist=not no_persist,
+        )
+    except Exception as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if output_format == "json":
+        click.echo(investigation.model_dump_json(indent=2))
+        return
+
+    click.echo(
+        f"Linux CPU investigation: {investigation.severity.upper()} "
+        f"host={investigation.hostname}"
+    )
+    click.echo(
+        f"Primary diagnosis: {investigation.primary_diagnosis} "
+        f"({investigation.confidence}%)"
+    )
+    click.echo(investigation.summary)
+
+    if investigation.load_average:
+        click.echo(
+            "Load: "
+            f"{investigation.load_average[0]:.2f} "
+            f"CPUs={investigation.cpu_count}"
+        )
+    if investigation.process_states:
+        click.echo(
+            "Process states: "
+            + ", ".join(
+                f"{state}={count}"
+                for state, count in investigation.process_states.items()
+            )
+        )
+    if investigation.vmstat_cpu:
+        click.echo(
+            "CPU sample: "
+            + " ".join(
+                f"{key}={value}"
+                for key, value in investigation.vmstat_cpu.items()
+            )
+        )
+
+    if investigation.findings:
+        click.echo()
+        click.echo("Findings")
+        for finding in investigation.findings:
+            click.echo(
+                f"{finding.severity.upper():8} "
+                f"{finding.code:32} "
+                f"{finding.confidence}%"
+            )
+            click.echo(f"         {finding.summary}")
+            click.echo(f"         Next: {finding.next}")
+            if finding.next_explanation:
+                click.echo(f"         Why: {finding.next_explanation}")
+
+    if investigation.evidence_gaps:
+        click.echo()
+        click.echo("Evidence gaps")
+        for gap in investigation.evidence_gaps:
+            click.echo(f"- {gap}")
+
+    if saved_path:
+        click.echo()
+        click.echo(f"Memory record: {saved_path}")
+
+
 @investigate.command("k8s")
 @click.option(
     "--namespace",

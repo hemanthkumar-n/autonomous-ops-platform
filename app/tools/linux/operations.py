@@ -776,6 +776,22 @@ def collect_nic(
     }
 
 
+def collect_cpu(top: int = 10) -> dict:
+    """
+    Collect CPU/load evidence plus /proc scheduler internals.
+    """
+
+    payload = collect_domain("cpu", top=top)
+    if payload.get("status") != "collected":
+        payload["internals"] = None
+        return payload
+
+    from app.tools.linux.internals import collect_internals
+
+    payload["internals"] = collect_internals().model_dump()
+    return payload
+
+
 def _sort_sized_lines(
     output: str,
     top: int,

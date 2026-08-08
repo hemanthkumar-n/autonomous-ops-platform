@@ -9,17 +9,17 @@ so the project remains honest and easy to explain.
 ## Current Baseline
 
 ```text
-Current release: v0.15.0
+Current release: v0.16.0
 Status: implemented and pushed
 ```
 
-v0.15.0 adds provider-neutral evidence and dashboard contracts:
+v0.16.0 adds deterministic Linux CPU, load, and D-state investigation:
 
 ```text
-metrics + alerts + evidence + timeline
-  -> dashboard panels
-  -> dashboard snapshots
-  -> future UI, reports, memory, integrations, and AI context
+collect CPU and scheduler evidence
+  -> separate CPU saturation from D-state, I/O wait, and steal
+  -> explain the next safe check
+  -> persist structured Linux CPU incident records
 ```
 
 Implemented commands:
@@ -35,8 +35,11 @@ aop investigate linux memory
 aop investigate linux memory --pid 4242
 aop linux nic
 aop linux nic --iface ens5
+aop investigate linux cpu
 ```
 
+v0.16 added deterministic Linux CPU, load, D-state, I/O-wait, and steal-time
+investigation.
 v0.15 added typed `MetricPoint`, `MetricSeries`, `AlertSignal`,
 `EvidenceItem`, `EvidenceTimeline`, `DashboardPanel`, and `DashboardSnapshot`
 contracts.
@@ -126,26 +129,27 @@ prompt context.
 
 Status: implemented as typed Pydantic contracts in `app/schemas/evidence.py`.
 
-## Next: v0.16
+## Next: v0.17
 
 ```text
-v0.16: Linux CPU, Load, and D-State Investigation
+v0.17: Linux Network and NIC Investigation
 ```
 
 Purpose:
 
 ```text
-Turn the high-load scenario into deterministic Linux investigation.
+Turn NIC and network evidence into deterministic network investigation.
 ```
 
 Target findings:
 
-- high load with low CPU
-- runnable queue pressure
-- uninterruptible `D` state tasks
-- CPU pressure stall
-- I/O pressure behind load
-- virtualization steal suspicion
+- link down
+- no carrier
+- RX/TX error or drop pressure
+- speed or duplex mismatch
+- route evidence gaps
+- DNS evidence gaps
+- listener evidence gaps
 - insufficient evidence
 
 ## Later Roadmap

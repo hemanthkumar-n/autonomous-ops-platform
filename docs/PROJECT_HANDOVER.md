@@ -28,10 +28,10 @@ Do not treat empty modules or directory names as implemented capabilities.
 ## Verified Baseline
 
 ```text
-Release: 0.15.0
+Release: 0.16.0
 Branch: main
 Remote: origin/main
-Offline tests: 85 passing
+Offline tests: 95 passing
 CLI entry point: aop
 Python: 3.11+
 ```
@@ -49,7 +49,7 @@ git status --short --branch
 Expected version:
 
 ```text
-aop, version 0.15.0
+aop, version 0.16.0
 ```
 
 ## What AOP Is
@@ -119,6 +119,9 @@ aop kb inv -n ai-lab
 - deterministic `aop investigate linux memory` classification for OOM, swap,
   `MemAvailable`, and cgroup memory events
 - Linux-native memory incident persistence with semantic-indexing fallback
+- deterministic `aop investigate linux cpu` classification for D-state, I/O
+  wait, CPU saturation, high-load/low-CPU, and steal time
+- Linux-native CPU incident persistence with semantic-indexing fallback
 - complex Linux scenario catalog exposed through v0.14 planning commands
 
 Useful commands:
@@ -126,6 +129,7 @@ Useful commands:
 ```bash
 aop linux health
 aop linux explain "df -hT"
+aop investigate linux cpu
 aop linux plan disk --path /var
 aop linux plan scenario --list
 aop linux plan scenario high-load
@@ -206,7 +210,7 @@ support until the provider, settings, health checks, tests, and docs exist.
 4. Extend Linux complex scenario plans into deterministic investigation
    workflows.
 5. Add the next deterministic Linux reasoning workflow, starting with
-   CPU/load and `D` state.
+   network/NIC investigation.
 6. Add recurrence search across Linux incident memory.
 8. Correlate Kubernetes node symptoms with collected Linux evidence.
 9. Add the operator UI after Linux and Kubernetes share one stable incident

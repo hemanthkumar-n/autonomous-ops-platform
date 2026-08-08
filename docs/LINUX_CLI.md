@@ -14,6 +14,7 @@ aop linux plan disk --path /var
 aop linux plan scenario --list
 aop linux plan scenario high-load
 aop linux cpu
+aop investigate linux cpu
 aop linux memory
 aop investigate linux memory
 aop investigate linux memory --pid 4242
@@ -307,6 +308,34 @@ Why: Kernel OOM evidence proves a process or cgroup could not satisfy memory all
 
 This workflow is deterministic. It does not call an LLM and does not kill,
 restart, clear cache, change limits, tune sysctl values, or modify swap.
+
+## CPU, Load, And D-State Investigation
+
+Raw CPU collection and incident diagnosis are separate commands:
+
+```bash
+aop linux cpu
+aop linux internals
+aop investigate linux cpu
+aop investigate linux cpu --top 20
+aop investigate linux cpu --format json
+```
+
+`aop investigate linux cpu` classifies:
+
+- uninterruptible `D` state blocked tasks
+- I/O pressure behind high load
+- CPU saturation
+- steal-time pressure
+- high load with low CPU
+- insufficient evidence
+
+This command preserves the Linux distinction between load average and CPU
+percentage. High load is not automatically CPU saturation.
+
+The CPU investigation remains read-only. It does not kill or renice processes,
+restart services, change cgroup limits, tune kernel parameters, or resize
+cloud capacity.
 
 ## NIC And Interface Cards
 

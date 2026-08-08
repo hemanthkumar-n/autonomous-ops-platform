@@ -91,6 +91,37 @@ class LinuxMemoryInvestigation(BaseModel):
     raw_evidence: dict = Field(default_factory=dict)
 
 
+class LinuxCpuFinding(BaseModel):
+    code: str
+    severity: str
+    confidence: int = Field(ge=0, le=100)
+    summary: str
+    evidence: list[str] = Field(default_factory=list)
+    next: str
+    next_explanation: str = ""
+
+
+class LinuxCpuInvestigation(BaseModel):
+    status: str
+    hostname: str
+    platform: str
+    primary_diagnosis: str
+    severity: str
+    confidence: int = Field(ge=0, le=100)
+    summary: str
+    load_average: list[float] = Field(default_factory=list)
+    cpu_count: int | None = None
+    running_tasks: int | None = None
+    total_tasks: int | None = None
+    process_states: dict[str, int] = Field(default_factory=dict)
+    vmstat_cpu: dict[str, int] = Field(default_factory=dict)
+    pressure: dict[str, PressureResource] = Field(default_factory=dict)
+    top_cpu_processes: list[str] = Field(default_factory=list)
+    findings: list[LinuxCpuFinding] = Field(default_factory=list)
+    evidence_gaps: list[str] = Field(default_factory=list)
+    raw_evidence: dict = Field(default_factory=dict)
+
+
 class LinuxInternalsEvidence(BaseModel):
     status: str
     hostname: str

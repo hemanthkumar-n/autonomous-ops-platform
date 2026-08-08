@@ -7,6 +7,7 @@ from unittest.mock import Mock, patch
 from app.tools.linux.operations import (
     CommandResult,
     CommandSpec,
+    collect_cpu,
     collect_disk,
     collect_memory,
     collect_nic,
@@ -120,6 +121,43 @@ class LinuxOperationsTests(unittest.TestCase):
             keys[:4],
             ["addresses", "link_stats", "routes", "neighbors"],
         )
+
+    @patch("app.tools.linux.internals.collect_internals")
+    @patch(
+        "app.tools.linux.operations.platform.system",
+        return_value="Linux",
+    )
+    @patch("app.tools.linux.operations.run_command")
+    def test_cpu_collection_includes_scheduler_internals(
+        self,
+        run_command_mock,
+        _platform_system,
+        collect_internals,
+    ) -> None:
+        run_command_mock.side_effect = lambda spec: CommandResult(
+            key=spec.key,
+            label=spec.label,
+            command=" ".join(spec.argv),
+            status="ok",
+            output="ok",
+            requires_root=spec.requires_root,
+        )
+        collect_internals.return_value.model_dump.return_value = {
+            "status": "collected",
+            "load_average": [8.0, 6.0, 4.0],
+            "cpu_count": 4,
+        }
+
+        payload = collect_cpu(top=20)
+
+        self.assertEqual(payload["domain"], "cpu")
+        self.assertEqual(payload["internals"]["cpu_count"], 4)
+        keys = [item["key"] for item in payload["results"]]
+        self.assertEqual(
+            keys,
+            ["uptime", "lscpu", "cpu_processes", "vmstat"],
+        )
+        collect_internals.assert_called_once_with()
 
     @patch(
         "app.tools.linux.operations.platform.system",
