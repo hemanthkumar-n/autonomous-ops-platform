@@ -9,17 +9,20 @@ so the project remains honest and easy to explain.
 ## Current Baseline
 
 ```text
-Current release: v0.18.0
+Current release: v0.19.0
 Status: implemented and pushed
 ```
 
-v0.18.0 adds deterministic Linux systemd service investigation:
+v0.19.0 consolidates the Linux investigation ladder and release memory:
 
 ```text
-collect systemd evidence
-  -> separate start-limit, failed state, exit status, restart loop, and journal clues
-  -> explain the next safe check
-  -> persist structured Linux service incident records
+health
+  -> explain
+  -> plan
+  -> collect domain evidence
+  -> investigate deterministically
+  -> persist memory
+  -> correlate outward
 ```
 
 Implemented commands:
@@ -40,6 +43,13 @@ aop investigate linux network --iface ens5
 aop investigate linux service --service nginx
 ```
 
+The human-readable Linux ladder is maintained in
+`docs/linux/LINUX_INVESTIGATION_LADDER.md`.
+
+## Completed Linux And Data Foundation
+
+v0.19 documented the current Linux troubleshooting ladder for future
+contributors, demos, and AI handoffs.
 v0.18 added deterministic Linux systemd service failure and restart-loop
 investigation.
 v0.17 added deterministic Linux NIC, route, and resolver investigation.
@@ -61,98 +71,28 @@ explain command
   -> explain why the next check matters
 ```
 
-## Current Linux Expansion: v0.14
+Implemented scenario plans include high load with low CPU, `D` state, OOM,
+file descriptor exhaustion, port conflicts, systemd restart loops, kernel
+panic clues, `df`/`du` mismatch, inode exhaustion, deleted-open files,
+read-only remounts, LVM expansion mismatch, container runtime disk pressure,
+and Kubernetes symptoms that require Linux node correlation.
 
-```text
-v0.14: Linux Complex Troubleshooting Catalog and Scenario Plans
-```
-
-This keeps AOP aligned with the founder's Linux administration strength. The
-goal is not to dump commands into a file. The goal is to preserve the
-diagnostic order, interpretation, traps, and next safe checks behind complex
-Linux incidents.
-
-Implemented scenario plans:
-
-- high load with low CPU usage
-- `D` state and blocked tasks
-- memory pressure and OOM killer evidence
-- file descriptor exhaustion
-- port conflicts and missing listeners
-- systemd restart loops
-- kernel panic and previous-boot evidence
-- `df` and `du` mismatch
-- inode exhaustion
-- deleted-open files
-- read-only filesystem remounts
-- LVM, partition, and filesystem expansion mismatch
-- container runtime disk pressure
-- Kubernetes symptoms that require Linux node correlation
-
-Cgroups are part of this Linux internals context, especially for containers
-and Kubernetes workloads, but they are not the standalone v0.14 headline.
-
-Implemented raw evidence workflows:
-
-- NIC/interface state, counters, carrier, speed, duplex, driver, firmware, and
-  driver counters
-
-Still pending inside the larger Linux expansion:
-
-- DNS and route failure scenario plans
-- NFS stale mount scenario plans
-- deterministic investigation workflows for CPU/load, network/DNS, services,
-  boot, and kernel failures
-- Linux AI RCA grounded only in collected Linux evidence
-
-## Current Data Contract Foundation: v0.15
-
-```text
-v0.15: Evidence and Dashboard Data Contracts
-```
+## Next: v0.20
 
 Purpose:
 
 ```text
-Create provider-neutral typed contracts before building custom dashboards,
-graphs, alert processing, or UI features.
+Start connecting the Linux evidence ladder to Kubernetes, AWS, and future
+dashboard workflows without claiming automation that does not exist yet.
 ```
 
-Target contracts:
+Target outcomes:
 
-- `MetricPoint`
-- `MetricSeries`
-- `AlertSignal`
-- `EvidenceItem`
-- `EvidenceTimeline`
-- `DashboardPanel`
-- `DashboardSnapshot`
-
-These should work with Prometheus, Linux collectors, Kubernetes evidence,
-CloudWatch later, OpenTelemetry later, reports, UI, Slack/Teams, and AI
-prompt context.
-
-Status: implemented as typed Pydantic contracts in `app/schemas/evidence.py`.
-
-## Next: v0.19
-
-```text
-v0.19: Consolidated Linux Investigation Ladder and Final Release Memory
-```
-
-Purpose:
-
-```text
-Polish the release memory, README, roadmap, and Linux investigation ladder for
-future contributors and demos.
-```
-
-Target findings:
-
-- release index clarity
-- command ladder clarity
-- final validation summary
-- explicit next roadmap after v0.19
+- define Linux-to-Kubernetes node correlation inputs
+- map AWS CloudWatch and CloudTrail evidence into existing contracts
+- identify which evidence becomes dashboard panels, timeline events, and
+  alert context
+- keep AI RCA grounded in deterministic evidence and explicit gaps
 
 ## Later Roadmap
 

@@ -4,6 +4,9 @@ The `aop linux` command group provides read-only Linux troubleshooting based
 on the preserved `tshelper` workflow and experienced Linux administration
 practices.
 
+For the current end-to-end troubleshooting order, read
+[`linux/LINUX_INVESTIGATION_LADDER.md`](linux/LINUX_INVESTIGATION_LADDER.md).
+
 ## Quick Start
 
 ```bash

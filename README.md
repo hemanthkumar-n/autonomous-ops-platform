@@ -10,7 +10,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-blue" alt="Python 3.11+" />
-  <img src="https://img.shields.io/badge/AOP-v0.18.0-success" alt="AOP v0.18.0" />
+  <img src="https://img.shields.io/badge/AOP-v0.19.0-success" alt="AOP v0.19.0" />
   <img src="https://img.shields.io/badge/Kubernetes-SRE%20Shortcuts-326CE5" alt="Kubernetes SRE Shortcuts" />
   <img src="https://img.shields.io/badge/Observability-Prometheus-red" alt="Prometheus" />
   <img src="https://img.shields.io/badge/LLM-Ollama-green" alt="Ollama" />
@@ -80,21 +80,22 @@ release exists.
 Current version:
 
 ```text
-AOP v0.18.0
+AOP v0.19.0
 ```
 
 The implemented and tested paths currently cover Kubernetes incident
 intelligence, deterministic Linux troubleshooting, Linux disk incident
 intelligence, Linux memory/OOM investigation, Linux CPU/load investigation,
 Linux network/NIC investigation, NIC/interface-card evidence,
-systemd service investigation, command-reasoning workflows, complex Linux
-scenario plans, and
+systemd service investigation, a consolidated Linux investigation ladder,
+command-reasoning workflows, complex Linux scenario plans, and
 provider-neutral evidence/dashboard contracts.
 
 ### Release Memory
 
 | Release | What it proves | Human reference |
 |---|---|---|
+| `v0.19.0` | AOP has a visible Linux investigation ladder for future teammates, demos, and AI handoffs | [`docs/releases/v0.19-linux-investigation-ladder.md`](docs/releases/v0.19-linux-investigation-ladder.md) |
 | `v0.18.0` | AOP can diagnose systemd service failure and restart-loop evidence safely | [`docs/releases/v0.18-linux-systemd-service-investigation.md`](docs/releases/v0.18-linux-systemd-service-investigation.md) |
 | `v0.17.0` | AOP can diagnose Linux NIC, route, and resolver evidence deterministically | [`docs/releases/v0.17-linux-network-nic-investigation.md`](docs/releases/v0.17-linux-network-nic-investigation.md) |
 | `v0.16.0` | AOP can separate Linux CPU saturation from high load, D-state, I/O wait, and steal time | [`docs/releases/v0.16-linux-cpu-load-dstate-investigation.md`](docs/releases/v0.16-linux-cpu-load-dstate-investigation.md) |
@@ -149,8 +150,8 @@ provider-neutral evidence/dashboard contracts.
 
 ### Not Yet Implemented
 
-- general Linux cross-signal classification and AI RCA beyond deterministic
-  disk and memory domains
+- general Linux cross-signal classification and AI RCA across all Linux
+  domains
 - AWS and CloudWatch troubleshooting
 - operator web UI
 - Slack or Microsoft Teams approval workflows
@@ -258,6 +259,8 @@ and log-clearing actions.
 
 The deeper Linux intelligence roadmap is documented in
 [`docs/linux/LINUX_EXPERTISE_BLUEPRINT.md`](docs/linux/LINUX_EXPERTISE_BLUEPRINT.md).
+The current Linux operator flow is documented in
+[`docs/linux/LINUX_INVESTIGATION_LADDER.md`](docs/linux/LINUX_INVESTIGATION_LADDER.md).
 
 Explain command intent before running deeper checks:
 
@@ -843,7 +846,7 @@ Live Kubernetes and Prometheus validation remains a separate environment test.
 | Document | Purpose |
 |---|---|
 | [`docs/PROJECT_HANDOVER.md`](docs/PROJECT_HANDOVER.md) | Verified baseline, implementation boundaries, engineering rules, and next work |
-| [`docs/ROADMAP.md`](docs/ROADMAP.md) | Current release state and planned v0.15 direction |
+| [`docs/ROADMAP.md`](docs/ROADMAP.md) | Current release state and planned next direction |
 | [`docs/AOP_PRODUCT_VISION.md`](docs/AOP_PRODUCT_VISION.md) | Linux, Kubernetes, AWS, UI, Slack/Teams, and onboarding vision |
 | [`docs/architecture/observability-dashboard-strategy.md`](docs/architecture/observability-dashboard-strategy.md) | Observability, dashboard, alert-signal, and future provider strategy |
 | [`docs/AUTONOMOUS_OPS_PLATFORM_MEMORY_LANE.md`](docs/AUTONOMOUS_OPS_PLATFORM_MEMORY_LANE.md) | Compact current implementation memory |
@@ -851,6 +854,7 @@ Live Kubernetes and Prometheus validation remains a separate environment test.
 | [`docs/KUBERNETES_CLI.md`](docs/KUBERNETES_CLI.md) | Kubernetes shortcut reference |
 | [`docs/LINUX_CLI.md`](docs/LINUX_CLI.md) | Native Linux troubleshooting command reference |
 | [`docs/linux/LINUX_EXPERTISE_BLUEPRINT.md`](docs/linux/LINUX_EXPERTISE_BLUEPRINT.md) | Linux administration expertise and implementation direction |
+| [`docs/linux/LINUX_INVESTIGATION_LADDER.md`](docs/linux/LINUX_INVESTIGATION_LADDER.md) | Current Linux troubleshooting ladder and domain order |
 | [`docs/linux/tshelper-original/`](docs/linux/tshelper-original/) | Preserved original `tshelper` source materials |
 | [`linux_troubleshooting_command_catalog.md`](app/memory/knowledgebase/linux_troubleshooting_command_catalog.md) | Canonical Linux commands, arguments, interpretation, and safety memory |
 | [`linux_complex_troubleshooting_scenarios.md`](app/memory/knowledgebase/linux_complex_troubleshooting_scenarios.md) | Complex Linux scenario memory for v0.14 planning |

@@ -4,6 +4,27 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.19.0 - Linux Investigation Ladder and Release Memory
+
+Date: 2026-08-08
+
+### Added
+
+- `docs/linux/LINUX_INVESTIGATION_LADDER.md` as the human map for Linux
+  troubleshooting inside AOP
+- release note for v0.19 explaining the consolidation boundary and next
+  correlation direction
+- README, roadmap, handover, memory-lane, release-index, and installation
+  updates for the v0.19 baseline
+
+### Boundary
+
+This release does not add a new collector or investigator. It consolidates the
+Linux troubleshooting order so future Linux, Kubernetes, AWS, dashboard, and
+AI work has a visible place in the product story.
+
+---
+
 ## v0.18.0 - Linux systemd Service Investigation
 
 Date: 2026-08-08

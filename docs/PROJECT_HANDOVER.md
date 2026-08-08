@@ -19,7 +19,9 @@ Read next:
    dashboards, graphing, alert processing, telemetry contracts, or LLM
    providers.
 6. `docs/releases/` for release-by-release human context.
-7. `docs/LINUX_CLI.md` and
+7. `docs/linux/LINUX_INVESTIGATION_LADDER.md` for the current Linux
+   troubleshooting order.
+8. `docs/LINUX_CLI.md` and
    `app/memory/knowledgebase/linux_troubleshooting_command_catalog.md` before
    extending Linux diagnostics.
 
@@ -28,7 +30,7 @@ Do not treat empty modules or directory names as implemented capabilities.
 ## Verified Baseline
 
 ```text
-Release: 0.18.0
+Release: 0.19.0
 Branch: main
 Remote: origin/main
 Offline tests: 115 passing
@@ -49,7 +51,7 @@ git status --short --branch
 Expected version:
 
 ```text
-aop, version 0.18.0
+aop, version 0.19.0
 ```
 
 ## What AOP Is
@@ -129,6 +131,8 @@ aop kb inv -n ai-lab
   start-limit-hit, failed units, exit status, restart loops, and journal
   errors
 - Linux-native service incident persistence with semantic-indexing fallback
+- consolidated Linux investigation ladder in
+  `docs/linux/LINUX_INVESTIGATION_LADDER.md`
 - complex Linux scenario catalog exposed through v0.14 planning commands
 
 Useful commands:
@@ -160,8 +164,7 @@ The original authored `tshelper` materials remain preserved under
 
 ## What Is Not Implemented
 
-- general Linux cross-signal AI RCA beyond the deterministic disk and memory
-  domains
+- general Linux cross-signal AI RCA across all Linux domains
 - automatic Kubernetes-to-Linux live node evidence collection
 - AWS and CloudWatch collectors
 - Kimi/Moonshot provider runtime support

@@ -14,6 +14,7 @@ Long-term product direction is preserved in:
 ```text
 docs/AOP_PRODUCT_VISION.md
 docs/ROADMAP.md
+docs/linux/LINUX_INVESTIGATION_LADDER.md
 ```
 
 Read that file for roadmap, product, Linux, AWS, UI, Slack/Teams, company
@@ -53,7 +54,7 @@ Remediation is advisory and non-destructive.
 
 ## Current Baseline
 
-- Version: `0.18.0`
+- Version: `0.19.0`
 - Branch: `main`
 - Remote baseline: `origin/main`
 - Python: `3.11+`
@@ -145,6 +146,24 @@ ordered systemd evidence
   -> safe next diagnostic action
   -> Linux-native JSON memory
   -> optional semantic indexing with structured fallback
+```
+
+Linux investigation ladder:
+
+```text
+health
+  -> explain
+  -> plan
+  -> collect domain evidence
+  -> investigate deterministically
+  -> persist memory
+  -> correlate to Kubernetes, AWS, dashboards, and approvals
+```
+
+The current human-readable map is:
+
+```text
+docs/linux/LINUX_INVESTIGATION_LADDER.md
 ```
 
 Linux command reasoning:
@@ -244,11 +263,17 @@ app/cli/health.py
 app/cli/kubernetes.py
 app/cli/linux.py
 app/orchestration/incident_workflow.py
+app/orchestration/linux_cpu_workflow.py
+app/orchestration/linux_disk_workflow.py
+app/orchestration/linux_memory_workflow.py
+app/orchestration/linux_network_workflow.py
+app/orchestration/linux_service_workflow.py
 app/tools/kubernetes/incident_context.py
 app/tools/kubernetes/operations.py
 app/tools/linux/operations.py
 app/tools/linux/internals.py
 app/schemas/linux.py
+app/agents/linux/
 app/agents/sre/incident_classifier.py
 app/agents/sre/rca_agent.py
 app/agents/sre/remediation_agent.py
@@ -285,6 +310,10 @@ aop linux internals --interval 5
 aop linux cgroups --pid 1 --interval 5
 aop linux all --json
 aop investigate linux disk --path /var
+aop investigate linux memory --pid 4242
+aop investigate linux cpu
+aop investigate linux network --iface ens5
+aop investigate linux service --service nginx
 aop investigate k8s --namespace ai-lab
 aop investigate k8s --namespace ai-lab \
   --format markdown \
@@ -306,6 +335,7 @@ Linux references:
 ```text
 docs/LINUX_CLI.md
 docs/linux/LINUX_EXPERTISE_BLUEPRINT.md
+docs/linux/LINUX_INVESTIGATION_LADDER.md
 docs/linux/tshelper-original/
 app/memory/knowledgebase/linux_troubleshooting_command_catalog.md
 ```
