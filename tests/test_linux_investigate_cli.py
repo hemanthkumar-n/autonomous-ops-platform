@@ -16,6 +16,8 @@ from app.schemas.linux import (
     LinuxMemoryInvestigation,
     LinuxNetworkFinding,
     LinuxNetworkInvestigation,
+    LinuxServiceFinding,
+    LinuxServiceInvestigation,
 )
 
 
@@ -145,6 +147,40 @@ def _network_investigation() -> LinuxNetworkInvestigation:
                 next_explanation=(
                     "No carrier means the NIC does not see a physical or "
                     "virtual link."
+                ),
+            )
+        ],
+    )
+
+
+def _service_investigation() -> LinuxServiceInvestigation:
+    return LinuxServiceInvestigation(
+        status="diagnosed",
+        hostname="web-01",
+        platform="Linux",
+        service="nginx.service",
+        primary_diagnosis="start_limit_hit",
+        severity="critical",
+        confidence=97,
+        summary="nginx.service hit the systemd start limit.",
+        unit_properties={
+            "ActiveState": "failed",
+            "Result": "start-limit-hit",
+            "ExecMainStatus": "1",
+            "NRestarts": "5",
+            "Restart": "on-failure",
+        },
+        findings=[
+            LinuxServiceFinding(
+                code="start_limit_hit",
+                severity="critical",
+                confidence=97,
+                summary="nginx.service hit the systemd start limit.",
+                evidence=["Result=start-limit-hit"],
+                next="Inspect the earliest failure.",
+                next_explanation=(
+                    "start-limit-hit means systemd stopped trying after "
+                    "repeated failures."
                 ),
             )
         ],
@@ -397,6 +433,64 @@ class LinuxInvestigateCLITests(unittest.TestCase):
         self.assertEqual(payload["iface"], "ens5")
         run_workflow.assert_called_once_with(
             iface="ens5",
+            persist=False,
+        )
+
+    @patch(
+        "app.orchestration.linux_service_workflow.run_linux_service_workflow"
+    )
+    def test_service_summary_renders_unit_state_and_why(
+        self,
+        run_workflow,
+    ) -> None:
+        run_workflow.return_value = (_service_investigation(), "svc.json")
+
+        result = CliRunner().invoke(
+            main,
+            [
+                "investigate",
+                "linux",
+                "service",
+                "--service",
+                "nginx.service",
+            ],
+        )
+
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn("start_limit_hit", result.output)
+        self.assertIn("service=nginx.service", result.output)
+        self.assertIn("Result=start-limit-hit", result.output)
+        self.assertIn("Why:", result.output)
+        self.assertIn("svc.json", result.output)
+
+    @patch(
+        "app.orchestration.linux_service_workflow.run_linux_service_workflow"
+    )
+    def test_service_json_forwards_scope_and_no_persist(
+        self,
+        run_workflow,
+    ) -> None:
+        run_workflow.return_value = (_service_investigation(), None)
+
+        result = CliRunner().invoke(
+            main,
+            [
+                "investigate",
+                "linux",
+                "service",
+                "--service",
+                "nginx.service",
+                "--format",
+                "json",
+                "--no-persist",
+            ],
+        )
+
+        self.assertEqual(result.exit_code, 0)
+        payload = json.loads(result.output)
+        self.assertEqual(payload["primary_diagnosis"], "start_limit_hit")
+        run_workflow.assert_called_once_with(
+            service="nginx.service",
             persist=False,
         )
 

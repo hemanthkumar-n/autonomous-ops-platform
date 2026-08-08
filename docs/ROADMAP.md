@@ -9,17 +9,17 @@ so the project remains honest and easy to explain.
 ## Current Baseline
 
 ```text
-Current release: v0.17.0
+Current release: v0.18.0
 Status: implemented and pushed
 ```
 
-v0.17.0 adds deterministic Linux network and NIC investigation:
+v0.18.0 adds deterministic Linux systemd service investigation:
 
 ```text
-collect NIC + network evidence
-  -> separate link/carrier/counter issues from route and DNS evidence gaps
+collect systemd evidence
+  -> separate start-limit, failed state, exit status, restart loop, and journal clues
   -> explain the next safe check
-  -> persist structured Linux network incident records
+  -> persist structured Linux service incident records
 ```
 
 Implemented commands:
@@ -37,8 +37,11 @@ aop linux nic
 aop linux nic --iface ens5
 aop investigate linux cpu
 aop investigate linux network --iface ens5
+aop investigate linux service --service nginx
 ```
 
+v0.18 added deterministic Linux systemd service failure and restart-loop
+investigation.
 v0.17 added deterministic Linux NIC, route, and resolver investigation.
 v0.16 added deterministic Linux CPU, load, D-state, I/O-wait, and steal-time
 investigation.
@@ -131,27 +134,25 @@ prompt context.
 
 Status: implemented as typed Pydantic contracts in `app/schemas/evidence.py`.
 
-## Next: v0.18
+## Next: v0.19
 
 ```text
-v0.18: Linux systemd and Service Restart-Loop Investigation
+v0.19: Consolidated Linux Investigation Ladder and Final Release Memory
 ```
 
 Purpose:
 
 ```text
-Turn service and journal evidence into deterministic restart-loop diagnosis.
+Polish the release memory, README, roadmap, and Linux investigation ladder for
+future contributors and demos.
 ```
 
 Target findings:
 
-- failed unit
-- start-limit hit
-- non-zero exit status
-- restart policy loop
-- missing environment or permission hint
-- recent service journal errors
-- insufficient evidence
+- release index clarity
+- command ladder clarity
+- final validation summary
+- explicit next roadmap after v0.19
 
 ## Later Roadmap
 

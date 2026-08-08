@@ -28,10 +28,10 @@ Do not treat empty modules or directory names as implemented capabilities.
 ## Verified Baseline
 
 ```text
-Release: 0.17.0
+Release: 0.18.0
 Branch: main
 Remote: origin/main
-Offline tests: 105 passing
+Offline tests: 115 passing
 CLI entry point: aop
 Python: 3.11+
 ```
@@ -49,7 +49,7 @@ git status --short --branch
 Expected version:
 
 ```text
-aop, version 0.17.0
+aop, version 0.18.0
 ```
 
 ## What AOP Is
@@ -125,6 +125,10 @@ aop kb inv -n ai-lab
 - deterministic `aop investigate linux network` classification for NIC state,
   carrier, errors/drops, routes, and resolver evidence
 - Linux-native network incident persistence with semantic-indexing fallback
+- deterministic `aop investigate linux service` classification for
+  start-limit-hit, failed units, exit status, restart loops, and journal
+  errors
+- Linux-native service incident persistence with semantic-indexing fallback
 - complex Linux scenario catalog exposed through v0.14 planning commands
 
 Useful commands:
@@ -139,6 +143,7 @@ aop linux plan scenario high-load
 aop linux nic
 aop linux nic --iface ens5
 aop investigate linux network --iface ens5
+aop investigate linux service --service nginx
 aop linux disk --path /var
 aop investigate linux memory
 aop investigate linux memory --pid 4242
@@ -213,8 +218,7 @@ support until the provider, settings, health checks, tests, and docs exist.
    NFS, and cloud-volume examples.
 4. Extend Linux complex scenario plans into deterministic investigation
    workflows.
-5. Add the next deterministic Linux reasoning workflow, starting with
-   systemd/service restart-loop investigation.
+5. Consolidate v0.14-v0.18 into v0.19 release memory and demo guidance.
 6. Add recurrence search across Linux incident memory.
 8. Correlate Kubernetes node symptoms with collected Linux evidence.
 9. Add the operator UI after Linux and Kubernetes share one stable incident

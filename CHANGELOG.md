@@ -4,6 +4,28 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.18.0 - Linux systemd Service Investigation
+
+Date: 2026-08-08
+
+### Added
+
+- `aop investigate linux service --service <unit>`
+- deterministic service investigation using `systemctl status`,
+  `systemctl show`, `systemctl cat`, and bounded `journalctl -u` evidence
+- findings for start-limit-hit, failed units, non-zero exit status, restart
+  policy loops, recent journal errors, and insufficient evidence
+- Linux service incident persistence with semantic-memory fallback
+- tests for service agent classification, workflow persistence, collection,
+  and CLI output
+
+### Safety
+
+Service investigation is read-only. It does not restart, reload, enable,
+disable, reset-failed, mask, unmask, edit, or kill service processes.
+
+---
+
 ## v0.17.0 - Linux Network and NIC Investigation
 
 Date: 2026-08-08

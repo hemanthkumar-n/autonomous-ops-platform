@@ -150,6 +150,32 @@ class LinuxNetworkInvestigation(BaseModel):
     raw_evidence: dict = Field(default_factory=dict)
 
 
+class LinuxServiceFinding(BaseModel):
+    code: str
+    severity: str
+    confidence: int = Field(ge=0, le=100)
+    summary: str
+    evidence: list[str] = Field(default_factory=list)
+    next: str
+    next_explanation: str = ""
+
+
+class LinuxServiceInvestigation(BaseModel):
+    status: str
+    hostname: str
+    platform: str
+    service: str
+    primary_diagnosis: str
+    severity: str
+    confidence: int = Field(ge=0, le=100)
+    summary: str
+    unit_properties: dict[str, str] = Field(default_factory=dict)
+    journal_errors: list[str] = Field(default_factory=list)
+    findings: list[LinuxServiceFinding] = Field(default_factory=list)
+    evidence_gaps: list[str] = Field(default_factory=list)
+    raw_evidence: dict = Field(default_factory=dict)
+
+
 class LinuxInternalsEvidence(BaseModel):
     status: str
     hostname: str

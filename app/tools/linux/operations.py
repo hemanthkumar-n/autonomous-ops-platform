@@ -810,6 +810,90 @@ def collect_network(
     return payload
 
 
+def collect_service(service: str) -> dict:
+    """
+    Collect systemd service evidence for one unit without changing state.
+    """
+
+    if platform.system() != "Linux":
+        return {
+            "domain": "service",
+            "status": "unsupported",
+            "host": socket.gethostname(),
+            "platform": platform.platform(),
+            "message": "Linux service diagnostics require a Linux host",
+            "service": service,
+            "results": [],
+        }
+
+    specs = [
+        _spec(
+            "status",
+            f"{service} service status",
+            "systemctl",
+            "status",
+            service,
+            "--no-pager",
+        ),
+        _spec(
+            "properties",
+            f"{service} service properties",
+            "systemctl",
+            "show",
+            service,
+            "-p",
+            "ActiveState",
+            "-p",
+            "SubState",
+            "-p",
+            "Result",
+            "-p",
+            "ExecMainCode",
+            "-p",
+            "ExecMainStatus",
+            "-p",
+            "NRestarts",
+            "-p",
+            "Restart",
+            "-p",
+            "RestartUSec",
+            "-p",
+            "LoadState",
+            "-p",
+            "UnitFileState",
+        ),
+        _spec(
+            "unit_file",
+            f"{service} unit file and drop-ins",
+            "systemctl",
+            "cat",
+            service,
+        ),
+        _spec(
+            "journal",
+            f"{service} recent journal errors",
+            "journalctl",
+            "-u",
+            service,
+            "-p",
+            "warning",
+            "--since",
+            "1 hour ago",
+            "--no-pager",
+        ),
+    ]
+    results = [run_command(spec) for spec in specs]
+    return {
+        "domain": "service",
+        "status": "collected",
+        "host": socket.gethostname(),
+        "platform": platform.platform(),
+        "message": "",
+        "service": service,
+        "results": [result.to_dict() for result in results],
+    }
+
+
 def _sort_sized_lines(
     output: str,
     top: int,

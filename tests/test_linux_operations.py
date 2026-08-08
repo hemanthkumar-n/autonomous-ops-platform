@@ -12,6 +12,7 @@ from app.tools.linux.operations import (
     collect_memory,
     collect_nic,
     collect_network,
+    collect_service,
     collect_domain,
     domain_specs,
     run_command,
@@ -249,6 +250,44 @@ class LinuxOperationsTests(unittest.TestCase):
         self.assertEqual(payload["iface"], "ens5")
         self.assertEqual(payload["nic"]["interfaces"], ["ens5"])
         collect_nic.assert_called_once_with(iface="ens5")
+
+    @patch(
+        "app.tools.linux.operations.platform.system",
+        return_value="Linux",
+    )
+    @patch("app.tools.linux.operations.run_command")
+    def test_service_collection_is_ordered_and_read_only(
+        self,
+        run_command_mock,
+        _platform_system,
+    ) -> None:
+        run_command_mock.side_effect = lambda spec: CommandResult(
+            key=spec.key,
+            label=spec.label,
+            command=" ".join(spec.argv),
+            status="ok",
+            output="ok",
+            requires_root=spec.requires_root,
+        )
+
+        payload = collect_service("nginx")
+
+        self.assertEqual(payload["domain"], "service")
+        self.assertEqual(payload["service"], "nginx")
+        keys = [item["key"] for item in payload["results"]]
+        self.assertEqual(keys, ["status", "properties", "unit_file", "journal"])
+        specs = [
+            call.args[0]
+            for call in run_command_mock.call_args_list
+        ]
+        self.assertIn(
+            ("systemctl", "show", "nginx"),
+            [spec.argv[:3] for spec in specs],
+        )
+        self.assertIn(
+            ("journalctl", "-u", "nginx"),
+            [spec.argv[:3] for spec in specs],
+        )
 
     @patch(
         "app.tools.linux.operations.platform.system",

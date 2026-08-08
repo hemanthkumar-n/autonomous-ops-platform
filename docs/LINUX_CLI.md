@@ -26,6 +26,7 @@ aop linux space --path /var
 aop linux fs --path /var
 aop linux network
 aop linux services
+aop investigate linux service --service nginx
 aop linux logs
 ```
 
@@ -392,6 +393,28 @@ aop investigate linux network --iface ens5 --format json
 This command is read-only. It does not change routes, bring interfaces up or
 down, modify MTU, reset drivers, change DNS, capture packets, or alter
 firewall state.
+
+## systemd Service Investigation
+
+Raw service collection and incident diagnosis are separate commands:
+
+```bash
+aop linux services
+aop investigate linux service --service nginx
+aop investigate linux service --service nginx.service --format json
+```
+
+`aop investigate linux service` classifies:
+
+- start-limit-hit
+- failed unit state
+- non-zero exit status
+- restart policy loop
+- recent warning/error journal evidence
+- insufficient evidence
+
+This command is read-only. It does not restart, reload, enable, disable,
+reset-failed, mask, unmask, edit, or kill service processes.
 
 ## Bounded Collection
 

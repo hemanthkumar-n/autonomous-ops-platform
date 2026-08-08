@@ -13,6 +13,7 @@ from app.schemas.linux import (
     LinuxDiskInvestigation,
     LinuxMemoryInvestigation,
     LinuxNetworkInvestigation,
+    LinuxServiceInvestigation,
 )
 from app.schemas.memory import LinuxIncidentMemory
 
@@ -48,6 +49,7 @@ def _build_memory_investigation(
         | LinuxDiskInvestigation
         | LinuxMemoryInvestigation
         | LinuxNetworkInvestigation
+        | LinuxServiceInvestigation
     ),
     domain: str,
     target: str,
@@ -247,6 +249,52 @@ def store_linux_network_incident(
 
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S_%f")
     path = storage_dir / f"linux_network_incident_{timestamp}.json"
+    path.write_text(
+        json.dumps(memory.model_dump(mode="json"), indent=2),
+        encoding="utf-8",
+    )
+
+    try:
+        semantic_client = SemanticMemoryClient()
+        semantic_client.index_document(
+            incident_id=memory.incident_id,
+            document=_semantic_document(memory),
+            metadata={
+                "domain": memory.domain,
+                "incident_type": memory.incident_type,
+                "hostname": memory.hostname,
+                "target": memory.target,
+                "severity": memory.severity,
+            },
+        )
+    except Exception as exc:
+        logger.warning(
+            "Linux semantic memory unavailable; structured persistence "
+            "will continue error=%s",
+            exc,
+        )
+
+    logger.info("Linux incident memory persisted path=%s", path)
+    return str(path)
+
+
+def store_linux_service_incident(
+    investigation: LinuxServiceInvestigation,
+) -> str:
+    """
+    Persist Linux service investigation memory with semantic fallback.
+    """
+
+    memory = _build_memory_investigation(
+        investigation,
+        domain="linux.service",
+        target=investigation.service,
+    )
+    storage_dir = Path(settings.INCIDENT_HISTORY_DIR)
+    storage_dir.mkdir(parents=True, exist_ok=True)
+
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S_%f")
+    path = storage_dir / f"linux_service_incident_{timestamp}.json"
     path.write_text(
         json.dumps(memory.model_dump(mode="json"), indent=2),
         encoding="utf-8",
