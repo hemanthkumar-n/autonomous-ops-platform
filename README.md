@@ -10,7 +10,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-blue" alt="Python 3.11+" />
-  <img src="https://img.shields.io/badge/AOP-v0.16.0-success" alt="AOP v0.16.0" />
+  <img src="https://img.shields.io/badge/AOP-v0.17.0-success" alt="AOP v0.17.0" />
   <img src="https://img.shields.io/badge/Kubernetes-SRE%20Shortcuts-326CE5" alt="Kubernetes SRE Shortcuts" />
   <img src="https://img.shields.io/badge/Observability-Prometheus-red" alt="Prometheus" />
   <img src="https://img.shields.io/badge/LLM-Ollama-green" alt="Ollama" />
@@ -80,19 +80,21 @@ release exists.
 Current version:
 
 ```text
-AOP v0.16.0
+AOP v0.17.0
 ```
 
 The implemented and tested paths currently cover Kubernetes incident
 intelligence, deterministic Linux troubleshooting, Linux disk incident
 intelligence, Linux memory/OOM investigation, Linux CPU/load investigation,
-NIC/interface-card evidence, command-reasoning workflows, complex Linux
-scenario plans, and provider-neutral evidence/dashboard contracts.
+Linux network/NIC investigation, NIC/interface-card evidence,
+command-reasoning workflows, complex Linux scenario plans, and
+provider-neutral evidence/dashboard contracts.
 
 ### Release Memory
 
 | Release | What it proves | Human reference |
 |---|---|---|
+| `v0.17.0` | AOP can diagnose Linux NIC, route, and resolver evidence deterministically | [`docs/releases/v0.17-linux-network-nic-investigation.md`](docs/releases/v0.17-linux-network-nic-investigation.md) |
 | `v0.16.0` | AOP can separate Linux CPU saturation from high load, D-state, I/O wait, and steal time | [`docs/releases/v0.16-linux-cpu-load-dstate-investigation.md`](docs/releases/v0.16-linux-cpu-load-dstate-investigation.md) |
 | `v0.15.0` | AOP has typed evidence, alert, metric, timeline, and dashboard contracts for future UI and integrations | [`docs/releases/v0.15-evidence-dashboard-contracts.md`](docs/releases/v0.15-evidence-dashboard-contracts.md) |
 | `v0.14.2` | AOP can collect Linux NIC/interface-card evidence safely | [`docs/releases/v0.14.2-linux-nic-interface-evidence.md`](docs/releases/v0.14.2-linux-nic-interface-evidence.md) |
@@ -121,6 +123,8 @@ scenario plans, and provider-neutral evidence/dashboard contracts.
   `MemAvailable`, and cgroup memory events
 - `aop investigate linux cpu` deterministic diagnosis for high load, D-state,
   I/O wait, CPU saturation, and steal time
+- `aop investigate linux network` deterministic diagnosis for NIC state,
+  carrier, errors/drops, route, and resolver evidence
 - Linux command explanation through `aop linux explain`
 - read-only disk investigation planning through `aop linux plan disk`
 - read-only complex Linux scenario plans through `aop linux plan scenario`
@@ -137,7 +141,7 @@ scenario plans, and provider-neutral evidence/dashboard contracts.
 - Markdown and JSON incident reports
 - typed Pydantic contracts
 - provider-neutral evidence, alert, metric, timeline, and dashboard contracts
-- ninety-five offline regression tests
+- one hundred five offline regression tests
 
 ### Not Yet Implemented
 
@@ -213,6 +217,7 @@ aop investigate linux cpu
 aop linux memory
 aop linux nic
 aop linux nic --iface ens5
+aop investigate linux network --iface ens5
 aop linux disk --path /var
 aop investigate linux memory
 aop investigate linux memory --pid 4242
@@ -781,7 +786,7 @@ python -m unittest discover -s tests -v
 Current baseline:
 
 ```text
-95 tests passing
+105 tests passing
 ```
 
 The tests cover:
@@ -808,6 +813,9 @@ The tests cover:
 - Linux CPU/load incident classification, D-state and I/O-wait interpretation,
   steal-time handling, CLI output, workflow orchestration, and structured
   memory persistence
+- Linux network/NIC incident classification, carrier and counter
+  interpretation, route and resolver evidence, CLI output, workflow
+  orchestration, and structured memory persistence
 - Linux complex scenario catalog listing, alias lookup, human output, and JSON
   output
 - Kubernetes health and JSON output

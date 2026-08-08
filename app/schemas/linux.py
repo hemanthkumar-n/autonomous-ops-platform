@@ -122,6 +122,34 @@ class LinuxCpuInvestigation(BaseModel):
     raw_evidence: dict = Field(default_factory=dict)
 
 
+class LinuxNetworkFinding(BaseModel):
+    code: str
+    severity: str
+    confidence: int = Field(ge=0, le=100)
+    summary: str
+    evidence: list[str] = Field(default_factory=list)
+    next: str
+    next_explanation: str = ""
+
+
+class LinuxNetworkInvestigation(BaseModel):
+    status: str
+    hostname: str
+    platform: str
+    iface: str | None = None
+    primary_diagnosis: str
+    severity: str
+    confidence: int = Field(ge=0, le=100)
+    summary: str
+    interfaces: list[str] = Field(default_factory=list)
+    routes: list[str] = Field(default_factory=list)
+    resolvers: list[str] = Field(default_factory=list)
+    nic_signals: dict[str, str] = Field(default_factory=dict)
+    findings: list[LinuxNetworkFinding] = Field(default_factory=list)
+    evidence_gaps: list[str] = Field(default_factory=list)
+    raw_evidence: dict = Field(default_factory=dict)
+
+
 class LinuxInternalsEvidence(BaseModel):
     status: str
     hostname: str

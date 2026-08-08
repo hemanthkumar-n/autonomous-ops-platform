@@ -10,6 +10,7 @@ unfinished.
 
 | Release | Focus | Reference |
 |---|---|---|
+| `v0.17.0` | Linux network and NIC investigation | [`v0.17-linux-network-nic-investigation.md`](v0.17-linux-network-nic-investigation.md) |
 | `v0.16.0` | Linux CPU, load, and D-state investigation | [`v0.16-linux-cpu-load-dstate-investigation.md`](v0.16-linux-cpu-load-dstate-investigation.md) |
 | `v0.15.0` | Evidence and dashboard data contracts | [`v0.15-evidence-dashboard-contracts.md`](v0.15-evidence-dashboard-contracts.md) |
 | `v0.14.2` | Linux NIC and interface evidence | [`v0.14.2-linux-nic-interface-evidence.md`](v0.14.2-linux-nic-interface-evidence.md) |

@@ -9,17 +9,17 @@ so the project remains honest and easy to explain.
 ## Current Baseline
 
 ```text
-Current release: v0.16.0
+Current release: v0.17.0
 Status: implemented and pushed
 ```
 
-v0.16.0 adds deterministic Linux CPU, load, and D-state investigation:
+v0.17.0 adds deterministic Linux network and NIC investigation:
 
 ```text
-collect CPU and scheduler evidence
-  -> separate CPU saturation from D-state, I/O wait, and steal
+collect NIC + network evidence
+  -> separate link/carrier/counter issues from route and DNS evidence gaps
   -> explain the next safe check
-  -> persist structured Linux CPU incident records
+  -> persist structured Linux network incident records
 ```
 
 Implemented commands:
@@ -36,8 +36,10 @@ aop investigate linux memory --pid 4242
 aop linux nic
 aop linux nic --iface ens5
 aop investigate linux cpu
+aop investigate linux network --iface ens5
 ```
 
+v0.17 added deterministic Linux NIC, route, and resolver investigation.
 v0.16 added deterministic Linux CPU, load, D-state, I/O-wait, and steal-time
 investigation.
 v0.15 added typed `MetricPoint`, `MetricSeries`, `AlertSignal`,
@@ -129,27 +131,26 @@ prompt context.
 
 Status: implemented as typed Pydantic contracts in `app/schemas/evidence.py`.
 
-## Next: v0.17
+## Next: v0.18
 
 ```text
-v0.17: Linux Network and NIC Investigation
+v0.18: Linux systemd and Service Restart-Loop Investigation
 ```
 
 Purpose:
 
 ```text
-Turn NIC and network evidence into deterministic network investigation.
+Turn service and journal evidence into deterministic restart-loop diagnosis.
 ```
 
 Target findings:
 
-- link down
-- no carrier
-- RX/TX error or drop pressure
-- speed or duplex mismatch
-- route evidence gaps
-- DNS evidence gaps
-- listener evidence gaps
+- failed unit
+- start-limit hit
+- non-zero exit status
+- restart policy loop
+- missing environment or permission hint
+- recent service journal errors
 - insufficient evidence
 
 ## Later Roadmap

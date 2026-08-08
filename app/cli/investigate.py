@@ -419,6 +419,93 @@ def investigate_linux_cpu(
         click.echo(f"Memory record: {saved_path}")
 
 
+@investigate_linux.command("network")
+@click.option(
+    "--iface",
+    help="Optional interface name such as eth0, ens5, bond0, or enp1s0.",
+)
+@click.option(
+    "--format",
+    "output_format",
+    type=click.Choice(["summary", "json"], case_sensitive=False),
+    default="summary",
+    show_default=True,
+)
+@click.option(
+    "--no-persist",
+    is_flag=True,
+    help="Do not save structured or semantic Linux incident memory.",
+)
+def investigate_linux_network(
+    iface: str | None,
+    output_format: str,
+    no_persist: bool,
+) -> None:
+    """
+    Diagnose NIC, route, resolver, and lower-layer network failures.
+    """
+
+    from app.orchestration.linux_network_workflow import (
+        run_linux_network_workflow,
+    )
+
+    try:
+        investigation, saved_path = run_linux_network_workflow(
+            iface=iface,
+            persist=not no_persist,
+        )
+    except Exception as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if output_format == "json":
+        click.echo(investigation.model_dump_json(indent=2))
+        return
+
+    target = f" iface={investigation.iface}" if investigation.iface else ""
+    click.echo(
+        f"Linux network investigation: {investigation.severity.upper()} "
+        f"host={investigation.hostname}{target}"
+    )
+    click.echo(
+        f"Primary diagnosis: {investigation.primary_diagnosis} "
+        f"({investigation.confidence}%)"
+    )
+    click.echo(investigation.summary)
+
+    if investigation.nic_signals:
+        click.echo(
+            "NIC signals: "
+            + " ".join(
+                f"{key}={value or 'missing'}"
+                for key, value in investigation.nic_signals.items()
+            )
+        )
+
+    if investigation.findings:
+        click.echo()
+        click.echo("Findings")
+        for finding in investigation.findings:
+            click.echo(
+                f"{finding.severity.upper():8} "
+                f"{finding.code:32} "
+                f"{finding.confidence}%"
+            )
+            click.echo(f"         {finding.summary}")
+            click.echo(f"         Next: {finding.next}")
+            if finding.next_explanation:
+                click.echo(f"         Why: {finding.next_explanation}")
+
+    if investigation.evidence_gaps:
+        click.echo()
+        click.echo("Evidence gaps")
+        for gap in investigation.evidence_gaps:
+            click.echo(f"- {gap}")
+
+    if saved_path:
+        click.echo()
+        click.echo(f"Memory record: {saved_path}")
+
+
 @investigate.command("k8s")
 @click.option(
     "--namespace",

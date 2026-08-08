@@ -4,6 +4,29 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.17.0 - Linux Network and NIC Investigation
+
+Date: 2026-08-08
+
+### Added
+
+- `aop investigate linux network`
+- optional `--iface <interface>` scope for NIC-aware network diagnosis
+- deterministic findings for interface down, no carrier, interface error/drop
+  pressure, missing default route, missing DNS resolver, speed/duplex evidence
+  gaps, and insufficient evidence
+- Linux network incident persistence with semantic-memory fallback
+- tests for network agent classification, workflow persistence, collection,
+  and CLI output
+
+### Safety
+
+Network investigation is read-only. It does not bring interfaces up or down,
+change routes, alter MTU, modify offload settings, reset drivers, capture
+packets, change DNS, or modify firewall state.
+
+---
+
 ## v0.16.0 - Linux CPU, Load, and D-State Investigation
 
 Date: 2026-08-08

@@ -53,12 +53,12 @@ Remediation is advisory and non-destructive.
 
 ## Current Baseline
 
-- Version: `0.16.0`
+- Version: `0.17.0`
 - Branch: `main`
 - Remote baseline: `origin/main`
 - Python: `3.11+`
 - CLI entry point: `aop`
-- Tests: ninety-five offline regression tests passing
+- Tests: one hundred five offline regression tests passing
 - Real Ollama generation and 768-dimensional embeddings verified
 - Full live demo still requires Kubernetes and Prometheus to be running
 
@@ -120,6 +120,17 @@ Linux CPU/load intelligence:
 ordered CPU and scheduler evidence
   -> deterministic parsing and classification
   -> D-state, I/O wait, CPU saturation, steal time, and high-load findings
+  -> safe next diagnostic action
+  -> Linux-native JSON memory
+  -> optional semantic indexing with structured fallback
+```
+
+Linux network/NIC intelligence:
+
+```text
+ordered network and NIC evidence
+  -> deterministic parsing and classification
+  -> interface down, no carrier, errors/drops, route, and resolver findings
   -> safe next diagnostic action
   -> Linux-native JSON memory
   -> optional semantic indexing with structured fallback

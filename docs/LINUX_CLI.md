@@ -20,6 +20,7 @@ aop investigate linux memory
 aop investigate linux memory --pid 4242
 aop linux nic
 aop linux nic --iface ens5
+aop investigate linux network --iface ens5
 aop linux disk --path /var
 aop linux space --path /var
 aop linux fs --path /var
@@ -365,6 +366,32 @@ balancer symptoms look misleading.
 This command is read-only. It does not change routes, bring interfaces up or
 down, modify MTU, reset drivers, change offload settings, capture packets, or
 alter firewall state.
+
+## Network And NIC Investigation
+
+Raw network collection and incident diagnosis are separate commands:
+
+```bash
+aop linux network
+aop linux nic --iface ens5
+aop investigate linux network
+aop investigate linux network --iface ens5
+aop investigate linux network --iface ens5 --format json
+```
+
+`aop investigate linux network` classifies:
+
+- interface down
+- no carrier
+- interface errors, drops, overruns, or carrier pressure
+- missing or unknown speed/duplex evidence
+- missing default route
+- missing DNS resolver
+- insufficient evidence
+
+This command is read-only. It does not change routes, bring interfaces up or
+down, modify MTU, reset drivers, change DNS, capture packets, or alter
+firewall state.
 
 ## Bounded Collection
 

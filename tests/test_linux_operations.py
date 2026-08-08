@@ -11,6 +11,7 @@ from app.tools.linux.operations import (
     collect_disk,
     collect_memory,
     collect_nic,
+    collect_network,
     collect_domain,
     domain_specs,
     run_command,
@@ -214,6 +215,40 @@ class LinuxOperationsTests(unittest.TestCase):
     def test_nic_collection_rejects_unsafe_interface_name(self) -> None:
         with self.assertRaises(ValueError):
             collect_nic(iface="../../bad")
+
+    @patch("app.tools.linux.operations.collect_nic")
+    @patch(
+        "app.tools.linux.operations.platform.system",
+        return_value="Linux",
+    )
+    @patch("app.tools.linux.operations.run_command")
+    def test_network_collection_includes_nic_context(
+        self,
+        run_command_mock,
+        _platform_system,
+        collect_nic,
+    ) -> None:
+        run_command_mock.side_effect = lambda spec: CommandResult(
+            key=spec.key,
+            label=spec.label,
+            command=" ".join(spec.argv),
+            status="ok",
+            output="ok",
+            requires_root=spec.requires_root,
+        )
+        collect_nic.return_value = {
+            "domain": "nic",
+            "status": "collected",
+            "interfaces": ["ens5"],
+            "results": [],
+        }
+
+        payload = collect_network(iface="ens5")
+
+        self.assertEqual(payload["domain"], "network")
+        self.assertEqual(payload["iface"], "ens5")
+        self.assertEqual(payload["nic"]["interfaces"], ["ens5"])
+        collect_nic.assert_called_once_with(iface="ens5")
 
     @patch(
         "app.tools.linux.operations.platform.system",

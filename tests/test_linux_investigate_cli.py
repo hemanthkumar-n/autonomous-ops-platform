@@ -14,6 +14,8 @@ from app.schemas.linux import (
     LinuxDiskInvestigation,
     LinuxMemoryFinding,
     LinuxMemoryInvestigation,
+    LinuxNetworkFinding,
+    LinuxNetworkInvestigation,
 )
 
 
@@ -107,6 +109,42 @@ def _cpu_investigation() -> LinuxCpuInvestigation:
                 next_explanation=(
                     "Uninterruptible D-state tasks count toward load average "
                     "but are usually waiting inside the kernel."
+                ),
+            )
+        ],
+    )
+
+
+def _network_investigation() -> LinuxNetworkInvestigation:
+    return LinuxNetworkInvestigation(
+        status="diagnosed",
+        hostname="worker-01",
+        platform="Linux",
+        iface="ens5",
+        primary_diagnosis="no_carrier",
+        severity="critical",
+        confidence=95,
+        summary="Interface carrier is absent.",
+        interfaces=["ens5"],
+        routes=["default via 10.0.0.1 dev ens5"],
+        resolvers=["nameserver 10.0.0.2"],
+        nic_signals={
+            "operstate": "down",
+            "carrier": "0",
+            "speed": "unknown",
+            "duplex": "unknown",
+        },
+        findings=[
+            LinuxNetworkFinding(
+                code="no_carrier",
+                severity="critical",
+                confidence=95,
+                summary="Interface carrier is absent.",
+                evidence=["carrier=0"],
+                next="Check physical link, switch port, or cloud ENI.",
+                next_explanation=(
+                    "No carrier means the NIC does not see a physical or "
+                    "virtual link."
                 ),
             )
         ],
@@ -306,6 +344,59 @@ class LinuxInvestigateCLITests(unittest.TestCase):
         )
         run_workflow.assert_called_once_with(
             top=20,
+            persist=False,
+        )
+
+    @patch(
+        "app.orchestration.linux_network_workflow.run_linux_network_workflow"
+    )
+    def test_network_summary_renders_nic_signals_and_why(
+        self,
+        run_workflow,
+    ) -> None:
+        run_workflow.return_value = (_network_investigation(), "net.json")
+
+        result = CliRunner().invoke(
+            main,
+            ["investigate", "linux", "network", "--iface", "ens5"],
+        )
+
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn("no_carrier", result.output)
+        self.assertIn("iface=ens5", result.output)
+        self.assertIn("carrier=0", result.output)
+        self.assertIn("Why:", result.output)
+        self.assertIn("net.json", result.output)
+
+    @patch(
+        "app.orchestration.linux_network_workflow.run_linux_network_workflow"
+    )
+    def test_network_json_forwards_scope_and_no_persist(
+        self,
+        run_workflow,
+    ) -> None:
+        run_workflow.return_value = (_network_investigation(), None)
+
+        result = CliRunner().invoke(
+            main,
+            [
+                "investigate",
+                "linux",
+                "network",
+                "--iface",
+                "ens5",
+                "--format",
+                "json",
+                "--no-persist",
+            ],
+        )
+
+        self.assertEqual(result.exit_code, 0)
+        payload = json.loads(result.output)
+        self.assertEqual(payload["primary_diagnosis"], "no_carrier")
+        self.assertEqual(payload["iface"], "ens5")
+        run_workflow.assert_called_once_with(
+            iface="ens5",
             persist=False,
         )
 

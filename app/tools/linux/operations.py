@@ -792,6 +792,24 @@ def collect_cpu(top: int = 10) -> dict:
     return payload
 
 
+def collect_network(
+    iface: str | None = None,
+) -> dict:
+    """
+    Collect network evidence plus NIC/interface-card evidence.
+    """
+
+    payload = collect_domain("network")
+    if payload.get("status") != "collected":
+        payload["nic"] = None
+        payload["iface"] = iface
+        return payload
+
+    payload["iface"] = iface
+    payload["nic"] = collect_nic(iface=iface)
+    return payload
+
+
 def _sort_sized_lines(
     output: str,
     top: int,
