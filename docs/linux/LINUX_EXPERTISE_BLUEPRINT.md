@@ -88,6 +88,7 @@ conclusions:
 - memory, swap, filesystem, inode, and mount state
 - failed services and recent boot or kernel errors
 - active interfaces, addresses, routes, DNS configuration, and listening ports
+- NIC link state, carrier, speed, duplex, driver, firmware, and error counters
 - recent package, configuration, deployment, or reboot changes when available
 
 ## Expert Diagnostic Domains
@@ -190,6 +191,8 @@ link
 AOP must account for:
 
 - packet errors, drops, MTU, duplex, speed, bonding, VLANs, and bridges
+- physical or virtual NIC carrier, negotiated speed, duplex, driver, firmware,
+  and driver-specific counters
 - policy routing and multiple routing tables
 - ARP or neighbor failures
 - local and upstream firewall behavior

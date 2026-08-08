@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import platform
+import re
 import shutil
 import socket
 import subprocess
@@ -11,6 +12,7 @@ from pathlib import Path
 
 DEFAULT_TIMEOUT_SECONDS = 8
 DEFAULT_OUTPUT_LIMIT = 40_000
+INTERFACE_NAME_PATTERN = re.compile(r"^[A-Za-z0-9_.:-]+$")
 
 
 @dataclass(frozen=True)
@@ -623,6 +625,155 @@ def collect_memory(
         payload["cgroup"] = collect_cgroups(pid).model_dump()
 
     return payload
+
+
+def _sysfs_interfaces(
+    sys_class_net: Path = Path("/sys/class/net"),
+) -> list[str]:
+    try:
+        names = sorted(
+            entry.name
+            for entry in sys_class_net.iterdir()
+            if entry.name and entry.name != "lo"
+        )
+    except OSError:
+        return []
+    if names:
+        return names
+    try:
+        return sorted(entry.name for entry in sys_class_net.iterdir())
+    except OSError:
+        return []
+
+
+def _validate_interface_name(interface: str) -> str:
+    if not INTERFACE_NAME_PATTERN.match(interface):
+        raise ValueError(
+            "interface names may contain only letters, numbers, "
+            "underscore, dot, colon, or dash"
+        )
+    return interface
+
+
+def collect_nic(
+    iface: str | None = None,
+    sys_class_net: Path = Path("/sys/class/net"),
+) -> dict:
+    """
+    Collect NIC/interface-card evidence without modifying network state.
+    """
+
+    if iface:
+        iface = _validate_interface_name(iface)
+
+    if platform.system() != "Linux":
+        return {
+            "domain": "nic",
+            "status": "unsupported",
+            "host": socket.gethostname(),
+            "platform": platform.platform(),
+            "message": "Linux NIC diagnostics require a Linux host",
+            "iface": iface,
+            "interfaces": [],
+            "results": [],
+        }
+
+    interfaces = (
+        [iface]
+        if iface
+        else _sysfs_interfaces(sys_class_net)
+    )
+    specs = [
+        _spec("interfaces", "Interface link inventory", "ip", "-br", "link"),
+        _spec("addresses", "Interface addresses", "ip", "-br", "address"),
+    ]
+
+    if iface:
+        specs.append(
+            _spec(
+                "link_stats",
+                f"Interface packet counters for {iface}",
+                "ip",
+                "-s",
+                "link",
+                "show",
+                "dev",
+                iface,
+            )
+        )
+    else:
+        specs.append(
+            _spec(
+                "link_stats",
+                "Interface packet counters",
+                "ip",
+                "-s",
+                "link",
+            )
+        )
+
+    for interface in interfaces:
+        interface_path = sys_class_net / interface
+        specs.extend(
+            [
+                _spec(
+                    f"{interface}.operstate",
+                    f"{interface} operational state",
+                    "cat",
+                    str(interface_path / "operstate"),
+                ),
+                _spec(
+                    f"{interface}.carrier",
+                    f"{interface} carrier state",
+                    "cat",
+                    str(interface_path / "carrier"),
+                ),
+                _spec(
+                    f"{interface}.speed",
+                    f"{interface} negotiated speed",
+                    "cat",
+                    str(interface_path / "speed"),
+                ),
+                _spec(
+                    f"{interface}.duplex",
+                    f"{interface} duplex mode",
+                    "cat",
+                    str(interface_path / "duplex"),
+                ),
+                _spec(
+                    f"{interface}.ethtool",
+                    f"{interface} link settings",
+                    "ethtool",
+                    interface,
+                ),
+                _spec(
+                    f"{interface}.driver",
+                    f"{interface} driver and firmware",
+                    "ethtool",
+                    "-i",
+                    interface,
+                ),
+                _spec(
+                    f"{interface}.driver_stats",
+                    f"{interface} driver counters",
+                    "ethtool",
+                    "-S",
+                    interface,
+                ),
+            ]
+        )
+
+    results = [run_command(spec) for spec in specs]
+    return {
+        "domain": "nic",
+        "status": "collected",
+        "host": socket.gethostname(),
+        "platform": platform.platform(),
+        "message": "",
+        "iface": iface,
+        "interfaces": interfaces,
+        "results": [result.to_dict() for result in results],
+    }
 
 
 def _sort_sized_lines(

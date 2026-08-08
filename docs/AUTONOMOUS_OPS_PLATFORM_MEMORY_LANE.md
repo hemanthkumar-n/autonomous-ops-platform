@@ -53,12 +53,12 @@ Remediation is advisory and non-destructive.
 
 ## Current Baseline
 
-- Version: `0.14.1`
+- Version: `0.14.2`
 - Branch: `main`
 - Remote baseline: `origin/main`
 - Python: `3.11+`
 - CLI entry point: `aop`
-- Tests: seventy-eight offline regression tests passing
+- Tests: eighty-two offline regression tests passing
 - Real Ollama generation and 768-dimensional embeddings verified
 - Full live demo still requires Kubernetes and Prometheus to be running
 
@@ -87,6 +87,7 @@ host health
   -> scheduler/load, task states, PSI, VM counters, and cgroup evidence
   -> optional timed counter deltas and measured pressure
   -> ordered disk-space and inode investigation
+  -> NIC/interface state, carrier, speed, duplex, driver, and counters
   -> normalized unavailable, permission, timeout, and error evidence
   -> human-readable or JSON output
 ```

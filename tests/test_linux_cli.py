@@ -20,6 +20,7 @@ class LinuxCLITests(unittest.TestCase):
             "plan",
             "cpu",
             "memory",
+            "nic",
             "disk",
             "space",
             "fs",
@@ -94,6 +95,54 @@ class LinuxCLITests(unittest.TestCase):
             "No Linux command explanation is available",
             result.output,
         )
+
+    @patch("app.tools.linux.operations.collect_nic")
+    def test_nic_supports_iface_and_json(
+        self,
+        collect_nic,
+    ) -> None:
+        collect_nic.return_value = {
+            "domain": "nic",
+            "status": "collected",
+            "host": "node-01",
+            "platform": "Linux",
+            "message": "",
+            "iface": "ens5",
+            "interfaces": ["ens5"],
+            "results": [
+                {
+                    "key": "ens5.ethtool",
+                    "label": "ens5 link settings",
+                    "command": "ethtool ens5",
+                    "status": "ok",
+                    "output": "Speed: 10000Mb/s",
+                    "error": "",
+                    "exit_code": 0,
+                    "requires_root": False,
+                }
+            ],
+        }
+
+        result = CliRunner().invoke(
+            main,
+            ["linux", "nic", "--iface", "ens5", "--json"],
+        )
+
+        self.assertEqual(result.exit_code, 0)
+        payload = json.loads(result.output)
+        self.assertEqual(payload["domain"], "nic")
+        self.assertEqual(payload["iface"], "ens5")
+        self.assertEqual(payload["results"][0]["key"], "ens5.ethtool")
+        collect_nic.assert_called_once_with(iface="ens5")
+
+    def test_nic_rejects_invalid_interface_name(self) -> None:
+        result = CliRunner().invoke(
+            main,
+            ["linux", "nic", "--iface", "../../bad"],
+        )
+
+        self.assertNotEqual(result.exit_code, 0)
+        self.assertIn("interface names may contain", result.output)
 
     def test_plan_disk_renders_ordered_troubleshooting_steps(self) -> None:
         result = CliRunner().invoke(

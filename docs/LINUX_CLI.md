@@ -17,6 +17,8 @@ aop linux cpu
 aop linux memory
 aop investigate linux memory
 aop investigate linux memory --pid 4242
+aop linux nic
+aop linux nic --iface ens5
 aop linux disk --path /var
 aop linux space --path /var
 aop linux fs --path /var
@@ -34,6 +36,7 @@ aop linux logs
 | `aop linux plan` | Build a read-only troubleshooting plan before collecting evidence |
 | `aop linux cpu` | CPU topology, load, run queue, and top consumers |
 | `aop linux memory` | Available memory, swap activity, kernel counters, and consumers |
+| `aop linux nic` | NIC/interface link state, counters, driver, firmware, speed, and duplex |
 | `aop linux disk` | Capacity, inodes, mounts, directory usage, and deleted-open files |
 | `aop linux space` | Shortcut for `aop linux disk` |
 | `aop linux fs` | Shortcut for `aop linux disk` |
@@ -289,6 +292,7 @@ can hit a cgroup memory limit while the host still has available memory.
 The memory investigation remains read-only. It does not kill processes, clear
 cache, restart services, change cgroup limits, tune sysctl values, or modify
 swap.
+
 By default it persists a Linux-native JSON memory record and attempts semantic
 indexing. Structured memory remains available if embeddings or the vector
 store are unavailable.
@@ -296,13 +300,42 @@ store are unavailable.
 Example finding explanation:
 
 ```text
-Finding: inode_exhaustion
-Next: Find directories creating many small files on this filesystem.
-Why: Inode exhaustion can produce "No space left on device" even when byte capacity is available.
+Finding: kernel_oom_kill
+Next: Identify the victim process, owning service or pod, allocation context, and whether the OOM was host-wide or cgroup-limited.
+Why: Kernel OOM evidence proves a process or cgroup could not satisfy memory allocation.
 ```
 
-This workflow is deterministic. It does not call an LLM and does not delete,
-restart, remount, repair, resize, or otherwise modify the host.
+This workflow is deterministic. It does not call an LLM and does not kill,
+restart, clear cache, change limits, tune sysctl values, or modify swap.
+
+## NIC And Interface Cards
+
+```bash
+aop linux nic
+aop linux nic --iface eth0
+aop linux nic --iface ens5 --json
+```
+
+NIC evidence is separate from higher-level network troubleshooting because
+link and driver problems can make DNS, Kubernetes, application, and load
+balancer symptoms look misleading.
+
+`aop linux nic` collects:
+
+- interface inventory from `ip -br link`
+- addresses from `ip -br address`
+- packet counters from `ip -s link`
+- per-interface operational state
+- carrier state
+- speed
+- duplex
+- `ethtool <IFACE>` link settings
+- `ethtool -i <IFACE>` driver and firmware
+- `ethtool -S <IFACE>` driver counters
+
+This command is read-only. It does not change routes, bring interfaces up or
+down, modify MTU, reset drivers, change offload settings, capture packets, or
+alter firewall state.
 
 ## Bounded Collection
 

@@ -10,7 +10,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-blue" alt="Python 3.11+" />
-  <img src="https://img.shields.io/badge/AOP-v0.14.1-success" alt="AOP v0.14.1" />
+  <img src="https://img.shields.io/badge/AOP-v0.14.2-success" alt="AOP v0.14.2" />
   <img src="https://img.shields.io/badge/Kubernetes-SRE%20Shortcuts-326CE5" alt="Kubernetes SRE Shortcuts" />
   <img src="https://img.shields.io/badge/Observability-Prometheus-red" alt="Prometheus" />
   <img src="https://img.shields.io/badge/LLM-Ollama-green" alt="Ollama" />
@@ -80,18 +80,19 @@ release exists.
 Current version:
 
 ```text
-AOP v0.14.1
+AOP v0.14.2
 ```
 
 The implemented and tested paths currently cover Kubernetes incident
 intelligence, deterministic Linux troubleshooting, Linux disk incident
-intelligence, Linux memory/OOM investigation, command-reasoning workflows,
-and complex Linux scenario plans.
+intelligence, Linux memory/OOM investigation, NIC/interface-card evidence,
+command-reasoning workflows, and complex Linux scenario plans.
 
 ### Release Memory
 
 | Release | What it proves | Human reference |
 |---|---|---|
+| `v0.14.2` | AOP can collect Linux NIC/interface-card evidence safely | [`docs/releases/v0.14.2-linux-nic-interface-evidence.md`](docs/releases/v0.14.2-linux-nic-interface-evidence.md) |
 | `v0.14.1` | AOP can diagnose Linux memory pressure and OOM evidence deterministically | [`docs/releases/v0.14.1-linux-memory-oom-investigation.md`](docs/releases/v0.14.1-linux-memory-oom-investigation.md) |
 | `v0.14.0` | AOP can expose complex senior Linux troubleshooting scenarios as read-only plans | [`docs/releases/v0.14-linux-complex-scenario-plans.md`](docs/releases/v0.14-linux-complex-scenario-plans.md) |
 | `v0.13.0` | AOP can explain Linux command intent and plan disk investigations before execution | [`docs/releases/v0.13-linux-explain-and-plan.md`](docs/releases/v0.13-linux-explain-and-plan.md) |
@@ -104,6 +105,7 @@ and complex Linux scenario plans.
 - bounded, shell-free Linux command execution with JSON output
 - CPU, memory, disk, network, process, service, log, kernel, boot, and security
   evidence collection
+- NIC/interface-card evidence through `aop linux nic`
 - Linux scheduler, process-state, PSI, VM-counter, and cgroup evidence
 - cgroup v1/v2 detection and cgroup v2 limits, events, and pressure
 - timed VM, PSI, and cgroup counter deltas with active-event findings
@@ -129,7 +131,7 @@ and complex Linux scenario plans.
 - graceful exact-memory fallback
 - Markdown and JSON incident reports
 - typed Pydantic contracts
-- seventy-eight offline regression tests
+- eighty-two offline regression tests
 
 ### Not Yet Implemented
 
@@ -202,6 +204,8 @@ aop linux plan scenario high-load
 aop linux plan scenario oom --json
 aop linux cpu
 aop linux memory
+aop linux nic
+aop linux nic --iface ens5
 aop linux disk --path /var
 aop investigate linux memory
 aop investigate linux memory --pid 4242
@@ -770,7 +774,7 @@ python -m unittest discover -s tests -v
 Current baseline:
 
 ```text
-78 tests passing
+82 tests passing
 ```
 
 The tests cover:
@@ -778,6 +782,8 @@ The tests cover:
 - CLI discovery and aliases
 - Linux CLI discovery, JSON output, and prioritized health findings
 - shell-free Linux command execution, timeout handling, and missing utilities
+- NIC/interface-card command exposure, JSON output, evidence ordering, and
+  unsafe interface-name rejection
 - bounded Linux process output and diagnostic ordering
 - `/proc` load, PSI, process-state, and VM-counter parsing
 - cgroup v1/v2 detection and cgroup v2 limit/event interpretation

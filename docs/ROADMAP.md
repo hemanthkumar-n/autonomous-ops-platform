@@ -9,19 +9,18 @@ so the project remains honest and easy to explain.
 ## Current Baseline
 
 ```text
-Current release: v0.14.1
+Current release: v0.14.2
 Status: implemented and pushed
 ```
 
-v0.14.1 adds deterministic Linux memory and OOM investigation while keeping
-the workflow read-only:
+v0.14.2 adds Linux NIC/interface-card evidence while keeping the workflow
+read-only:
 
 ```text
-collect memory evidence
-  -> parse MemAvailable, swap activity, OOM logs, and optional cgroup memory
-  -> classify deterministic findings
-  -> explain the next safe check
-  -> persist structured Linux memory incident records
+collect NIC evidence
+  -> inspect link inventory, addresses, counters, carrier, speed, duplex
+  -> collect driver, firmware, and driver counters
+  -> preserve lower-layer evidence before DNS, Kubernetes, or app assumptions
 ```
 
 Implemented commands:
@@ -35,8 +34,11 @@ aop linux disk --path /var
 aop investigate linux disk --path /var
 aop investigate linux memory
 aop investigate linux memory --pid 4242
+aop linux nic
+aop linux nic --iface ens5
 ```
 
+v0.14.1 added deterministic Linux memory and OOM investigation.
 v0.14.0 exposed complex Linux troubleshooting scenarios through the CLI.
 v0.13 completed the Linux disk reasoning loop:
 
@@ -78,6 +80,11 @@ Implemented scenario plans:
 
 Cgroups are part of this Linux internals context, especially for containers
 and Kubernetes workloads, but they are not the standalone v0.14 headline.
+
+Implemented raw evidence workflows:
+
+- NIC/interface state, counters, carrier, speed, duplex, driver, firmware, and
+  driver counters
 
 Still pending inside the larger Linux expansion:
 

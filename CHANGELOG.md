@@ -4,6 +4,30 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.14.2 - Linux NIC and Interface Evidence
+
+Date: 2026-08-08
+
+### Added
+
+- `aop linux nic`
+- `aop linux nic --iface <interface>`
+- NIC/interface evidence collection from `ip`, `/sys/class/net`, and
+  `ethtool`
+- link inventory, interface addresses, packet counters, operational state,
+  carrier, speed, duplex, link settings, driver/firmware, and driver counters
+- interface-name validation before reading sysfs paths
+- regression tests for command exposure, JSON output, evidence ordering, and
+  unsafe interface rejection
+
+### Safety
+
+NIC evidence collection is read-only. It does not bring interfaces up or down,
+change routes, alter MTU, modify offload settings, reset drivers, capture
+packets, or change firewall state.
+
+---
+
 ## v0.14.1 - Linux Memory and OOM Investigation
 
 Date: 2026-08-08

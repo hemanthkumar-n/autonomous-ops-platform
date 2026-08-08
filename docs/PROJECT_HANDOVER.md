@@ -28,10 +28,10 @@ Do not treat empty modules or directory names as implemented capabilities.
 ## Verified Baseline
 
 ```text
-Release: 0.14.1
+Release: 0.14.2
 Branch: main
 Remote: origin/main
-Offline tests: 78 passing
+Offline tests: 82 passing
 CLI entry point: aop
 Python: 3.11+
 ```
@@ -49,7 +49,7 @@ git status --short --branch
 Expected version:
 
 ```text
-aop, version 0.14.1
+aop, version 0.14.2
 ```
 
 ## What AOP Is
@@ -98,6 +98,8 @@ aop kb inv -n ai-lab
 - native, read-only `aop linux` CLI
 - CPU, memory, disk, network, process, service, log, kernel, boot, and security
   collectors
+- NIC/interface-card evidence with link state, counters, carrier, speed,
+  duplex, driver, firmware, and driver counters
 - `/proc` scheduler, process-state, PSI, and VM-counter evidence
 - cgroup v1/v2 detection and cgroup v2 CPU, memory, I/O, PID, event, and
   pressure evidence
@@ -126,6 +128,8 @@ aop linux explain "df -hT"
 aop linux plan disk --path /var
 aop linux plan scenario --list
 aop linux plan scenario high-load
+aop linux nic
+aop linux nic --iface ens5
 aop linux disk --path /var
 aop investigate linux memory
 aop investigate linux memory --pid 4242

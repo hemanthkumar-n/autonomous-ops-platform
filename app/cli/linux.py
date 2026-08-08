@@ -690,6 +690,30 @@ linux.add_command(disk, name="space")
 linux.add_command(disk, name="fs")
 
 
+@linux.command("nic")
+@click.option(
+    "--iface",
+    help="Optional interface name such as eth0, ens5, bond0, or enp1s0.",
+)
+@click.option("--json", "as_json", is_flag=True)
+def nic(iface: str | None, as_json: bool) -> None:
+    """
+    Inspect NIC/interface card state, counters, driver, and link settings.
+    """
+
+    from app.tools.linux.operations import collect_nic
+
+    try:
+        payload = collect_nic(iface=iface)
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if as_json:
+        _echo_json(payload)
+    else:
+        _render_domain(payload)
+
+
 def _domain_command(name: str, help_text: str):
     def command(
         as_json: bool,

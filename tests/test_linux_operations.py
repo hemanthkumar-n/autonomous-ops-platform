@@ -9,6 +9,7 @@ from app.tools.linux.operations import (
     CommandSpec,
     collect_disk,
     collect_memory,
+    collect_nic,
     collect_domain,
     domain_specs,
     run_command,
@@ -119,6 +120,62 @@ class LinuxOperationsTests(unittest.TestCase):
             keys[:4],
             ["addresses", "link_stats", "routes", "neighbors"],
         )
+
+    @patch(
+        "app.tools.linux.operations.platform.system",
+        return_value="Linux",
+    )
+    @patch("app.tools.linux.operations.run_command")
+    def test_nic_collection_includes_sysfs_and_ethtool_evidence(
+        self,
+        run_command_mock,
+        _platform_system,
+    ) -> None:
+        run_command_mock.side_effect = lambda spec: CommandResult(
+            key=spec.key,
+            label=spec.label,
+            command=" ".join(spec.argv),
+            status="ok",
+            output="ok",
+            requires_root=spec.requires_root,
+        )
+
+        payload = collect_nic(iface="ens5")
+
+        self.assertEqual(payload["domain"], "nic")
+        self.assertEqual(payload["interfaces"], ["ens5"])
+        keys = [item["key"] for item in payload["results"]]
+        self.assertEqual(
+            keys,
+            [
+                "interfaces",
+                "addresses",
+                "link_stats",
+                "ens5.operstate",
+                "ens5.carrier",
+                "ens5.speed",
+                "ens5.duplex",
+                "ens5.ethtool",
+                "ens5.driver",
+                "ens5.driver_stats",
+            ],
+        )
+
+        specs = [
+            call.args[0]
+            for call in run_command_mock.call_args_list
+        ]
+        self.assertIn(
+            ("ip", "-s", "link", "show", "dev", "ens5"),
+            [spec.argv for spec in specs],
+        )
+        self.assertIn(("ethtool", "ens5"), [spec.argv for spec in specs])
+        self.assertIn(("ethtool", "-i", "ens5"), [spec.argv for spec in specs])
+        self.assertIn(("ethtool", "-S", "ens5"), [spec.argv for spec in specs])
+
+    def test_nic_collection_rejects_unsafe_interface_name(self) -> None:
+        with self.assertRaises(ValueError):
+            collect_nic(iface="../../bad")
 
     @patch(
         "app.tools.linux.operations.platform.system",
