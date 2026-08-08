@@ -595,6 +595,96 @@ def investigate_linux_service(
         click.echo(f"Memory record: {saved_path}")
 
 
+@investigate.command("k8s-linux")
+@click.option(
+    "--incident",
+    help="Kubernetes symptom or incident type, such as OOMKilled or DiskPressure.",
+)
+@click.option(
+    "--list",
+    "list_incidents",
+    is_flag=True,
+    help="List supported Kubernetes symptoms.",
+)
+@click.option(
+    "--format",
+    "output_format",
+    type=click.Choice(["summary", "json"], case_sensitive=False),
+    default="summary",
+    show_default=True,
+)
+def investigate_k8s_linux(
+    incident: str | None,
+    list_incidents: bool,
+    output_format: str,
+) -> None:
+    """
+    Plan Linux evidence for Kubernetes incident symptoms.
+    """
+
+    from app.agents.sre.k8s_linux_correlation_agent import (
+        correlate_k8s_linux,
+        list_k8s_linux_incidents,
+    )
+
+    if list_incidents:
+        for item in list_k8s_linux_incidents():
+            click.echo(item)
+        return
+
+    if not incident:
+        raise click.UsageError(
+            "Provide --incident or use --list to see supported symptoms."
+        )
+
+    try:
+        plan = correlate_k8s_linux(incident)
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if output_format == "json":
+        click.echo(plan.model_dump_json(indent=2))
+        return
+
+    click.echo(f"Kubernetes to Linux correlation: {plan.incident}")
+    click.echo(plan.kubernetes_meaning)
+
+    if plan.linux_evidence:
+        click.echo()
+        click.echo("Linux evidence to collect")
+        for item in plan.linux_evidence:
+            click.echo(f"- {item.domain}: {item.reason}")
+            for command in item.commands:
+                click.echo(f"  command: {command}")
+
+    if plan.next_aop_commands:
+        click.echo()
+        click.echo("Next AOP commands")
+        for command in plan.next_aop_commands:
+            click.echo(f"- {command}")
+
+    if plan.kubernetes_checks:
+        click.echo()
+        click.echo("Kubernetes checks")
+        for check in plan.kubernetes_checks:
+            click.echo(f"- {check}")
+
+    if plan.cloud_checks:
+        click.echo()
+        click.echo("Cloud/AWS checks")
+        for check in plan.cloud_checks:
+            click.echo(f"- {check}")
+
+    if plan.do_not_assume:
+        click.echo()
+        click.echo("Do not assume")
+        for item in plan.do_not_assume:
+            click.echo(f"- {item}")
+
+    click.echo()
+    click.echo(f"Memory note: {plan.memory_note}")
+
+
 @investigate.command("k8s")
 @click.option(
     "--namespace",

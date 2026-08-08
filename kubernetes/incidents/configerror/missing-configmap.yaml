@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: missing-configmap-demo
+  namespace: ai-lab
+  labels:
+    app: missing-configmap-demo
+spec:
+  containers:
+    - name: app
+      image: busybox:1.36
+      command:
+        - sh
+        - -c
+        - "sleep 3600"
+      env:
+        - name: REQUIRED_SETTING
+          valueFrom:
+            configMapKeyRef:
+              name: intentionally-missing-config
+              key: REQUIRED_SETTING
+      resources:
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          cpu: 50m
+          memory: 64Mi

@@ -54,12 +54,12 @@ Remediation is advisory and non-destructive.
 
 ## Current Baseline
 
-- Version: `0.19.0`
+- Version: `0.20.0`
 - Branch: `main`
 - Remote baseline: `origin/main`
 - Python: `3.11+`
 - CLI entry point: `aop`
-- Tests: one hundred fifteen offline regression tests passing
+- Tests: one hundred twenty-four offline regression tests passing
 - Real Ollama generation and 768-dimensional embeddings verified
 - Full live demo still requires Kubernetes and Prometheus to be running
 
@@ -164,6 +164,36 @@ The current human-readable map is:
 
 ```text
 docs/linux/LINUX_INVESTIGATION_LADDER.md
+```
+
+Kubernetes-to-Linux correlation training:
+
+```text
+aop investigate k8s-linux --list
+aop investigate k8s-linux --incident OOMKilled
+aop investigate k8s-linux --incident DiskPressure --format json
+```
+
+Implemented symptom mappings:
+
+```text
+OOMKilled
+CrashLoopBackOff
+ImagePullBackOff
+ErrImagePull
+CreateContainerConfigError
+CreateContainerError
+FailedScheduling
+DiskPressure
+MemoryPressure
+NodeNotReady
+```
+
+The executable catalog is:
+
+```text
+app/agents/sre/k8s_linux_correlation_agent.py
+app/memory/knowledgebase/kubernetes_linux_correlation_catalog.md
 ```
 
 Linux command reasoning:
@@ -280,6 +310,7 @@ app/agents/sre/remediation_agent.py
 app/prompts/shared/cross_domain.py
 app/memory/knowledgebase/linkedin_kubernetes_linux_criteria.md
 app/memory/knowledgebase/linux_complex_troubleshooting_scenarios.md
+app/memory/knowledgebase/kubernetes_linux_correlation_catalog.md
 app/llm/client.py
 app/llm/providers/ollama_provider.py
 docs/architecture/observability-dashboard-strategy.md
@@ -314,6 +345,8 @@ aop investigate linux memory --pid 4242
 aop investigate linux cpu
 aop investigate linux network --iface ens5
 aop investigate linux service --service nginx
+aop investigate k8s-linux --incident OOMKilled
+aop investigate k8s-linux --incident DiskPressure --format json
 aop investigate k8s --namespace ai-lab
 aop investigate k8s --namespace ai-lab \
   --format markdown \
@@ -328,6 +361,7 @@ docs/KUBERNETES_CLI.md
 docs/ROADMAP.md
 docs/releases/
 docs/architecture/observability-dashboard-strategy.md
+app/memory/knowledgebase/kubernetes_linux_correlation_catalog.md
 ```
 
 Linux references:
@@ -345,6 +379,9 @@ Sample incidents:
 ```bash
 kubectl apply -f kubernetes/incidents/imagepull/broken-nginx.yaml
 kubectl apply -f kubernetes/incidents/oomkilled/oom-test.yaml
+kubectl apply -f kubernetes/incidents/crashloop/crashloop-app.yaml
+kubectl apply -f kubernetes/incidents/configerror/missing-configmap.yaml
+kubectl apply -f kubernetes/incidents/failedscheduling/oversized-pod.yaml
 ```
 
 Offline validation:
@@ -393,6 +430,8 @@ ENABLE_DESTRUCTIVE_REMEDIATION=false
 ## Known Gaps
 
 - Kubernetes and Prometheus live integration is not currently validated.
+- Kubernetes-to-Linux correlation is a planning/training layer; it does not
+  automatically collect Linux node evidence yet.
 - Kimi/Moonshot provider runtime support is not implemented.
 - FastAPI and most non-Kubernetes domain modules are placeholders.
 - Test coverage is focused, not comprehensive.
@@ -402,7 +441,9 @@ ENABLE_DESTRUCTIVE_REMEDIATION=false
 
 ## Next Priorities
 
-1. Run and record a complete live Kubernetes/Prometheus showcase.
+1. Attach Kubernetes-to-Linux correlation guidance to the main
+   `aop investigate k8s` report.
+2. Run and record a complete live Kubernetes/Prometheus showcase.
 2. Add CI for tests, formatting, linting, and type checks.
 3. Validate Linux disk diagnosis against real ext4, XFS, LVM, container, and
    cloud-volume examples.

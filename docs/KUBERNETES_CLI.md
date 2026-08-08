@@ -3,6 +3,15 @@
 Use `aop kb` for fast, read-only SRE troubleshooting. `aop k8s` is an
 equivalent alias.
 
+Use `aop investigate k8s-linux` when you want AOP to explain which Linux
+evidence a Kubernetes symptom requires before deeper RCA:
+
+```bash
+aop investigate k8s-linux --list
+aop investigate k8s-linux --incident OOMKilled
+aop investigate k8s-linux --incident DiskPressure --format json
+```
+
 ## First Response
 
 ```bash
@@ -74,3 +83,6 @@ aop kb health --json
 ```
 
 These commands do not modify cluster resources.
+
+Safe issue simulation manifests are listed in
+[`incidents/kubernetes-simulation-catalog.md`](incidents/kubernetes-simulation-catalog.md).

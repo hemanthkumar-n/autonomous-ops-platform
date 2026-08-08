@@ -10,6 +10,7 @@ unfinished.
 
 | Release | Focus | Reference |
 |---|---|---|
+| `v0.20.0` | Kubernetes to Linux correlation training | [`v0.20-kubernetes-linux-correlation-training.md`](v0.20-kubernetes-linux-correlation-training.md) |
 | `v0.19.0` | Linux investigation ladder and release memory | [`v0.19-linux-investigation-ladder.md`](v0.19-linux-investigation-ladder.md) |
 | `v0.18.0` | Linux systemd service investigation | [`v0.18-linux-systemd-service-investigation.md`](v0.18-linux-systemd-service-investigation.md) |
 | `v0.17.0` | Linux network and NIC investigation | [`v0.17-linux-network-nic-investigation.md`](v0.17-linux-network-nic-investigation.md) |

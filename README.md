@@ -10,7 +10,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-blue" alt="Python 3.11+" />
-  <img src="https://img.shields.io/badge/AOP-v0.19.0-success" alt="AOP v0.19.0" />
+  <img src="https://img.shields.io/badge/AOP-v0.20.0-success" alt="AOP v0.20.0" />
   <img src="https://img.shields.io/badge/Kubernetes-SRE%20Shortcuts-326CE5" alt="Kubernetes SRE Shortcuts" />
   <img src="https://img.shields.io/badge/Observability-Prometheus-red" alt="Prometheus" />
   <img src="https://img.shields.io/badge/LLM-Ollama-green" alt="Ollama" />
@@ -80,7 +80,7 @@ release exists.
 Current version:
 
 ```text
-AOP v0.19.0
+AOP v0.20.0
 ```
 
 The implemented and tested paths currently cover Kubernetes incident
@@ -88,13 +88,15 @@ intelligence, deterministic Linux troubleshooting, Linux disk incident
 intelligence, Linux memory/OOM investigation, Linux CPU/load investigation,
 Linux network/NIC investigation, NIC/interface-card evidence,
 systemd service investigation, a consolidated Linux investigation ladder,
-command-reasoning workflows, complex Linux scenario plans, and
+Kubernetes-to-Linux correlation training, command-reasoning workflows,
+complex Linux scenario plans, and
 provider-neutral evidence/dashboard contracts.
 
 ### Release Memory
 
 | Release | What it proves | Human reference |
 |---|---|---|
+| `v0.20.0` | AOP can map Kubernetes symptoms to required Linux evidence without inventing host facts | [`docs/releases/v0.20-kubernetes-linux-correlation-training.md`](docs/releases/v0.20-kubernetes-linux-correlation-training.md) |
 | `v0.19.0` | AOP has a visible Linux investigation ladder for future teammates, demos, and AI handoffs | [`docs/releases/v0.19-linux-investigation-ladder.md`](docs/releases/v0.19-linux-investigation-ladder.md) |
 | `v0.18.0` | AOP can diagnose systemd service failure and restart-loop evidence safely | [`docs/releases/v0.18-linux-systemd-service-investigation.md`](docs/releases/v0.18-linux-systemd-service-investigation.md) |
 | `v0.17.0` | AOP can diagnose Linux NIC, route, and resolver evidence deterministically | [`docs/releases/v0.17-linux-network-nic-investigation.md`](docs/releases/v0.17-linux-network-nic-investigation.md) |
@@ -130,6 +132,8 @@ provider-neutral evidence/dashboard contracts.
   carrier, errors/drops, route, and resolver evidence
 - `aop investigate linux service` deterministic diagnosis for systemd failed
   state, start-limit-hit, exit status, restart loops, and journal errors
+- `aop investigate k8s-linux` correlation training for Kubernetes symptoms
+  that require Linux node evidence
 - Linux command explanation through `aop linux explain`
 - read-only disk investigation planning through `aop linux plan disk`
 - read-only complex Linux scenario plans through `aop linux plan scenario`
@@ -146,7 +150,7 @@ provider-neutral evidence/dashboard contracts.
 - Markdown and JSON incident reports
 - typed Pydantic contracts
 - provider-neutral evidence, alert, metric, timeline, and dashboard contracts
-- one hundred fifteen offline regression tests
+- one hundred twenty-four offline regression tests
 
 ### Not Yet Implemented
 
@@ -194,6 +198,7 @@ aop health
 aop kb health
 aop kb po
 aop kb ev
+aop investigate k8s-linux --incident OOMKilled
 
 # Run the complete evidence, classification, memory, and AI workflow
 aop kb inv -n ai-lab
@@ -232,6 +237,9 @@ aop linux network
 aop linux processes --top 20
 aop linux services
 aop investigate linux service --service nginx
+aop investigate k8s-linux --list
+aop investigate k8s-linux --incident OOMKilled
+aop investigate k8s-linux --incident DiskPressure --format json
 aop linux logs
 aop linux kernel
 aop linux boot
@@ -772,6 +780,10 @@ kubectl apply \
   -f kubernetes/incidents/oomkilled/oom-test.yaml
 ```
 
+Additional safe simulation manifests for `CrashLoopBackOff`,
+`CreateContainerConfigError`, and `FailedScheduling` are documented in
+[`docs/incidents/kubernetes-simulation-catalog.md`](docs/incidents/kubernetes-simulation-catalog.md).
+
 Investigate:
 
 ```bash
@@ -794,7 +806,7 @@ python -m unittest discover -s tests -v
 Current baseline:
 
 ```text
-115 tests passing
+124 tests passing
 ```
 
 The tests cover:
@@ -827,6 +839,8 @@ The tests cover:
 - Linux systemd service incident classification, start-limit and exit-status
   handling, journal evidence, CLI output, workflow orchestration, and
   structured memory persistence
+- Kubernetes-to-Linux correlation catalog, issue aliases, JSON output, and
+  safe Linux follow-up command planning
 - Linux complex scenario catalog listing, alias lookup, human output, and JSON
   output
 - Kubernetes health and JSON output
@@ -852,12 +866,14 @@ Live Kubernetes and Prometheus validation remains a separate environment test.
 | [`docs/AUTONOMOUS_OPS_PLATFORM_MEMORY_LANE.md`](docs/AUTONOMOUS_OPS_PLATFORM_MEMORY_LANE.md) | Compact current implementation memory |
 | [`docs/releases/`](docs/releases/) | Human-readable release notes for future team members and AI handoffs |
 | [`docs/KUBERNETES_CLI.md`](docs/KUBERNETES_CLI.md) | Kubernetes shortcut reference |
+| [`docs/incidents/kubernetes-simulation-catalog.md`](docs/incidents/kubernetes-simulation-catalog.md) | Safe Kubernetes issue simulation catalog |
 | [`docs/LINUX_CLI.md`](docs/LINUX_CLI.md) | Native Linux troubleshooting command reference |
 | [`docs/linux/LINUX_EXPERTISE_BLUEPRINT.md`](docs/linux/LINUX_EXPERTISE_BLUEPRINT.md) | Linux administration expertise and implementation direction |
 | [`docs/linux/LINUX_INVESTIGATION_LADDER.md`](docs/linux/LINUX_INVESTIGATION_LADDER.md) | Current Linux troubleshooting ladder and domain order |
 | [`docs/linux/tshelper-original/`](docs/linux/tshelper-original/) | Preserved original `tshelper` source materials |
 | [`linux_troubleshooting_command_catalog.md`](app/memory/knowledgebase/linux_troubleshooting_command_catalog.md) | Canonical Linux commands, arguments, interpretation, and safety memory |
 | [`linux_complex_troubleshooting_scenarios.md`](app/memory/knowledgebase/linux_complex_troubleshooting_scenarios.md) | Complex Linux scenario memory for v0.14 planning |
+| [`kubernetes_linux_correlation_catalog.md`](app/memory/knowledgebase/kubernetes_linux_correlation_catalog.md) | Kubernetes symptom to Linux evidence training memory |
 | [`docs/setup/installation.md`](docs/setup/installation.md) | Detailed local installation |
 | [`docs/architecture/adr/`](docs/architecture/adr/) | Architecture decision records |
 | [`CHANGELOG.md`](CHANGELOG.md) | Version history |

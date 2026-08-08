@@ -9,20 +9,18 @@ so the project remains honest and easy to explain.
 ## Current Baseline
 
 ```text
-Current release: v0.19.0
+Current release: v0.20.0
 Status: implemented and pushed
 ```
 
-v0.19.0 consolidates the Linux investigation ladder and release memory:
+v0.20.0 adds Kubernetes-to-Linux correlation training:
 
 ```text
-health
-  -> explain
-  -> plan
-  -> collect domain evidence
-  -> investigate deterministically
-  -> persist memory
-  -> correlate outward
+Kubernetes symptom
+  -> preserve Kubernetes evidence
+  -> identify required Linux evidence
+  -> recommend safe AOP Linux commands
+  -> state what must not be assumed
 ```
 
 Implemented commands:
@@ -41,6 +39,8 @@ aop linux nic --iface ens5
 aop investigate linux cpu
 aop investigate linux network --iface ens5
 aop investigate linux service --service nginx
+aop investigate k8s-linux --incident OOMKilled
+aop investigate k8s-linux --incident DiskPressure --format json
 ```
 
 The human-readable Linux ladder is maintained in
@@ -48,6 +48,9 @@ The human-readable Linux ladder is maintained in
 
 ## Completed Linux And Data Foundation
 
+v0.20 added explicit Kubernetes-to-Linux symptom correlation training for
+OOMKilled, CrashLoopBackOff, image pull failures, config/startup failures,
+scheduling failures, DiskPressure, MemoryPressure, and NodeNotReady.
 v0.19 documented the current Linux troubleshooting ladder for future
 contributors, demos, and AI handoffs.
 v0.18 added deterministic Linux systemd service failure and restart-loop
@@ -77,21 +80,23 @@ panic clues, `df`/`du` mismatch, inode exhaustion, deleted-open files,
 read-only remounts, LVM expansion mismatch, container runtime disk pressure,
 and Kubernetes symptoms that require Linux node correlation.
 
-## Next: v0.20
+## Next: v0.21
 
 Purpose:
 
 ```text
-Start connecting the Linux evidence ladder to Kubernetes, AWS, and future
-dashboard workflows without claiming automation that does not exist yet.
+Attach live Kubernetes classifications to the correlation catalog so normal
+Kubernetes investigations show Linux evidence gaps and safe next AOP commands.
 ```
 
 Target outcomes:
 
-- define Linux-to-Kubernetes node correlation inputs
-- map AWS CloudWatch and CloudTrail evidence into existing contracts
-- identify which evidence becomes dashboard panels, timeline events, and
-  alert context
+- enrich `aop investigate k8s` summary with Linux correlation guidance
+- include missing Linux evidence in JSON and Markdown reports
+- keep live node execution out of scope until access, identity, and safety are
+  designed
+- prepare AWS CloudWatch and CloudTrail evidence mapping after K8s/Linux
+  correlation is visible
 - keep AI RCA grounded in deterministic evidence and explicit gaps
 
 ## Later Roadmap

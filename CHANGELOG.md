@@ -4,6 +4,32 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.20.0 - Kubernetes To Linux Correlation Training
+
+Date: 2026-08-08
+
+### Added
+
+- `aop investigate k8s-linux`
+- `aop investigate k8s-linux --list`
+- structured Kubernetes-to-Linux correlation schemas
+- source-controlled symptom mapping for `OOMKilled`, `CrashLoopBackOff`,
+  `ImagePullBackOff`, `ErrImagePull`, `CreateContainerConfigError`,
+  `CreateContainerError`, `FailedScheduling`, `DiskPressure`,
+  `MemoryPressure`, and `NodeNotReady`
+- Linux evidence recommendations, Kubernetes checks, cloud/AWS checks,
+  memory notes, and explicit "do not assume" guidance for each symptom
+- knowledgebase memory at
+  `app/memory/knowledgebase/kubernetes_linux_correlation_catalog.md`
+- tests for correlation catalog behavior and CLI output
+
+### Boundary
+
+This release trains AOP's operational reasoning with explicit rules. It does
+not collect live Linux node evidence from Kubernetes nodes yet.
+
+---
+
 ## v0.19.0 - Linux Investigation Ladder and Release Memory
 
 Date: 2026-08-08
