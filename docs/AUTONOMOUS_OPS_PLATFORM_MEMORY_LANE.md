@@ -54,12 +54,12 @@ Remediation is advisory and non-destructive.
 
 ## Current Baseline
 
-- Version: `0.21.0`
+- Version: `0.22.0`
 - Branch: `main`
 - Remote baseline: `origin/main`
 - Python: `3.11+`
 - CLI entry point: `aop`
-- Tests: one hundred thirty-two offline regression tests passing
+- Tests: one hundred thirty-five offline regression tests passing
 - Real Ollama generation and 768-dimensional embeddings verified
 - Full live demo still requires Kubernetes and Prometheus to be running
 
@@ -226,6 +226,25 @@ The executable catalog is:
 ```text
 app/agents/sre/kubernetes_issue_training_agent.py
 app/memory/knowledgebase/kubernetes_issue_catalog.md
+```
+
+Kubernetes investigation guidance integration:
+
+```text
+aop investigate k8s -n ai-lab
+aop investigate k8s -n ai-lab --format json
+aop investigate k8s -n ai-lab --format markdown --output reports/incident.md
+```
+
+The workflow now includes:
+
+```text
+correlation_guidance
+  -> Kubernetes issue knowledge
+  -> Kubernetes-to-Linux evidence requirements
+  -> safe next AOP commands
+  -> do-not-assume rules
+  -> evidence gaps
 ```
 
 Linux command reasoning:
@@ -466,9 +485,9 @@ ENABLE_DESTRUCTIVE_REMEDIATION=false
 ## Known Gaps
 
 - Kubernetes and Prometheus live integration is not currently validated.
-- Kubernetes issue knowledge and Kubernetes-to-Linux correlation are
-  planning/training layers; they do not automatically modify live reports or
-  collect Linux node evidence yet.
+- Kubernetes issue knowledge and Kubernetes-to-Linux correlation now enrich
+  live Kubernetes investigation reports, but they still do not automatically
+  collect Linux node evidence.
 - Kimi/Moonshot provider runtime support is not implemented.
 - FastAPI and most non-Kubernetes domain modules are placeholders.
 - Test coverage is focused, not comprehensive.
@@ -478,8 +497,7 @@ ENABLE_DESTRUCTIVE_REMEDIATION=false
 
 ## Next Priorities
 
-1. Attach Kubernetes issue knowledge and Kubernetes-to-Linux correlation
-   guidance to the main `aop investigate k8s` report.
+1. Prepare dashboard/evidence timeline summaries from the enriched workflow.
 2. Run and record a complete live Kubernetes/Prometheus showcase.
 3. Add CI for tests, formatting, linting, and type checks.
 4. Validate Linux disk diagnosis against real ext4, XFS, LVM, container, and

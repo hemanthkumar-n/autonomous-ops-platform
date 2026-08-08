@@ -9,19 +9,20 @@ so the project remains honest and easy to explain.
 ## Current Baseline
 
 ```text
-Current release: v0.21.0
+Current release: v0.22.0
 Status: implemented and pushed
 ```
 
-v0.21.0 adds curated Kubernetes issue knowledge:
+v0.22.0 attaches Kubernetes issue knowledge and Linux correlation guidance to
+the real Kubernetes investigation workflow:
 
 ```text
-Kubernetes symptom
-  -> preserve Kubernetes evidence
-  -> identify common causes
-  -> request Kubernetes and Linux evidence
-  -> recommend safe kubectl and AOP commands
-  -> cite source memory
+aop investigate k8s
+  -> classify Kubernetes symptom
+  -> attach curated issue knowledge
+  -> attach Linux evidence requirements
+  -> show safe next AOP commands
+  -> preserve guidance in JSON and Markdown reports
 ```
 
 Implemented commands:
@@ -44,6 +45,7 @@ aop investigate k8s-knowledge --symptom CrashLoopBackOff
 aop investigate k8s-knowledge --symptom DiskPressure --format json
 aop investigate k8s-linux --incident OOMKilled
 aop investigate k8s-linux --incident DiskPressure --format json
+aop investigate k8s -n ai-lab
 ```
 
 The human-readable Linux ladder is maintained in
@@ -51,6 +53,9 @@ The human-readable Linux ladder is maintained in
 
 ## Completed Linux And Data Foundation
 
+v0.22 integrated Kubernetes issue knowledge and Kubernetes-to-Linux
+correlation guidance into the main Kubernetes investigation summary, JSON, and
+Markdown reports.
 v0.21 added curated Kubernetes issue knowledge for pod failures, scheduling
 failures, and node conditions, backed by source-controlled memory and official
 Kubernetes documentation links.
@@ -86,25 +91,23 @@ panic clues, `df`/`du` mismatch, inode exhaustion, deleted-open files,
 read-only remounts, LVM expansion mismatch, container runtime disk pressure,
 and Kubernetes symptoms that require Linux node correlation.
 
-## Next: v0.22
+## Next: v0.23
 
 Purpose:
 
 ```text
-Attach live Kubernetes classifications to the issue knowledge and correlation
-catalogs so normal Kubernetes investigations show evidence gaps and safe next
-AOP commands.
+Prepare dashboard and evidence timeline views that can display Kubernetes
+incidents, Linux evidence requirements, deterministic findings, and memory
+side by side.
 ```
 
 Target outcomes:
 
-- enrich `aop investigate k8s` summary with Kubernetes knowledge and Linux
-  correlation guidance
-- include missing Linux evidence in JSON and Markdown reports
-- keep live node execution out of scope until access, identity, and safety are
-  designed
-- prepare AWS CloudWatch and CloudTrail evidence mapping after K8s/Linux
-  correlation is visible
+- build a provider-neutral incident guidance summary for dashboards
+- map current workflow output into existing evidence/dashboard contracts
+- keep UI optional until the data shape is stable
+- prepare AWS CloudWatch and CloudTrail mapping after K8s/Linux guidance is
+  visible
 - keep AI RCA grounded in deterministic evidence and explicit gaps
 
 ## Later Roadmap

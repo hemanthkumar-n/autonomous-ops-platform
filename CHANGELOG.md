@@ -4,6 +4,29 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.22.0 - Kubernetes Investigation Guidance Integration
+
+Date: 2026-08-08
+
+### Added
+
+- `IncidentKnowledgeGuidance` workflow schema
+- `correlation_guidance` in Kubernetes workflow responses
+- automatic mapping from classified Kubernetes symptoms to curated
+  Kubernetes issue knowledge
+- automatic mapping from classified Kubernetes symptoms to Linux evidence
+  guidance
+- summary output guidance for `aop investigate k8s`
+- JSON and Markdown report guidance for `aop investigate k8s`
+- tests for workflow enrichment and report rendering
+
+### Boundary
+
+The enriched report recommends safe next evidence commands. It does not SSH to
+nodes or collect Linux host evidence automatically.
+
+---
+
 ## v0.21.0 - Kubernetes Issue Knowledge Catalog
 
 Date: 2026-08-08

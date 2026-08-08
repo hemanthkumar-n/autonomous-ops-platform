@@ -10,6 +10,7 @@ unfinished.
 
 | Release | Focus | Reference |
 |---|---|---|
+| `v0.22.0` | Kubernetes investigation guidance integration | [`v0.22-kubernetes-investigation-guidance.md`](v0.22-kubernetes-investigation-guidance.md) |
 | `v0.21.0` | Kubernetes issue knowledge catalog | [`v0.21-kubernetes-issue-knowledge.md`](v0.21-kubernetes-issue-knowledge.md) |
 | `v0.20.0` | Kubernetes to Linux correlation training | [`v0.20-kubernetes-linux-correlation-training.md`](v0.20-kubernetes-linux-correlation-training.md) |
 | `v0.19.0` | Linux investigation ladder and release memory | [`v0.19-linux-investigation-ladder.md`](v0.19-linux-investigation-ladder.md) |

@@ -10,7 +10,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-blue" alt="Python 3.11+" />
-  <img src="https://img.shields.io/badge/AOP-v0.21.0-success" alt="AOP v0.21.0" />
+  <img src="https://img.shields.io/badge/AOP-v0.22.0-success" alt="AOP v0.22.0" />
   <img src="https://img.shields.io/badge/Kubernetes-SRE%20Shortcuts-326CE5" alt="Kubernetes SRE Shortcuts" />
   <img src="https://img.shields.io/badge/Observability-Prometheus-red" alt="Prometheus" />
   <img src="https://img.shields.io/badge/LLM-Ollama-green" alt="Ollama" />
@@ -80,7 +80,7 @@ release exists.
 Current version:
 
 ```text
-AOP v0.21.0
+AOP v0.22.0
 ```
 
 The implemented and tested paths currently cover Kubernetes incident
@@ -89,13 +89,15 @@ intelligence, Linux memory/OOM investigation, Linux CPU/load investigation,
 Linux network/NIC investigation, NIC/interface-card evidence,
 systemd service investigation, a consolidated Linux investigation ladder,
 Kubernetes-to-Linux correlation training, command-reasoning workflows,
-curated Kubernetes issue knowledge, complex Linux scenario plans, and
-provider-neutral evidence/dashboard contracts.
+curated Kubernetes issue knowledge, Kubernetes investigation guidance,
+complex Linux scenario plans, and provider-neutral evidence/dashboard
+contracts.
 
 ### Release Memory
 
 | Release | What it proves | Human reference |
 |---|---|---|
+| `v0.22.0` | AOP can enrich real Kubernetes investigations with issue knowledge and Linux evidence guidance | [`docs/releases/v0.22-kubernetes-investigation-guidance.md`](docs/releases/v0.22-kubernetes-investigation-guidance.md) |
 | `v0.21.0` | AOP has curated Kubernetes issue knowledge with source-aware troubleshooting guidance | [`docs/releases/v0.21-kubernetes-issue-knowledge.md`](docs/releases/v0.21-kubernetes-issue-knowledge.md) |
 | `v0.20.0` | AOP can map Kubernetes symptoms to required Linux evidence without inventing host facts | [`docs/releases/v0.20-kubernetes-linux-correlation-training.md`](docs/releases/v0.20-kubernetes-linux-correlation-training.md) |
 | `v0.19.0` | AOP has a visible Linux investigation ladder for future teammates, demos, and AI handoffs | [`docs/releases/v0.19-linux-investigation-ladder.md`](docs/releases/v0.19-linux-investigation-ladder.md) |
@@ -137,6 +139,8 @@ provider-neutral evidence/dashboard contracts.
   that require Linux node evidence
 - `aop investigate k8s-knowledge` curated Kubernetes issue knowledge from
   trusted source memory
+- `aop investigate k8s` report enrichment with Kubernetes knowledge,
+  Linux evidence guidance, and do-not-assume rules
 - Linux command explanation through `aop linux explain`
 - read-only disk investigation planning through `aop linux plan disk`
 - read-only complex Linux scenario plans through `aop linux plan scenario`
@@ -153,7 +157,7 @@ provider-neutral evidence/dashboard contracts.
 - Markdown and JSON incident reports
 - typed Pydantic contracts
 - provider-neutral evidence, alert, metric, timeline, and dashboard contracts
-- one hundred thirty-two offline regression tests
+- one hundred thirty-five offline regression tests
 
 ### Not Yet Implemented
 
@@ -813,7 +817,7 @@ python -m unittest discover -s tests -v
 Current baseline:
 
 ```text
-132 tests passing
+135 tests passing
 ```
 
 The tests cover:
@@ -850,6 +854,7 @@ The tests cover:
   safe Linux follow-up command planning
 - Kubernetes issue knowledge catalog, source metadata, safe kubectl/AOP
   commands, do-not-assume rules, and JSON output
+- Kubernetes investigation guidance in summary, JSON, and Markdown reports
 - Linux complex scenario catalog listing, alias lookup, human output, and JSON
   output
 - Kubernetes health and JSON output

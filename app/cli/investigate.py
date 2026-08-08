@@ -21,6 +21,10 @@ def _markdown_report(workflow) -> str:
         workflow.remediation_results,
         strict=False,
     ):
+        guidance = _guidance_for_classification(
+            workflow,
+            classification,
+        )
         sections.extend(
             [
                 f"## {incident.namespace}/{incident.pod_name}",
@@ -40,8 +44,58 @@ def _markdown_report(workflow) -> str:
                 "",
             ]
         )
+        sections.extend(_markdown_guidance(guidance))
 
     return "\n".join(sections)
+
+
+def _guidance_for_classification(workflow, classification):
+    for guidance in getattr(workflow, "correlation_guidance", []):
+        if (
+            guidance.namespace == classification.namespace
+            and guidance.pod_name == classification.pod_name
+            and guidance.container == classification.container
+        ):
+            return guidance
+    return None
+
+
+def _markdown_guidance(guidance) -> list[str]:
+    if guidance is None:
+        return []
+
+    sections = [
+        "### Kubernetes Knowledge",
+        "",
+        f"- Symptom: `{guidance.symptom}`",
+    ]
+    if guidance.kubernetes_knowledge:
+        sections.append(f"- Meaning: {guidance.kubernetes_knowledge.summary}")
+        if guidance.kubernetes_knowledge.safe_kubectl_commands:
+            sections.extend(["", "Safe Kubernetes checks:", ""])
+            sections.extend(
+                f"- `{command}`"
+                for command in guidance.kubernetes_knowledge.safe_kubectl_commands
+            )
+
+    if guidance.linux_correlation:
+        sections.extend(["", "Linux evidence needed:", ""])
+        for command in guidance.linux_correlation.next_aop_commands:
+            sections.append(f"- `{command}`")
+
+        if guidance.linux_correlation.do_not_assume:
+            sections.extend(["", "Do not assume:", ""])
+            sections.extend(
+                f"- {item}"
+                for item in guidance.linux_correlation.do_not_assume
+            )
+
+    if guidance.evidence_gaps:
+        sections.extend(["", "Evidence gaps:", ""])
+        sections.extend(f"- {gap}" for gap in guidance.evidence_gaps)
+
+    sections.append("")
+    return sections
 
 
 def _print_summary(workflow, saved_path: str | None) -> None:
@@ -56,6 +110,30 @@ def _print_summary(workflow, saved_path: str | None) -> None:
             f"{classification.incident_type} "
             f"({classification.confidence}%)"
         )
+        guidance = _guidance_for_classification(
+            workflow,
+            classification,
+        )
+        if guidance:
+            click.echo(f"  K8s symptom: {guidance.symptom}")
+            if guidance.kubernetes_knowledge:
+                click.echo(
+                    "  Knowledge: "
+                    f"{guidance.kubernetes_knowledge.summary}"
+                )
+            if guidance.linux_correlation:
+                click.echo("  Linux evidence needed:")
+                for command in guidance.linux_correlation.next_aop_commands:
+                    click.echo(f"  - {command}")
+                if guidance.linux_correlation.do_not_assume:
+                    click.echo(
+                        "  Do not assume: "
+                        f"{guidance.linux_correlation.do_not_assume[0]}"
+                    )
+            if guidance.evidence_gaps:
+                click.echo("  Evidence gaps:")
+                for gap in guidance.evidence_gaps:
+                    click.echo(f"  - {gap}")
 
     if saved_path:
         click.echo()

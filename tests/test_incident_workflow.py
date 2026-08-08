@@ -86,6 +86,22 @@ class IncidentWorkflowTests(unittest.TestCase):
             workflow.classified_incidents[0].incident_type,
             "MemoryExhaustion",
         )
+        self.assertEqual(
+            workflow.correlation_guidance[0].symptom,
+            "OOMKilled",
+        )
+        self.assertIsNotNone(
+            workflow.correlation_guidance[0].kubernetes_knowledge,
+        )
+        self.assertIsNotNone(
+            workflow.correlation_guidance[0].linux_correlation,
+        )
+        self.assertIn(
+            "aop investigate linux memory --pid <container-pid>",
+            workflow.correlation_guidance[0]
+            .linux_correlation
+            .next_aop_commands,
+        )
         collect_context.assert_called_once_with(
             namespace="payments",
             pod_name=None,
