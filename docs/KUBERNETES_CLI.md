@@ -12,6 +12,15 @@ aop investigate k8s-linux --incident OOMKilled
 aop investigate k8s-linux --incident DiskPressure --format json
 ```
 
+Use `aop investigate k8s-knowledge` when you want curated Kubernetes issue
+knowledge, safe commands, do-not-assume rules, and source links:
+
+```bash
+aop investigate k8s-knowledge --list
+aop investigate k8s-knowledge --symptom CrashLoopBackOff
+aop investigate k8s-knowledge --symptom DiskPressure --format json
+```
+
 ## First Response
 
 ```bash

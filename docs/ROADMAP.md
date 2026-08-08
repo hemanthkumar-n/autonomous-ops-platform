@@ -9,18 +9,19 @@ so the project remains honest and easy to explain.
 ## Current Baseline
 
 ```text
-Current release: v0.20.0
+Current release: v0.21.0
 Status: implemented and pushed
 ```
 
-v0.20.0 adds Kubernetes-to-Linux correlation training:
+v0.21.0 adds curated Kubernetes issue knowledge:
 
 ```text
 Kubernetes symptom
   -> preserve Kubernetes evidence
-  -> identify required Linux evidence
-  -> recommend safe AOP Linux commands
-  -> state what must not be assumed
+  -> identify common causes
+  -> request Kubernetes and Linux evidence
+  -> recommend safe kubectl and AOP commands
+  -> cite source memory
 ```
 
 Implemented commands:
@@ -39,6 +40,8 @@ aop linux nic --iface ens5
 aop investigate linux cpu
 aop investigate linux network --iface ens5
 aop investigate linux service --service nginx
+aop investigate k8s-knowledge --symptom CrashLoopBackOff
+aop investigate k8s-knowledge --symptom DiskPressure --format json
 aop investigate k8s-linux --incident OOMKilled
 aop investigate k8s-linux --incident DiskPressure --format json
 ```
@@ -48,6 +51,9 @@ The human-readable Linux ladder is maintained in
 
 ## Completed Linux And Data Foundation
 
+v0.21 added curated Kubernetes issue knowledge for pod failures, scheduling
+failures, and node conditions, backed by source-controlled memory and official
+Kubernetes documentation links.
 v0.20 added explicit Kubernetes-to-Linux symptom correlation training for
 OOMKilled, CrashLoopBackOff, image pull failures, config/startup failures,
 scheduling failures, DiskPressure, MemoryPressure, and NodeNotReady.
@@ -80,18 +86,20 @@ panic clues, `df`/`du` mismatch, inode exhaustion, deleted-open files,
 read-only remounts, LVM expansion mismatch, container runtime disk pressure,
 and Kubernetes symptoms that require Linux node correlation.
 
-## Next: v0.21
+## Next: v0.22
 
 Purpose:
 
 ```text
-Attach live Kubernetes classifications to the correlation catalog so normal
-Kubernetes investigations show Linux evidence gaps and safe next AOP commands.
+Attach live Kubernetes classifications to the issue knowledge and correlation
+catalogs so normal Kubernetes investigations show evidence gaps and safe next
+AOP commands.
 ```
 
 Target outcomes:
 
-- enrich `aop investigate k8s` summary with Linux correlation guidance
+- enrich `aop investigate k8s` summary with Kubernetes knowledge and Linux
+  correlation guidance
 - include missing Linux evidence in JSON and Markdown reports
 - keep live node execution out of scope until access, identity, and safety are
   designed

@@ -54,12 +54,12 @@ Remediation is advisory and non-destructive.
 
 ## Current Baseline
 
-- Version: `0.20.0`
+- Version: `0.21.0`
 - Branch: `main`
 - Remote baseline: `origin/main`
 - Python: `3.11+`
 - CLI entry point: `aop`
-- Tests: one hundred twenty-four offline regression tests passing
+- Tests: one hundred thirty-two offline regression tests passing
 - Real Ollama generation and 768-dimensional embeddings verified
 - Full live demo still requires Kubernetes and Prometheus to be running
 
@@ -196,6 +196,38 @@ app/agents/sre/k8s_linux_correlation_agent.py
 app/memory/knowledgebase/kubernetes_linux_correlation_catalog.md
 ```
 
+Curated Kubernetes issue knowledge:
+
+```text
+aop investigate k8s-knowledge --list
+aop investigate k8s-knowledge --symptom CrashLoopBackOff
+aop investigate k8s-knowledge --symptom DiskPressure --format json
+```
+
+Implemented issue memory:
+
+```text
+CrashLoopBackOff
+ImagePullBackOff
+ErrImagePull
+OOMKilled
+CreateContainerConfigError
+CreateContainerError
+FailedScheduling
+DiskPressure
+MemoryPressure
+PIDPressure
+NodeNotReady
+NetworkUnavailable
+```
+
+The executable catalog is:
+
+```text
+app/agents/sre/kubernetes_issue_training_agent.py
+app/memory/knowledgebase/kubernetes_issue_catalog.md
+```
+
 Linux command reasoning:
 
 ```text
@@ -311,6 +343,7 @@ app/prompts/shared/cross_domain.py
 app/memory/knowledgebase/linkedin_kubernetes_linux_criteria.md
 app/memory/knowledgebase/linux_complex_troubleshooting_scenarios.md
 app/memory/knowledgebase/kubernetes_linux_correlation_catalog.md
+app/memory/knowledgebase/kubernetes_issue_catalog.md
 app/llm/client.py
 app/llm/providers/ollama_provider.py
 docs/architecture/observability-dashboard-strategy.md
@@ -345,6 +378,8 @@ aop investigate linux memory --pid 4242
 aop investigate linux cpu
 aop investigate linux network --iface ens5
 aop investigate linux service --service nginx
+aop investigate k8s-knowledge --symptom CrashLoopBackOff
+aop investigate k8s-knowledge --symptom DiskPressure --format json
 aop investigate k8s-linux --incident OOMKilled
 aop investigate k8s-linux --incident DiskPressure --format json
 aop investigate k8s --namespace ai-lab
@@ -362,6 +397,7 @@ docs/ROADMAP.md
 docs/releases/
 docs/architecture/observability-dashboard-strategy.md
 app/memory/knowledgebase/kubernetes_linux_correlation_catalog.md
+app/memory/knowledgebase/kubernetes_issue_catalog.md
 ```
 
 Linux references:
@@ -430,8 +466,9 @@ ENABLE_DESTRUCTIVE_REMEDIATION=false
 ## Known Gaps
 
 - Kubernetes and Prometheus live integration is not currently validated.
-- Kubernetes-to-Linux correlation is a planning/training layer; it does not
-  automatically collect Linux node evidence yet.
+- Kubernetes issue knowledge and Kubernetes-to-Linux correlation are
+  planning/training layers; they do not automatically modify live reports or
+  collect Linux node evidence yet.
 - Kimi/Moonshot provider runtime support is not implemented.
 - FastAPI and most non-Kubernetes domain modules are placeholders.
 - Test coverage is focused, not comprehensive.
@@ -441,15 +478,14 @@ ENABLE_DESTRUCTIVE_REMEDIATION=false
 
 ## Next Priorities
 
-1. Attach Kubernetes-to-Linux correlation guidance to the main
-   `aop investigate k8s` report.
+1. Attach Kubernetes issue knowledge and Kubernetes-to-Linux correlation
+   guidance to the main `aop investigate k8s` report.
 2. Run and record a complete live Kubernetes/Prometheus showcase.
-2. Add CI for tests, formatting, linting, and type checks.
-3. Validate Linux disk diagnosis against real ext4, XFS, LVM, container, and
+3. Add CI for tests, formatting, linting, and type checks.
+4. Validate Linux disk diagnosis against real ext4, XFS, LVM, container, and
    cloud-volume examples.
-4. Extend the next Linux scenario plan into deterministic investigation,
+5. Extend the next Linux scenario plan into deterministic investigation,
    starting with CPU/load and `D` state.
-5. Add provider-neutral evidence and dashboard contracts.
 6. Add recurrence and incident-pattern intelligence.
 7. Introduce structured AI output contracts.
 8. Add approval-gated execution only after governance exists.

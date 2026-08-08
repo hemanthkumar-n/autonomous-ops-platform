@@ -685,6 +685,84 @@ def investigate_k8s_linux(
     click.echo(f"Memory note: {plan.memory_note}")
 
 
+@investigate.command("k8s-knowledge")
+@click.option(
+    "--symptom",
+    help="Kubernetes symptom such as CrashLoopBackOff, OOMKilled, or NodeNotReady.",
+)
+@click.option(
+    "--list",
+    "list_symptoms",
+    is_flag=True,
+    help="List supported Kubernetes symptoms.",
+)
+@click.option(
+    "--format",
+    "output_format",
+    type=click.Choice(["summary", "json"], case_sensitive=False),
+    default="summary",
+    show_default=True,
+)
+def investigate_k8s_knowledge(
+    symptom: str | None,
+    list_symptoms: bool,
+    output_format: str,
+) -> None:
+    """
+    Read curated Kubernetes troubleshooting knowledge.
+    """
+
+    from app.agents.sre.kubernetes_issue_training_agent import (
+        get_kubernetes_issue_knowledge,
+        list_kubernetes_issue_symptoms,
+    )
+
+    if list_symptoms:
+        for item in list_kubernetes_issue_symptoms():
+            click.echo(item)
+        return
+
+    if not symptom:
+        raise click.UsageError(
+            "Provide --symptom or use --list to see supported symptoms."
+        )
+
+    try:
+        knowledge = get_kubernetes_issue_knowledge(symptom)
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if output_format == "json":
+        click.echo(knowledge.model_dump_json(indent=2))
+        return
+
+    click.echo(f"Kubernetes issue knowledge: {knowledge.symptom}")
+    click.echo(knowledge.summary)
+
+    sections = [
+        ("Common causes", knowledge.common_causes),
+        ("Kubernetes evidence", knowledge.kubernetes_evidence),
+        ("Linux evidence", knowledge.linux_evidence),
+        ("Safe kubectl commands", knowledge.safe_kubectl_commands),
+        ("Safe AOP commands", knowledge.safe_aop_commands),
+        ("Do not assume", knowledge.do_not_assume),
+        ("Escalation signals", knowledge.escalation_signals),
+    ]
+    for title, values in sections:
+        if not values:
+            continue
+        click.echo()
+        click.echo(title)
+        for value in values:
+            click.echo(f"- {value}")
+
+    if knowledge.sources:
+        click.echo()
+        click.echo("Sources")
+        for source in knowledge.sources:
+            click.echo(f"- {source.title}: {source.url}")
+
+
 @investigate.command("k8s")
 @click.option(
     "--namespace",

@@ -10,7 +10,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-blue" alt="Python 3.11+" />
-  <img src="https://img.shields.io/badge/AOP-v0.20.0-success" alt="AOP v0.20.0" />
+  <img src="https://img.shields.io/badge/AOP-v0.21.0-success" alt="AOP v0.21.0" />
   <img src="https://img.shields.io/badge/Kubernetes-SRE%20Shortcuts-326CE5" alt="Kubernetes SRE Shortcuts" />
   <img src="https://img.shields.io/badge/Observability-Prometheus-red" alt="Prometheus" />
   <img src="https://img.shields.io/badge/LLM-Ollama-green" alt="Ollama" />
@@ -80,7 +80,7 @@ release exists.
 Current version:
 
 ```text
-AOP v0.20.0
+AOP v0.21.0
 ```
 
 The implemented and tested paths currently cover Kubernetes incident
@@ -89,13 +89,14 @@ intelligence, Linux memory/OOM investigation, Linux CPU/load investigation,
 Linux network/NIC investigation, NIC/interface-card evidence,
 systemd service investigation, a consolidated Linux investigation ladder,
 Kubernetes-to-Linux correlation training, command-reasoning workflows,
-complex Linux scenario plans, and
+curated Kubernetes issue knowledge, complex Linux scenario plans, and
 provider-neutral evidence/dashboard contracts.
 
 ### Release Memory
 
 | Release | What it proves | Human reference |
 |---|---|---|
+| `v0.21.0` | AOP has curated Kubernetes issue knowledge with source-aware troubleshooting guidance | [`docs/releases/v0.21-kubernetes-issue-knowledge.md`](docs/releases/v0.21-kubernetes-issue-knowledge.md) |
 | `v0.20.0` | AOP can map Kubernetes symptoms to required Linux evidence without inventing host facts | [`docs/releases/v0.20-kubernetes-linux-correlation-training.md`](docs/releases/v0.20-kubernetes-linux-correlation-training.md) |
 | `v0.19.0` | AOP has a visible Linux investigation ladder for future teammates, demos, and AI handoffs | [`docs/releases/v0.19-linux-investigation-ladder.md`](docs/releases/v0.19-linux-investigation-ladder.md) |
 | `v0.18.0` | AOP can diagnose systemd service failure and restart-loop evidence safely | [`docs/releases/v0.18-linux-systemd-service-investigation.md`](docs/releases/v0.18-linux-systemd-service-investigation.md) |
@@ -134,6 +135,8 @@ provider-neutral evidence/dashboard contracts.
   state, start-limit-hit, exit status, restart loops, and journal errors
 - `aop investigate k8s-linux` correlation training for Kubernetes symptoms
   that require Linux node evidence
+- `aop investigate k8s-knowledge` curated Kubernetes issue knowledge from
+  trusted source memory
 - Linux command explanation through `aop linux explain`
 - read-only disk investigation planning through `aop linux plan disk`
 - read-only complex Linux scenario plans through `aop linux plan scenario`
@@ -150,7 +153,7 @@ provider-neutral evidence/dashboard contracts.
 - Markdown and JSON incident reports
 - typed Pydantic contracts
 - provider-neutral evidence, alert, metric, timeline, and dashboard contracts
-- one hundred twenty-four offline regression tests
+- one hundred thirty-two offline regression tests
 
 ### Not Yet Implemented
 
@@ -198,6 +201,7 @@ aop health
 aop kb health
 aop kb po
 aop kb ev
+aop investigate k8s-knowledge --symptom CrashLoopBackOff
 aop investigate k8s-linux --incident OOMKilled
 
 # Run the complete evidence, classification, memory, and AI workflow
@@ -240,6 +244,9 @@ aop investigate linux service --service nginx
 aop investigate k8s-linux --list
 aop investigate k8s-linux --incident OOMKilled
 aop investigate k8s-linux --incident DiskPressure --format json
+aop investigate k8s-knowledge --list
+aop investigate k8s-knowledge --symptom CrashLoopBackOff
+aop investigate k8s-knowledge --symptom DiskPressure --format json
 aop linux logs
 aop linux kernel
 aop linux boot
@@ -806,7 +813,7 @@ python -m unittest discover -s tests -v
 Current baseline:
 
 ```text
-124 tests passing
+132 tests passing
 ```
 
 The tests cover:
@@ -841,6 +848,8 @@ The tests cover:
   structured memory persistence
 - Kubernetes-to-Linux correlation catalog, issue aliases, JSON output, and
   safe Linux follow-up command planning
+- Kubernetes issue knowledge catalog, source metadata, safe kubectl/AOP
+  commands, do-not-assume rules, and JSON output
 - Linux complex scenario catalog listing, alias lookup, human output, and JSON
   output
 - Kubernetes health and JSON output
@@ -874,6 +883,7 @@ Live Kubernetes and Prometheus validation remains a separate environment test.
 | [`linux_troubleshooting_command_catalog.md`](app/memory/knowledgebase/linux_troubleshooting_command_catalog.md) | Canonical Linux commands, arguments, interpretation, and safety memory |
 | [`linux_complex_troubleshooting_scenarios.md`](app/memory/knowledgebase/linux_complex_troubleshooting_scenarios.md) | Complex Linux scenario memory for v0.14 planning |
 | [`kubernetes_linux_correlation_catalog.md`](app/memory/knowledgebase/kubernetes_linux_correlation_catalog.md) | Kubernetes symptom to Linux evidence training memory |
+| [`kubernetes_issue_catalog.md`](app/memory/knowledgebase/kubernetes_issue_catalog.md) | Curated Kubernetes issue knowledge and source policy |
 | [`docs/setup/installation.md`](docs/setup/installation.md) | Detailed local installation |
 | [`docs/architecture/adr/`](docs/architecture/adr/) | Architecture decision records |
 | [`CHANGELOG.md`](CHANGELOG.md) | Version history |

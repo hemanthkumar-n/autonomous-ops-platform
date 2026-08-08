@@ -4,6 +4,34 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.21.0 - Kubernetes Issue Knowledge Catalog
+
+Date: 2026-08-08
+
+### Added
+
+- `aop investigate k8s-knowledge`
+- `aop investigate k8s-knowledge --list`
+- curated Kubernetes issue knowledge schemas
+- source-aware issue memory for `CrashLoopBackOff`, `ImagePullBackOff`,
+  `ErrImagePull`, `OOMKilled`, `CreateContainerConfigError`,
+  `CreateContainerError`, `FailedScheduling`, `DiskPressure`,
+  `MemoryPressure`, `PIDPressure`, `NodeNotReady`, and
+  `NetworkUnavailable`
+- safe kubectl commands, safe AOP commands, Linux evidence needs,
+  do-not-assume rules, escalation signals, and official source metadata
+- knowledgebase memory at
+  `app/memory/knowledgebase/kubernetes_issue_catalog.md`
+- tests for Kubernetes issue knowledge lookup and CLI output
+
+### Boundary
+
+This release creates a curated knowledge baseline from trusted Kubernetes
+documentation. It does not blindly scrape public issue trackers or inject the
+knowledge into live `aop investigate k8s` reports yet.
+
+---
+
 ## v0.20.0 - Kubernetes To Linux Correlation Training
 
 Date: 2026-08-08

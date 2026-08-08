@@ -30,10 +30,10 @@ Do not treat empty modules or directory names as implemented capabilities.
 ## Verified Baseline
 
 ```text
-Release: 0.20.0
+Release: 0.21.0
 Branch: main
 Remote: origin/main
-Offline tests: 124 passing
+Offline tests: 132 passing
 CLI entry point: aop
 Python: 3.11+
 ```
@@ -51,7 +51,7 @@ git status --short --branch
 Expected version:
 
 ```text
-aop, version 0.20.0
+aop, version 0.21.0
 ```
 
 ## What AOP Is
@@ -136,6 +136,8 @@ aop kb inv -n ai-lab
 - complex Linux scenario catalog exposed through v0.14 planning commands
 - Kubernetes-to-Linux correlation training through
   `aop investigate k8s-linux`
+- curated Kubernetes issue knowledge through
+  `aop investigate k8s-knowledge`
 
 Useful commands:
 
@@ -150,6 +152,8 @@ aop linux nic
 aop linux nic --iface ens5
 aop investigate linux network --iface ens5
 aop investigate linux service --service nginx
+aop investigate k8s-knowledge --symptom CrashLoopBackOff
+aop investigate k8s-knowledge --symptom DiskPressure --format json
 aop investigate k8s-linux --incident OOMKilled
 aop investigate k8s-linux --incident DiskPressure --format json
 aop linux disk --path /var
@@ -171,6 +175,8 @@ The original authored `tshelper` materials remain preserved under
 - general Linux cross-signal AI RCA across all Linux domains
 - automatic Kubernetes-to-Linux live node evidence collection
 - automatic injection of Linux correlation guidance into the main
+  `aop investigate k8s` report
+- automatic injection of curated Kubernetes issue knowledge into the main
   `aop investigate k8s` report
 - AWS and CloudWatch collectors
 - Kimi/Moonshot provider runtime support
