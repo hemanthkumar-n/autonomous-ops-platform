@@ -15,6 +15,8 @@ aop linux plan scenario --list
 aop linux plan scenario high-load
 aop linux cpu
 aop linux memory
+aop investigate linux memory
+aop investigate linux memory --pid 4242
 aop linux disk --path /var
 aop linux space --path /var
 aop linux fs --path /var
@@ -258,6 +260,35 @@ aop investigate linux disk --path /var --no-persist
 The result includes a primary diagnosis, severity, confidence, supporting
 evidence, alternative findings, recommended next checks, why those checks
 matter, and evidence gaps.
+
+## Memory And OOM Investigation
+
+Raw memory collection and incident diagnosis are separate commands:
+
+```bash
+aop linux memory
+aop investigate linux memory
+aop investigate linux memory --pid 4242
+aop investigate linux memory --pid 4242 --format json
+```
+
+`aop linux memory` shows raw memory evidence. The investigation command parses
+that evidence and classifies:
+
+- recent kernel OOM kills
+- cgroup memory OOM events for the selected PID
+- active swap pressure from `vmstat`
+- low `MemAvailable`
+- cgroup `memory.high` pressure
+- insufficient evidence
+
+When `--pid` is provided, AOP includes cgroup memory evidence for that process.
+This is important for Kubernetes and containerized workloads because a process
+can hit a cgroup memory limit while the host still has available memory.
+
+The memory investigation remains read-only. It does not kill processes, clear
+cache, restart services, change cgroup limits, tune sysctl values, or modify
+swap.
 By default it persists a Linux-native JSON memory record and attempts semantic
 indexing. Structured memory remains available if embeddings or the vector
 store are unavailable.

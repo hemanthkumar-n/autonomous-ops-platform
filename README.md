@@ -10,7 +10,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-blue" alt="Python 3.11+" />
-  <img src="https://img.shields.io/badge/AOP-v0.14.0-success" alt="AOP v0.14.0" />
+  <img src="https://img.shields.io/badge/AOP-v0.14.1-success" alt="AOP v0.14.1" />
   <img src="https://img.shields.io/badge/Kubernetes-SRE%20Shortcuts-326CE5" alt="Kubernetes SRE Shortcuts" />
   <img src="https://img.shields.io/badge/Observability-Prometheus-red" alt="Prometheus" />
   <img src="https://img.shields.io/badge/LLM-Ollama-green" alt="Ollama" />
@@ -80,17 +80,19 @@ release exists.
 Current version:
 
 ```text
-AOP v0.14.0
+AOP v0.14.1
 ```
 
 The implemented and tested paths currently cover Kubernetes incident
 intelligence, deterministic Linux troubleshooting, Linux disk incident
-intelligence, command-reasoning workflows, and complex Linux scenario plans.
+intelligence, Linux memory/OOM investigation, command-reasoning workflows,
+and complex Linux scenario plans.
 
 ### Release Memory
 
 | Release | What it proves | Human reference |
 |---|---|---|
+| `v0.14.1` | AOP can diagnose Linux memory pressure and OOM evidence deterministically | [`docs/releases/v0.14.1-linux-memory-oom-investigation.md`](docs/releases/v0.14.1-linux-memory-oom-investigation.md) |
 | `v0.14.0` | AOP can expose complex senior Linux troubleshooting scenarios as read-only plans | [`docs/releases/v0.14-linux-complex-scenario-plans.md`](docs/releases/v0.14-linux-complex-scenario-plans.md) |
 | `v0.13.0` | AOP can explain Linux command intent and plan disk investigations before execution | [`docs/releases/v0.13-linux-explain-and-plan.md`](docs/releases/v0.13-linux-explain-and-plan.md) |
 | `v0.12.0` | AOP can classify Linux disk incidents deterministically and preserve memory | [`docs/releases/v0.12-linux-disk-incident-intelligence.md`](docs/releases/v0.12-linux-disk-incident-intelligence.md) |
@@ -110,6 +112,8 @@ intelligence, command-reasoning workflows, and complex Linux scenario plans.
 - `aop investigate linux disk` deterministic diagnosis with severity,
   confidence, evidence gaps, next checks, command reasoning, and
   operational-memory persistence
+- `aop investigate linux memory` deterministic diagnosis for OOM, swap,
+  `MemAvailable`, and cgroup memory events
 - Linux command explanation through `aop linux explain`
 - read-only disk investigation planning through `aop linux plan disk`
 - read-only complex Linux scenario plans through `aop linux plan scenario`
@@ -125,11 +129,12 @@ intelligence, command-reasoning workflows, and complex Linux scenario plans.
 - graceful exact-memory fallback
 - Markdown and JSON incident reports
 - typed Pydantic contracts
-- sixty-seven offline regression tests
+- seventy-eight offline regression tests
 
 ### Not Yet Implemented
 
-- general Linux cross-signal classification and AI RCA beyond the disk domain
+- general Linux cross-signal classification and AI RCA beyond deterministic
+  disk and memory domains
 - AWS and CloudWatch troubleshooting
 - operator web UI
 - Slack or Microsoft Teams approval workflows
@@ -198,6 +203,8 @@ aop linux plan scenario oom --json
 aop linux cpu
 aop linux memory
 aop linux disk --path /var
+aop investigate linux memory
+aop investigate linux memory --pid 4242
 aop linux space --path /var
 aop linux fs --path /var
 aop linux network
@@ -279,6 +286,19 @@ aop linux disk \
   --recent-minutes 30 \
   --large-size-mb 500
 ```
+
+Memory and OOM investigation follows the same evidence-first pattern:
+
+```bash
+aop investigate linux memory
+aop investigate linux memory --pid 4242
+aop investigate linux memory --pid 4242 --format json
+```
+
+The memory investigator classifies kernel OOM kills, cgroup OOM events, active
+swap pressure, low `MemAvailable`, cgroup `memory.high` pressure, and
+insufficient evidence. It remains read-only and does not kill processes, clear
+cache, restart services, or change memory limits.
 
 The `space` and `fs` aliases run the same workflow. AOP checks filesystem
 capacity/type, inodes, mount context, bounded directory usage, recent large
@@ -750,7 +770,7 @@ python -m unittest discover -s tests -v
 Current baseline:
 
 ```text
-67 tests passing
+78 tests passing
 ```
 
 The tests cover:
@@ -767,6 +787,9 @@ The tests cover:
   and aliases
 - Linux disk incident classification, precedence, workflow orchestration,
   CLI output, and structured-memory fallback
+- Linux memory incident classification, OOM and swap interpretation, cgroup
+  memory-event handling, CLI output, workflow orchestration, and structured
+  memory persistence
 - Linux complex scenario catalog listing, alias lookup, human output, and JSON
   output
 - Kubernetes health and JSON output

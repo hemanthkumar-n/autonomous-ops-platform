@@ -56,6 +56,41 @@ class LinuxDiskInvestigation(BaseModel):
     raw_evidence: dict = Field(default_factory=dict)
 
 
+class LinuxMemoryFinding(BaseModel):
+    code: str
+    severity: str
+    confidence: int = Field(ge=0, le=100)
+    summary: str
+    evidence: list[str] = Field(default_factory=list)
+    next: str
+    next_explanation: str = ""
+
+
+class LinuxMemoryInvestigation(BaseModel):
+    status: str
+    hostname: str
+    platform: str
+    pid: int | None = None
+    primary_diagnosis: str
+    severity: str
+    confidence: int = Field(ge=0, le=100)
+    summary: str
+    mem_total_kb: int | None = None
+    mem_available_kb: int | None = None
+    mem_available_percent: float | None = None
+    swap_total_kb: int | None = None
+    swap_free_kb: int | None = None
+    swap_used_percent: float | None = None
+    swap_in_per_second: int | None = None
+    swap_out_per_second: int | None = None
+    cgroup_memory: dict[str, str | int] = Field(default_factory=dict)
+    oom_events: list[str] = Field(default_factory=list)
+    top_memory_processes: list[str] = Field(default_factory=list)
+    findings: list[LinuxMemoryFinding] = Field(default_factory=list)
+    evidence_gaps: list[str] = Field(default_factory=list)
+    raw_evidence: dict = Field(default_factory=dict)
+
+
 class LinuxInternalsEvidence(BaseModel):
     status: str
     hostname: str

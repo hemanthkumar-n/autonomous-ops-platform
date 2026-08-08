@@ -28,10 +28,10 @@ Do not treat empty modules or directory names as implemented capabilities.
 ## Verified Baseline
 
 ```text
-Release: 0.14.0
+Release: 0.14.1
 Branch: main
 Remote: origin/main
-Offline tests: 67 passing
+Offline tests: 78 passing
 CLI entry point: aop
 Python: 3.11+
 ```
@@ -49,7 +49,7 @@ git status --short --branch
 Expected version:
 
 ```text
-aop, version 0.14.0
+aop, version 0.14.1
 ```
 
 ## What AOP Is
@@ -113,6 +113,9 @@ aop kb inv -n ai-lab
 - disk severity, confidence, supporting evidence, evidence gaps, and safe next
   checks
 - Linux-native disk incident memory with semantic-indexing fallback
+- deterministic `aop investigate linux memory` classification for OOM, swap,
+  `MemAvailable`, and cgroup memory events
+- Linux-native memory incident persistence with semantic-indexing fallback
 - complex Linux scenario catalog exposed through v0.14 planning commands
 
 Useful commands:
@@ -124,6 +127,8 @@ aop linux plan disk --path /var
 aop linux plan scenario --list
 aop linux plan scenario high-load
 aop linux disk --path /var
+aop investigate linux memory
+aop investigate linux memory --pid 4242
 aop linux space --path /var
 aop linux fs --path /var
 aop linux internals --interval 5
@@ -137,7 +142,8 @@ The original authored `tshelper` materials remain preserved under
 
 ## What Is Not Implemented
 
-- general Linux cross-signal diagnosis and AI RCA beyond the disk domain
+- general Linux cross-signal AI RCA beyond the deterministic disk and memory
+  domains
 - automatic Kubernetes-to-Linux live node evidence collection
 - AWS and CloudWatch collectors
 - Kimi/Moonshot provider runtime support
@@ -195,8 +201,8 @@ support until the provider, settings, health checks, tests, and docs exist.
 4. Extend v0.14 Linux complex scenario plans into deterministic investigation
    workflows.
 5. Add provider-neutral evidence and dashboard data contracts.
-6. Add the next deterministic Linux reasoning workflow, starting with memory
-   pressure and OOM.
+6. Add the next deterministic Linux reasoning workflow, starting with
+   CPU/load and `D` state.
 7. Add recurrence search across Linux incident memory.
 8. Correlate Kubernetes node symptoms with collected Linux evidence.
 9. Add the operator UI after Linux and Kubernetes share one stable incident

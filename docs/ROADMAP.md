@@ -9,18 +9,19 @@ so the project remains honest and easy to explain.
 ## Current Baseline
 
 ```text
-Current release: v0.14.0
+Current release: v0.14.1
 Status: implemented and pushed
 ```
 
-v0.14 exposes complex Linux troubleshooting scenarios through the CLI while
-keeping the workflow read-only:
+v0.14.1 adds deterministic Linux memory and OOM investigation while keeping
+the workflow read-only:
 
 ```text
-list scenario
-  -> select senior Linux incident pattern
-  -> review symptoms, likely causes, first safe checks, traps, and correlations
-  -> use JSON output for future UI, agents, and dashboard context
+collect memory evidence
+  -> parse MemAvailable, swap activity, OOM logs, and optional cgroup memory
+  -> classify deterministic findings
+  -> explain the next safe check
+  -> persist structured Linux memory incident records
 ```
 
 Implemented commands:
@@ -32,8 +33,11 @@ aop linux plan scenario --list
 aop linux plan scenario high-load
 aop linux disk --path /var
 aop investigate linux disk --path /var
+aop investigate linux memory
+aop investigate linux memory --pid 4242
 ```
 
+v0.14.0 exposed complex Linux troubleshooting scenarios through the CLI.
 v0.13 completed the Linux disk reasoning loop:
 
 ```text
@@ -79,7 +83,8 @@ Still pending inside the larger Linux expansion:
 
 - DNS and route failure scenario plans
 - NFS stale mount scenario plans
-- deterministic investigation workflows beyond the disk domain
+- deterministic investigation workflows for CPU/load, network/DNS, services,
+  boot, and kernel failures
 - Linux AI RCA grounded only in collected Linux evidence
 
 ## Then: v0.15

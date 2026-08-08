@@ -4,6 +4,29 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.14.1 - Linux Memory and OOM Investigation
+
+Date: 2026-08-08
+
+### Added
+
+- `aop investigate linux memory`
+- optional `--pid` cgroup memory evidence for process-scoped investigation
+- deterministic Linux memory diagnosis for kernel OOM kills, cgroup OOM
+  events, active swap pressure, low `MemAvailable`, cgroup `memory.high`
+  pressure, and insufficient evidence
+- structured Linux memory incident persistence with semantic-memory fallback
+- human-readable and JSON CLI output with `Next:` and `Why:` guidance
+- regression tests for memory collection, agent classification, workflow
+  persistence, and CLI output
+
+### Safety
+
+Memory investigation is read-only. It does not kill processes, clear cache,
+restart services, change cgroup limits, tune sysctl values, or modify swap.
+
+---
+
 ## v0.14.0 - Linux Complex Scenario Plans
 
 Date: 2026-08-08

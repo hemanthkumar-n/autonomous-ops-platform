@@ -8,6 +8,7 @@ from app.tools.linux.operations import (
     CommandResult,
     CommandSpec,
     collect_disk,
+    collect_memory,
     collect_domain,
     domain_specs,
     run_command,
@@ -210,6 +211,69 @@ class LinuxOperationsTests(unittest.TestCase):
 
         self.assertEqual(payload["status"], "unsupported")
         self.assertEqual(payload["results"], [])
+
+    @patch(
+        "app.tools.linux.operations.platform.system",
+        return_value="Linux",
+    )
+    @patch("app.tools.linux.operations.run_command")
+    def test_memory_collection_includes_oom_and_optional_cgroup(
+        self,
+        run_command_mock,
+        _platform_system,
+    ) -> None:
+        run_command_mock.side_effect = lambda spec: CommandResult(
+            key=spec.key,
+            label=spec.label,
+            command=" ".join(spec.argv),
+            status="ok",
+            output="\n".join(["HEADER", "one", "two", "three"]),
+            requires_root=spec.requires_root,
+        )
+
+        with patch(
+            "app.tools.linux.internals.collect_cgroups",
+        ) as collect_cgroups:
+            collect_cgroups.return_value.model_dump.return_value = {
+                "status": "collected",
+                "memory": {"event_oom": 1},
+            }
+
+            payload = collect_memory(
+                pid=4242,
+                top=2,
+                recent_minutes=30,
+            )
+
+        keys = [item["key"] for item in payload["results"]]
+        self.assertEqual(
+            keys,
+            [
+                "free",
+                "vmstat",
+                "memory_processes",
+                "meminfo",
+                "kernel_oom",
+            ],
+        )
+        self.assertEqual(payload["pid"], 4242)
+        self.assertEqual(
+            payload["results"][2]["output"].splitlines(),
+            ["HEADER", "one", "two"],
+        )
+        self.assertEqual(payload["cgroup"]["memory"]["event_oom"], 1)
+
+        specs = [
+            call.args[0]
+            for call in run_command_mock.call_args_list
+        ]
+        journal_spec = next(
+            spec
+            for spec in specs
+            if spec.key == "kernel_oom"
+        )
+        self.assertIn("--grep", journal_spec.argv)
+        self.assertIn("30 minutes ago", journal_spec.argv)
 
 
 if __name__ == "__main__":

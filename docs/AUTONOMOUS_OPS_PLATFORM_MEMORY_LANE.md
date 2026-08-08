@@ -53,12 +53,12 @@ Remediation is advisory and non-destructive.
 
 ## Current Baseline
 
-- Version: `0.14.0`
+- Version: `0.14.1`
 - Branch: `main`
 - Remote baseline: `origin/main`
 - Python: `3.11+`
 - CLI entry point: `aop`
-- Tests: sixty-seven offline regression tests passing
+- Tests: seventy-eight offline regression tests passing
 - Real Ollama generation and 768-dimensional embeddings verified
 - Full live demo still requires Kubernetes and Prometheus to be running
 
@@ -97,6 +97,17 @@ Linux disk intelligence:
 ordered disk evidence
   -> deterministic parsing and classification
   -> primary diagnosis, severity, confidence, and evidence gaps
+  -> safe next diagnostic action
+  -> Linux-native JSON memory
+  -> optional semantic indexing with structured fallback
+```
+
+Linux memory intelligence:
+
+```text
+ordered memory evidence
+  -> deterministic parsing and classification
+  -> OOM, active swap, low MemAvailable, cgroup OOM, and memory.high findings
   -> safe next diagnostic action
   -> Linux-native JSON memory
   -> optional semantic indexing with structured fallback
@@ -319,8 +330,8 @@ ENABLE_DESTRUCTIVE_REMEDIATION=false
 2. Add CI for tests, formatting, linting, and type checks.
 3. Validate Linux disk diagnosis against real ext4, XFS, LVM, container, and
    cloud-volume examples.
-4. Extend v0.14 Linux complex scenario plans into deterministic investigation
-   workflows.
+4. Extend the next Linux scenario plan into deterministic investigation,
+   starting with CPU/load and `D` state.
 5. Add provider-neutral evidence and dashboard contracts.
 6. Add recurrence and incident-pattern intelligence.
 7. Introduce structured AI output contracts.

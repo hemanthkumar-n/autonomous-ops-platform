@@ -554,6 +554,77 @@ def collect_disk(
     }
 
 
+def collect_memory(
+    pid: int | None = None,
+    top: int = 10,
+    recent_minutes: int = 60,
+) -> dict:
+    """
+    Collect ordered memory, swap, OOM, and optional cgroup evidence.
+    """
+
+    if platform.system() != "Linux":
+        return {
+            "domain": "memory",
+            "status": "unsupported",
+            "host": socket.gethostname(),
+            "platform": platform.platform(),
+            "message": "Linux diagnostics require a Linux host",
+            "pid": pid,
+            "results": [],
+        }
+
+    specs = [
+        _spec("free", "Memory and swap overview", "free", "-k"),
+        _spec("vmstat", "Memory and swap activity", "vmstat", "1", "3"),
+        _spec(
+            "memory_processes",
+            f"Top memory-consuming processes (review top {top})",
+            "ps",
+            "-eo",
+            "pid,ppid,state,etimes,rss,vsz,%mem,comm,args",
+            "--sort=-%mem",
+        ),
+        _spec("meminfo", "Kernel memory counters", "cat", "/proc/meminfo"),
+        _spec(
+            "kernel_oom",
+            f"Recent kernel OOM evidence ({recent_minutes}m)",
+            "journalctl",
+            "-k",
+            "--since",
+            f"{recent_minutes} minutes ago",
+            "--grep",
+            "Out of memory|Killed process|oom-kill|Memory cgroup out of memory",
+            "--no-pager",
+        ),
+    ]
+    results = [run_command(spec) for spec in specs]
+
+    for result in results:
+        if result.key == "memory_processes" and result.status == "ok":
+            lines = result.output.splitlines()
+            result.output = "\n".join(lines[: top + 1])
+
+    payload = {
+        "domain": "memory",
+        "status": "collected",
+        "host": socket.gethostname(),
+        "platform": platform.platform(),
+        "message": "",
+        "pid": pid,
+        "top": top,
+        "recent_minutes": recent_minutes,
+        "results": [result.to_dict() for result in results],
+    }
+
+    if pid is not None:
+        from app.tools.linux.internals import collect_cgroups
+
+        payload["cgroup"] = collect_cgroups(pid).model_dump()
+
+    return payload
+
+
 def _sort_sized_lines(
     output: str,
     top: int,

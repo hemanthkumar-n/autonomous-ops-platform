@@ -71,9 +71,9 @@ aop investigate linux disk
 ```
 
 These commands provide read-only, bounded evidence collection with
-human-readable and JSON output. The disk domain now adds deterministic
-classification and Linux-native incident memory. General Linux cross-domain
-correlation and AI-assisted RCA remain future work.
+human-readable and JSON output. The disk and memory domains now add
+deterministic classification and Linux-native incident memory. General Linux
+cross-domain correlation and AI-assisted RCA remain future work.
 
 ## Baseline Evidence
 

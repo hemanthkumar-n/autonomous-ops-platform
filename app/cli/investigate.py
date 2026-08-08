@@ -198,6 +198,124 @@ def investigate_linux_disk(
         click.echo(f"Memory record: {saved_path}")
 
 
+@investigate_linux.command("memory")
+@click.option(
+    "--pid",
+    type=click.IntRange(1),
+    default=None,
+    help="Optional process ID whose cgroup memory evidence should be included.",
+)
+@click.option(
+    "--top",
+    type=click.IntRange(1, 100),
+    default=10,
+    show_default=True,
+    help="Maximum memory process records to retain.",
+)
+@click.option(
+    "--recent-minutes",
+    type=click.IntRange(1, 10_080),
+    default=60,
+    show_default=True,
+    help="Recent window for kernel OOM evidence.",
+)
+@click.option(
+    "--format",
+    "output_format",
+    type=click.Choice(["summary", "json"], case_sensitive=False),
+    default="summary",
+    show_default=True,
+)
+@click.option(
+    "--no-persist",
+    is_flag=True,
+    help="Do not save structured or semantic Linux incident memory.",
+)
+def investigate_linux_memory(
+    pid: int | None,
+    top: int,
+    recent_minutes: int,
+    output_format: str,
+    no_persist: bool,
+) -> None:
+    """
+    Diagnose memory pressure, swap activity, OOM, and cgroup memory events.
+    """
+
+    from app.orchestration.linux_memory_workflow import (
+        run_linux_memory_workflow,
+    )
+
+    try:
+        investigation, saved_path = run_linux_memory_workflow(
+            pid=pid,
+            top=top,
+            recent_minutes=recent_minutes,
+            persist=not no_persist,
+        )
+    except Exception as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if output_format == "json":
+        click.echo(investigation.model_dump_json(indent=2))
+        return
+
+    target = f" pid={investigation.pid}" if investigation.pid else ""
+    click.echo(
+        f"Linux memory investigation: {investigation.severity.upper()} "
+        f"host={investigation.hostname}{target}"
+    )
+    click.echo(
+        f"Primary diagnosis: {investigation.primary_diagnosis} "
+        f"({investigation.confidence}%)"
+    )
+    click.echo(investigation.summary)
+
+    if investigation.mem_available_percent is not None:
+        click.echo(
+            "MemAvailable: "
+            f"{investigation.mem_available_percent:.1f}%"
+        )
+    if investigation.swap_used_percent is not None:
+        click.echo(
+            "Swap used: "
+            f"{investigation.swap_used_percent:.1f}%"
+        )
+    if (
+        investigation.swap_in_per_second is not None
+        or investigation.swap_out_per_second is not None
+    ):
+        click.echo(
+            "Swap activity: "
+            f"si={investigation.swap_in_per_second or 0} "
+            f"so={investigation.swap_out_per_second or 0}"
+        )
+
+    if investigation.findings:
+        click.echo()
+        click.echo("Findings")
+        for finding in investigation.findings:
+            click.echo(
+                f"{finding.severity.upper():8} "
+                f"{finding.code:32} "
+                f"{finding.confidence}%"
+            )
+            click.echo(f"         {finding.summary}")
+            click.echo(f"         Next: {finding.next}")
+            if finding.next_explanation:
+                click.echo(f"         Why: {finding.next_explanation}")
+
+    if investigation.evidence_gaps:
+        click.echo()
+        click.echo("Evidence gaps")
+        for gap in investigation.evidence_gaps:
+            click.echo(f"- {gap}")
+
+    if saved_path:
+        click.echo()
+        click.echo(f"Memory record: {saved_path}")
+
+
 @investigate.command("k8s")
 @click.option(
     "--namespace",
