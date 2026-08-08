@@ -28,10 +28,10 @@ Do not treat empty modules or directory names as implemented capabilities.
 ## Verified Baseline
 
 ```text
-Release: 0.14.2
+Release: 0.15.0
 Branch: main
 Remote: origin/main
-Offline tests: 82 passing
+Offline tests: 85 passing
 CLI entry point: aop
 Python: 3.11+
 ```
@@ -49,7 +49,7 @@ git status --short --branch
 Expected version:
 
 ```text
-aop, version 0.14.2
+aop, version 0.15.0
 ```
 
 ## What AOP Is
@@ -82,6 +82,7 @@ execute a large list of commands.
 - Ollama RCA and remediation guidance
 - JSON incident persistence, Chroma semantic memory, and exact-memory fallback
 - Markdown and JSON reports
+- provider-neutral evidence, alert, metric, timeline, and dashboard contracts
 
 Primary showcase:
 
@@ -202,12 +203,11 @@ support until the provider, settings, health checks, tests, and docs exist.
 2. Add CI for tests, formatting, linting, and type checks.
 3. Validate the Linux disk workflow against real ext4, XFS, LVM, container,
    NFS, and cloud-volume examples.
-4. Extend v0.14 Linux complex scenario plans into deterministic investigation
+4. Extend Linux complex scenario plans into deterministic investigation
    workflows.
-5. Add provider-neutral evidence and dashboard data contracts.
-6. Add the next deterministic Linux reasoning workflow, starting with
+5. Add the next deterministic Linux reasoning workflow, starting with
    CPU/load and `D` state.
-7. Add recurrence search across Linux incident memory.
+6. Add recurrence search across Linux incident memory.
 8. Correlate Kubernetes node symptoms with collected Linux evidence.
 9. Add the operator UI after Linux and Kubernetes share one stable incident
    contract.

@@ -53,12 +53,12 @@ Remediation is advisory and non-destructive.
 
 ## Current Baseline
 
-- Version: `0.14.2`
+- Version: `0.15.0`
 - Branch: `main`
 - Remote baseline: `origin/main`
 - Python: `3.11+`
 - CLI entry point: `aop`
-- Tests: eighty-two offline regression tests passing
+- Tests: eighty-five offline regression tests passing
 - Real Ollama generation and 768-dimensional embeddings verified
 - Full live demo still requires Kubernetes and Prometheus to be running
 
@@ -157,6 +157,18 @@ Observability/dashboard direction:
 Prometheus and Grafana are useful integrations, not the whole AOP model.
 AOP should own normalized evidence, alert-signal, timeline, and dashboard
 contracts so CLI, UI, reports, chat, memory, and AI can share the same truth.
+```
+
+Implemented v0.15 contracts:
+
+```text
+MetricPoint
+MetricSeries
+AlertSignal
+EvidenceItem
+EvidenceTimeline
+DashboardPanel
+DashboardSnapshot
 ```
 
 AI provider direction:

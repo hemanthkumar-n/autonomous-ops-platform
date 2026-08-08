@@ -10,6 +10,7 @@ unfinished.
 
 | Release | Focus | Reference |
 |---|---|---|
+| `v0.15.0` | Evidence and dashboard data contracts | [`v0.15-evidence-dashboard-contracts.md`](v0.15-evidence-dashboard-contracts.md) |
 | `v0.14.2` | Linux NIC and interface evidence | [`v0.14.2-linux-nic-interface-evidence.md`](v0.14.2-linux-nic-interface-evidence.md) |
 | `v0.14.1` | Linux memory and OOM investigation | [`v0.14.1-linux-memory-oom-investigation.md`](v0.14.1-linux-memory-oom-investigation.md) |
 | `v0.14.0` | Linux complex scenario planning | [`v0.14-linux-complex-scenario-plans.md`](v0.14-linux-complex-scenario-plans.md) |

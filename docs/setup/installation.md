@@ -74,7 +74,7 @@ aop linux --help
 The expected CLI version is:
 
 ```text
-aop, version 0.14.2
+aop, version 0.15.0
 ```
 
 ---

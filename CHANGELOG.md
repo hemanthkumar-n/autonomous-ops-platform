@@ -4,6 +4,28 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.15.0 - Evidence and Dashboard Data Contracts
+
+Date: 2026-08-08
+
+### Added
+
+- provider-neutral `MetricPoint` and `MetricSeries` contracts
+- provider-neutral `AlertSignal` contract
+- normalized `EvidenceItem` and `EvidenceTimeline` contracts
+- `DashboardPanel` and `DashboardSnapshot` contracts for future UI, reports,
+  and graphing
+- tests proving timeline ordering, provider-neutral metrics, and dashboard
+  snapshots combining metrics, alerts, and evidence
+
+### Boundary
+
+This release does not build the web UI or graph renderer. It creates the typed
+contracts that Linux, Kubernetes, AWS, Prometheus, future CloudWatch, reports,
+memory, and AI prompt builders can share.
+
+---
+
 ## v0.14.2 - Linux NIC and Interface Evidence
 
 Date: 2026-08-08

@@ -9,18 +9,17 @@ so the project remains honest and easy to explain.
 ## Current Baseline
 
 ```text
-Current release: v0.14.2
+Current release: v0.15.0
 Status: implemented and pushed
 ```
 
-v0.14.2 adds Linux NIC/interface-card evidence while keeping the workflow
-read-only:
+v0.15.0 adds provider-neutral evidence and dashboard contracts:
 
 ```text
-collect NIC evidence
-  -> inspect link inventory, addresses, counters, carrier, speed, duplex
-  -> collect driver, firmware, and driver counters
-  -> preserve lower-layer evidence before DNS, Kubernetes, or app assumptions
+metrics + alerts + evidence + timeline
+  -> dashboard panels
+  -> dashboard snapshots
+  -> future UI, reports, memory, integrations, and AI context
 ```
 
 Implemented commands:
@@ -38,6 +37,10 @@ aop linux nic
 aop linux nic --iface ens5
 ```
 
+v0.15 added typed `MetricPoint`, `MetricSeries`, `AlertSignal`,
+`EvidenceItem`, `EvidenceTimeline`, `DashboardPanel`, and `DashboardSnapshot`
+contracts.
+v0.14.2 added Linux NIC/interface-card evidence.
 v0.14.1 added deterministic Linux memory and OOM investigation.
 v0.14.0 exposed complex Linux troubleshooting scenarios through the CLI.
 v0.13 completed the Linux disk reasoning loop:
@@ -94,7 +97,7 @@ Still pending inside the larger Linux expansion:
   boot, and kernel failures
 - Linux AI RCA grounded only in collected Linux evidence
 
-## Then: v0.15
+## Current Data Contract Foundation: v0.15
 
 ```text
 v0.15: Evidence and Dashboard Data Contracts
@@ -120,6 +123,30 @@ Target contracts:
 These should work with Prometheus, Linux collectors, Kubernetes evidence,
 CloudWatch later, OpenTelemetry later, reports, UI, Slack/Teams, and AI
 prompt context.
+
+Status: implemented as typed Pydantic contracts in `app/schemas/evidence.py`.
+
+## Next: v0.16
+
+```text
+v0.16: Linux CPU, Load, and D-State Investigation
+```
+
+Purpose:
+
+```text
+Turn the high-load scenario into deterministic Linux investigation.
+```
+
+Target findings:
+
+- high load with low CPU
+- runnable queue pressure
+- uninterruptible `D` state tasks
+- CPU pressure stall
+- I/O pressure behind load
+- virtualization steal suspicion
+- insufficient evidence
 
 ## Later Roadmap
 

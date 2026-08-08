@@ -10,7 +10,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-blue" alt="Python 3.11+" />
-  <img src="https://img.shields.io/badge/AOP-v0.14.2-success" alt="AOP v0.14.2" />
+  <img src="https://img.shields.io/badge/AOP-v0.15.0-success" alt="AOP v0.15.0" />
   <img src="https://img.shields.io/badge/Kubernetes-SRE%20Shortcuts-326CE5" alt="Kubernetes SRE Shortcuts" />
   <img src="https://img.shields.io/badge/Observability-Prometheus-red" alt="Prometheus" />
   <img src="https://img.shields.io/badge/LLM-Ollama-green" alt="Ollama" />
@@ -80,18 +80,20 @@ release exists.
 Current version:
 
 ```text
-AOP v0.14.2
+AOP v0.15.0
 ```
 
 The implemented and tested paths currently cover Kubernetes incident
 intelligence, deterministic Linux troubleshooting, Linux disk incident
 intelligence, Linux memory/OOM investigation, NIC/interface-card evidence,
-command-reasoning workflows, and complex Linux scenario plans.
+command-reasoning workflows, complex Linux scenario plans, and provider-neutral
+evidence/dashboard contracts.
 
 ### Release Memory
 
 | Release | What it proves | Human reference |
 |---|---|---|
+| `v0.15.0` | AOP has typed evidence, alert, metric, timeline, and dashboard contracts for future UI and integrations | [`docs/releases/v0.15-evidence-dashboard-contracts.md`](docs/releases/v0.15-evidence-dashboard-contracts.md) |
 | `v0.14.2` | AOP can collect Linux NIC/interface-card evidence safely | [`docs/releases/v0.14.2-linux-nic-interface-evidence.md`](docs/releases/v0.14.2-linux-nic-interface-evidence.md) |
 | `v0.14.1` | AOP can diagnose Linux memory pressure and OOM evidence deterministically | [`docs/releases/v0.14.1-linux-memory-oom-investigation.md`](docs/releases/v0.14.1-linux-memory-oom-investigation.md) |
 | `v0.14.0` | AOP can expose complex senior Linux troubleshooting scenarios as read-only plans | [`docs/releases/v0.14-linux-complex-scenario-plans.md`](docs/releases/v0.14-linux-complex-scenario-plans.md) |
@@ -131,7 +133,8 @@ command-reasoning workflows, and complex Linux scenario plans.
 - graceful exact-memory fallback
 - Markdown and JSON incident reports
 - typed Pydantic contracts
-- eighty-two offline regression tests
+- provider-neutral evidence, alert, metric, timeline, and dashboard contracts
+- eighty-five offline regression tests
 
 ### Not Yet Implemented
 
@@ -774,7 +777,7 @@ python -m unittest discover -s tests -v
 Current baseline:
 
 ```text
-82 tests passing
+85 tests passing
 ```
 
 The tests cover:
@@ -784,6 +787,8 @@ The tests cover:
 - shell-free Linux command execution, timeout handling, and missing utilities
 - NIC/interface-card command exposure, JSON output, evidence ordering, and
   unsafe interface-name rejection
+- evidence/dashboard contract serialization, provider-neutral metrics, and
+  evidence timeline ordering
 - bounded Linux process output and diagnostic ordering
 - `/proc` load, PSI, process-state, and VM-counter parsing
 - cgroup v1/v2 detection and cgroup v2 limit/event interpretation
