@@ -30,10 +30,10 @@ Do not treat empty modules or directory names as implemented capabilities.
 ## Verified Baseline
 
 ```text
-Release: 0.22.0
+Release: 0.23.0
 Branch: main
 Remote: origin/main
-Offline tests: 135 passing
+Offline tests: 139 passing
 CLI entry point: aop
 Python: 3.11+
 ```
@@ -51,7 +51,7 @@ git status --short --branch
 Expected version:
 
 ```text
-aop, version 0.22.0
+aop, version 0.23.0
 ```
 
 ## What AOP Is
@@ -140,6 +140,7 @@ aop kb inv -n ai-lab
   `aop investigate k8s-knowledge`
 - Kubernetes investigation reports enriched with issue knowledge and Linux
   evidence guidance
+- short Kubernetes expert shortcuts through `aop kx`
 
 Useful commands:
 
@@ -158,6 +159,9 @@ aop investigate k8s-knowledge --symptom CrashLoopBackOff
 aop investigate k8s-knowledge --symptom DiskPressure --format json
 aop investigate k8s-linux --incident OOMKilled
 aop investigate k8s-linux --incident DiskPressure --format json
+aop kx oom
+aop kx disk
+aop kx node
 aop linux disk --path /var
 aop investigate linux memory
 aop investigate linux memory --pid 4242

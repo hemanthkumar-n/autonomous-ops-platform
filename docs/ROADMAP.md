@@ -9,20 +9,18 @@ so the project remains honest and easy to explain.
 ## Current Baseline
 
 ```text
-Current release: v0.22.0
+Current release: v0.23.0
 Status: implemented and pushed
 ```
 
-v0.22.0 attaches Kubernetes issue knowledge and Linux correlation guidance to
-the real Kubernetes investigation workflow:
+v0.23.0 adds short Kubernetes expert shortcuts:
 
 ```text
-aop investigate k8s
-  -> classify Kubernetes symptom
-  -> attach curated issue knowledge
-  -> attach Linux evidence requirements
-  -> show safe next AOP commands
-  -> preserve guidance in JSON and Markdown reports
+aop kx oom
+  -> curated Kubernetes issue knowledge
+  -> Linux evidence requirements
+  -> safe next AOP commands
+  -> do-not-assume reminder
 ```
 
 Implemented commands:
@@ -46,6 +44,9 @@ aop investigate k8s-knowledge --symptom DiskPressure --format json
 aop investigate k8s-linux --incident OOMKilled
 aop investigate k8s-linux --incident DiskPressure --format json
 aop investigate k8s -n ai-lab
+aop kx oom
+aop kx disk
+aop kx node
 ```
 
 The human-readable Linux ladder is maintained in
@@ -53,6 +54,8 @@ The human-readable Linux ladder is maintained in
 
 ## Completed Linux And Data Foundation
 
+v0.23 added short Kubernetes expert shortcuts for common SRE troubleshooting
+symptoms while reusing the v0.20/v0.21 knowledge and correlation catalogs.
 v0.22 integrated Kubernetes issue knowledge and Kubernetes-to-Linux
 correlation guidance into the main Kubernetes investigation summary, JSON, and
 Markdown reports.
@@ -91,23 +94,24 @@ panic clues, `df`/`du` mismatch, inode exhaustion, deleted-open files,
 read-only remounts, LVM expansion mismatch, container runtime disk pressure,
 and Kubernetes symptoms that require Linux node correlation.
 
-## Next: v0.23
+## Next: v0.24
 
 Purpose:
 
 ```text
-Prepare dashboard and evidence timeline views that can display Kubernetes
-incidents, Linux evidence requirements, deterministic findings, and memory
-side by side.
+Add matching Linux expert shortcuts for boot, kernel, storage, DNS, NFS,
+limits, SELinux, and container-runtime troubleshooting.
 ```
 
 Target outcomes:
 
-- build a provider-neutral incident guidance summary for dashboards
-- map current workflow output into existing evidence/dashboard contracts
-- keep UI optional until the data shape is stable
-- prepare AWS CloudWatch and CloudTrail mapping after K8s/Linux guidance is
-  visible
+- `aop lx boot`
+- `aop lx kernel`
+- `aop lx storage`
+- `aop lx dns`
+- `aop lx nfs`
+- `aop lx limits`
+- preserve read-only safety and do-not-assume rules
 - keep AI RCA grounded in deterministic evidence and explicit gaps
 
 ## Later Roadmap

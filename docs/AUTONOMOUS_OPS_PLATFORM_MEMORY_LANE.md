@@ -54,12 +54,12 @@ Remediation is advisory and non-destructive.
 
 ## Current Baseline
 
-- Version: `0.22.0`
+- Version: `0.23.0`
 - Branch: `main`
 - Remote baseline: `origin/main`
 - Python: `3.11+`
 - CLI entry point: `aop`
-- Tests: one hundred thirty-five offline regression tests passing
+- Tests: one hundred thirty-nine offline regression tests passing
 - Real Ollama generation and 768-dimensional embeddings verified
 - Full live demo still requires Kubernetes and Prometheus to be running
 
@@ -247,6 +247,18 @@ correlation_guidance
   -> evidence gaps
 ```
 
+Kubernetes expert shortcuts:
+
+```text
+aop kx list
+aop kx oom
+aop kx crash
+aop kx image
+aop kx disk
+aop kx node
+aop kx explain DiskPressure --json
+```
+
 Linux command reasoning:
 
 ```text
@@ -401,6 +413,9 @@ aop investigate k8s-knowledge --symptom CrashLoopBackOff
 aop investigate k8s-knowledge --symptom DiskPressure --format json
 aop investigate k8s-linux --incident OOMKilled
 aop investigate k8s-linux --incident DiskPressure --format json
+aop kx oom
+aop kx disk
+aop kx node
 aop investigate k8s --namespace ai-lab
 aop investigate k8s --namespace ai-lab \
   --format markdown \
@@ -497,10 +512,11 @@ ENABLE_DESTRUCTIVE_REMEDIATION=false
 
 ## Next Priorities
 
-1. Prepare dashboard/evidence timeline summaries from the enriched workflow.
-2. Run and record a complete live Kubernetes/Prometheus showcase.
-3. Add CI for tests, formatting, linting, and type checks.
-4. Validate Linux disk diagnosis against real ext4, XFS, LVM, container, and
+1. Add matching Linux expert shortcuts through `aop lx`.
+2. Prepare dashboard/evidence timeline summaries from the enriched workflow.
+3. Run and record a complete live Kubernetes/Prometheus showcase.
+4. Add CI for tests, formatting, linting, and type checks.
+5. Validate Linux disk diagnosis against real ext4, XFS, LVM, container, and
    cloud-volume examples.
 5. Extend the next Linux scenario plan into deterministic investigation,
    starting with CPU/load and `D` state.

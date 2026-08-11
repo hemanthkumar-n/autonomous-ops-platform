@@ -21,6 +21,18 @@ aop investigate k8s-knowledge --symptom CrashLoopBackOff
 aop investigate k8s-knowledge --symptom DiskPressure --format json
 ```
 
+Use `aop kx` when you need short expert shortcuts:
+
+```bash
+aop kx list
+aop kx oom
+aop kx crash
+aop kx image
+aop kx disk
+aop kx node
+aop kx explain DiskPressure --json
+```
+
 ## First Response
 
 ```bash

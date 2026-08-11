@@ -4,6 +4,28 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.23.0 - Kubernetes Expert Shortcuts
+
+Date: 2026-08-11
+
+### Added
+
+- top-level `aop kx` shortcut group
+- `aop kx list`
+- Kubernetes expert shortcuts such as `oom`, `crash`, `image`, `disk`,
+  `memory`, `node`, `network`, `schedule`, `config`, and `runtime`
+- shortcut output that combines Kubernetes issue knowledge and Linux
+  correlation guidance
+- JSON shortcut output through `aop kx explain <symptom> --json`
+- tests for shortcut listing, aliases, summary output, and JSON output
+
+### Boundary
+
+Shortcuts reuse existing knowledge and correlation catalogs. They do not add
+new live collection behavior or mutate Kubernetes/Linux state.
+
+---
+
 ## v0.22.0 - Kubernetes Investigation Guidance Integration
 
 Date: 2026-08-08
