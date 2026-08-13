@@ -10,7 +10,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-blue" alt="Python 3.11+" />
-  <img src="https://img.shields.io/badge/AOP-v0.29.0-success" alt="AOP v0.29.0" />
+  <img src="https://img.shields.io/badge/AOP-v0.30.0-success" alt="AOP v0.30.0" />
   <img src="https://img.shields.io/badge/Kubernetes-SRE%20Shortcuts-326CE5" alt="Kubernetes SRE Shortcuts" />
   <img src="https://img.shields.io/badge/Observability-Prometheus-red" alt="Prometheus" />
   <img src="https://img.shields.io/badge/LLM-Ollama-green" alt="Ollama" />
@@ -80,7 +80,7 @@ release exists.
 Current version:
 
 ```text
-AOP v0.29.0
+AOP v0.30.0
 ```
 
 The implemented and tested paths currently cover Kubernetes incident
@@ -94,12 +94,14 @@ Kubernetes expert shortcuts, Linux expert shortcuts, Linux boot/kernel/grubby
 investigation, deeper Linux storage/LVM/NFS investigation, complex Linux
 scenario plans, host-level Linux correlation, and provider-neutral
 evidence/dashboard contracts, Kubernetes node-to-Linux evidence planning, and
-container runtime troubleshooting planning.
+container runtime troubleshooting planning, plus the first enterprise-grade
+canonical investigation case model.
 
 ### Release Memory
 
 | Release | What it proves | Human reference |
 |---|---|---|
+| `v0.30.0` | AOP has a canonical investigation case model for enterprise-grade agent reasoning | [`docs/releases/v0.30-enterprise-investigation-core.md`](docs/releases/v0.30-enterprise-investigation-core.md) |
 | `v0.29.0` | AOP can train SREs and agents through safe container runtime troubleshooting plans | [`docs/releases/v0.29-container-runtime-troubleshooting-planner.md`](docs/releases/v0.29-container-runtime-troubleshooting-planner.md) |
 | `v0.28.0` | AOP can map Kubernetes node conditions to the right Linux host evidence plan | [`docs/releases/v0.28-kubernetes-node-linux-correlation.md`](docs/releases/v0.28-kubernetes-node-linux-correlation.md) |
 | `v0.27.0` | AOP can correlate Linux disk, memory, CPU, network, boot, and service findings into one host-level SRE diagnosis | [`docs/releases/v0.27-linux-host-correlation.md`](docs/releases/v0.27-linux-host-correlation.md) |
@@ -164,6 +166,9 @@ container runtime troubleshooting planning.
 - `aop investigate linux runtime` container runtime planning for containerd,
   CRI-O, Docker, kubelet relation, image pulls, create failures, runtime disk,
   CNI, logs, PID pressure, and cgroups
+- canonical enterprise investigation core with cases, evidence gaps,
+  hypotheses, confidence scoring, reasoning summaries, decisions, audit events,
+  and a Linux memory adapter
 - Linux command explanation through `aop linux explain`
 - read-only disk investigation planning through `aop linux plan disk`
 - read-only complex Linux scenario plans through `aop linux plan scenario`
@@ -180,7 +185,7 @@ container runtime troubleshooting planning.
 - Markdown and JSON incident reports
 - typed Pydantic contracts
 - provider-neutral evidence, alert, metric, timeline, and dashboard contracts
-- one hundred seventy-eight offline regression tests
+- one hundred eighty-seven offline regression tests
 
 ### Not Yet Implemented
 
@@ -858,7 +863,7 @@ python -m unittest discover -s tests -v
 Current baseline:
 
 ```text
-178 tests passing
+187 tests passing
 ```
 
 The tests cover:

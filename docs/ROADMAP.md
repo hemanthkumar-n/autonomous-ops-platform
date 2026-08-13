@@ -9,18 +9,19 @@ so the project remains honest and easy to explain.
 ## Current Baseline
 
 ```text
-Current release: v0.29.0
+Current release: v0.30.0
 Status: implemented and pushed
 ```
 
-v0.29.0 adds container runtime troubleshooting planning:
+v0.30.0 adds the enterprise investigation core:
 
 ```text
-aop investigate linux runtime --runtime containerd --symptom image-pull
-  -> plan runtime, kubelet, storage, CNI, image, log, PID, and cgroup evidence
-  -> mark dangerous runtime actions to avoid first
-  -> train agents before live server execution
-  -> stay read-only
+domain investigation
+  -> canonical InvestigationCase
+  -> evidence gaps and hypotheses
+  -> deterministic confidence and why / why-not reasoning
+  -> RCA candidate or collect-more-evidence decision
+  -> audit trail
 ```
 
 Implemented commands:
@@ -63,6 +64,8 @@ The human-readable Linux ladder is maintained in
 
 ## Completed Linux And Data Foundation
 
+v0.30 added the canonical enterprise investigation case model, confidence
+engine, reasoning summaries, audit events, and Linux memory adapter.
 v0.29 added container runtime troubleshooting planning for containerd, CRI-O,
 Docker, kubelet relation, image pulls, runtime storage, CNI, logs, PID
 pressure, and cgroups.
@@ -116,20 +119,20 @@ panic clues, `df`/`du` mismatch, inode exhaustion, deleted-open files,
 read-only remounts, LVM expansion mismatch, container runtime disk pressure,
 and Kubernetes symptoms that require Linux node correlation.
 
-## Next: v0.30
+## Next: v0.31
 
 Purpose:
 
 ```text
-Begin AWS troubleshooting planning and CloudWatch evidence mapping.
+Adapt current AOP domain outputs into enterprise InvestigationCase records.
 ```
 
 Target outcomes:
 
-- AWS logs and metric evidence planner
-- EC2/EBS/EKS node correlation
-- CloudWatch log group and metric checklist
-- VPC/NAT/ELB/EBS next evidence guidance
+- Linux host correlation case adapter
+- Linux runtime planner case adapter
+- Kubernetes node-to-Linux case adapter
+- shared case JSON output for future UI and memory
 - no automatic remediation
 - cloud volume follow-up guidance without mutating storage
 - keep AI RCA grounded in deterministic evidence and explicit gaps

@@ -30,10 +30,10 @@ Do not treat empty modules or directory names as implemented capabilities.
 ## Verified Baseline
 
 ```text
-Release: 0.29.0
+Release: 0.30.0
 Branch: main
 Remote: origin/main
-Offline tests: 178 passing
+Offline tests: 187 passing
 CLI entry point: aop
 Python: 3.11+
 ```
@@ -51,7 +51,7 @@ git status --short --branch
 Expected version:
 
 ```text
-aop, version 0.29.0
+aop, version 0.30.0
 ```
 
 ## What AOP Is
@@ -151,6 +151,8 @@ aop kb inv -n ai-lab
 - host-level Linux correlation through `aop investigate linux host`
 - container runtime troubleshooting planning through
   `aop investigate linux runtime`
+- canonical enterprise investigation case model, confidence engine, reasoning
+  summaries, audit events, and Linux memory adapter
 
 Useful commands:
 

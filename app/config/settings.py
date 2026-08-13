@@ -26,10 +26,16 @@ def _get_bool(value: str, default: bool = False) -> bool:
     )
 
 
-def _get_int(value: str, default: int) -> int:
+def _get_int(value: str | None, default: int) -> int:
     """
     Safe integer parser for environment variables.
+
+    Unset values use the documented default quietly. Warnings are reserved for
+    explicitly configured values that cannot be parsed.
     """
+
+    if value is None:
+        return default
 
     try:
         return int(value)

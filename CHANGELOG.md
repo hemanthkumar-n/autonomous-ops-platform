@@ -4,6 +4,39 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.30.0 - Enterprise Investigation Core
+
+Date: 2026-08-14
+
+### Added
+
+- canonical `InvestigationCase` model for enterprise-grade agent reasoning
+- normalized affected resources, evidence gaps, hypotheses, knowledge matches,
+  historical matches, decisions, resolution records, and audit events
+- deterministic confidence policy and case evaluator
+- why / why-not reasoning summary builder
+- investigation orchestrator that evaluates cases and appends audit timeline
+  events
+- Linux memory investigation adapter that converts deterministic memory
+  findings into canonical cases
+- dry-run Linux memory investigation case entrypoint for fixture or live
+  read-only memory evidence
+- tests for confidence scoring, blocked RCA gaps, contradiction handling,
+  reasoning summaries, audit events, and Linux memory case adaptation
+
+### Changed
+
+- unset integer environment variables now use documented defaults without
+  warning; warnings are reserved for explicitly invalid configured values
+
+### Safety
+
+This is an enterprise reasoning foundation. It does not collect new evidence
+by itself, mutate infrastructure, remediate incidents, or override domain
+investigator safety boundaries.
+
+---
+
 ## v0.29.0 - Container Runtime Troubleshooting Planner
 
 Date: 2026-08-14

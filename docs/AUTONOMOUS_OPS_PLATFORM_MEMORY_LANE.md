@@ -54,12 +54,12 @@ Remediation is advisory and non-destructive.
 
 ## Current Baseline
 
-- Version: `0.29.0`
+- Version: `0.30.0`
 - Branch: `main`
 - Remote baseline: `origin/main`
 - Python: `3.11+`
 - CLI entry point: `aop`
-- Tests: one hundred seventy-eight offline regression tests passing
+- Tests: one hundred eighty-seven offline regression tests passing
 - Real Ollama generation and 768-dimensional embeddings verified
 - Full live demo still requires Kubernetes and Prometheus to be running
 
@@ -80,6 +80,23 @@ Semantic-memory failure degrades to exact structured memory. Missing memory
 does not block analysis from current evidence.
 
 ## Latest Release Memory
+
+v0.30.0 added the enterprise investigation core:
+
+```text
+InvestigationCase
+  -> evidence
+  -> gaps
+  -> hypotheses
+  -> confidence
+  -> why / why-not
+  -> decision
+  -> audit timeline
+```
+
+This is the foundation for training agents to behave like enterprise-grade SRE
+assistants instead of command wrappers. The first adapter converts Linux memory
+investigations into canonical cases.
 
 v0.29.0 added container runtime troubleshooting planning:
 
