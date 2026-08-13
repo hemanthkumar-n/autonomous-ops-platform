@@ -1019,6 +1019,119 @@ def investigate_k8s_linux(
     click.echo(f"Memory note: {plan.memory_note}")
 
 
+@investigate.command("k8s-node")
+@click.option(
+    "--node",
+    required=True,
+    help="Kubernetes node name, such as worker-01.",
+)
+@click.option(
+    "--condition",
+    "conditions",
+    multiple=True,
+    help=(
+        "Node condition or symptom. Repeat for multiple values, for example "
+        "--condition DiskPressure --condition ReadyFalse."
+    ),
+)
+@click.option(
+    "--list-conditions",
+    is_flag=True,
+    help="List supported Kubernetes node conditions.",
+)
+@click.option(
+    "--format",
+    "output_format",
+    type=click.Choice(["summary", "json"], case_sensitive=False),
+    default="summary",
+    show_default=True,
+)
+def investigate_k8s_node(
+    node: str,
+    conditions: tuple[str, ...],
+    list_conditions: bool,
+    output_format: str,
+) -> None:
+    """
+    Plan Linux host evidence for Kubernetes node conditions.
+    """
+
+    from app.agents.sre.k8s_node_linux_agent import (
+        list_k8s_node_conditions,
+        plan_k8s_node_linux,
+    )
+
+    if list_conditions:
+        for item in list_k8s_node_conditions():
+            click.echo(item)
+        return
+
+    try:
+        plan = plan_k8s_node_linux(
+            node=node,
+            conditions=list(conditions) if conditions else None,
+        )
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if output_format == "json":
+        click.echo(plan.model_dump_json(indent=2))
+        return
+
+    click.echo(
+        f"Kubernetes node Linux plan: {plan.severity.upper()} "
+        f"node={plan.node}"
+    )
+    click.echo(
+        f"Primary diagnosis: {plan.primary_diagnosis} "
+        f"({plan.confidence}%)"
+    )
+    click.echo(plan.summary)
+
+    if plan.kubernetes_signals:
+        click.echo()
+        click.echo("Kubernetes signals")
+        for signal in plan.kubernetes_signals:
+            click.echo(
+                f"- {signal.condition}={signal.status}: {signal.summary}"
+            )
+
+    if plan.linux_evidence:
+        click.echo()
+        click.echo("Linux evidence required")
+        for item in plan.linux_evidence:
+            click.echo(f"- {item.domain}: {item.reason}")
+            for command in item.commands:
+                click.echo(f"  command: {command}")
+
+    if plan.next_aop_commands:
+        click.echo()
+        click.echo("Next AOP commands")
+        for command in plan.next_aop_commands:
+            click.echo(f"- {command}")
+
+    if plan.kubernetes_checks:
+        click.echo()
+        click.echo("Kubernetes checks")
+        for check in plan.kubernetes_checks:
+            click.echo(f"- {check}")
+
+    if plan.cloud_checks:
+        click.echo()
+        click.echo("Cloud/AWS checks")
+        for check in plan.cloud_checks:
+            click.echo(f"- {check}")
+
+    if plan.do_not_assume:
+        click.echo()
+        click.echo("Do not assume")
+        for item in plan.do_not_assume:
+            click.echo(f"- {item}")
+
+    click.echo()
+    click.echo(f"Memory note: {plan.memory_note}")
+
+
 @investigate.command("k8s-knowledge")
 @click.option(
     "--symptom",

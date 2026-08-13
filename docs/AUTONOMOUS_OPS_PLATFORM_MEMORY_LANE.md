@@ -54,12 +54,12 @@ Remediation is advisory and non-destructive.
 
 ## Current Baseline
 
-- Version: `0.27.0`
+- Version: `0.28.0`
 - Branch: `main`
 - Remote baseline: `origin/main`
 - Python: `3.11+`
 - CLI entry point: `aop`
-- Tests: one hundred sixty offline regression tests passing
+- Tests: one hundred sixty-nine offline regression tests passing
 - Real Ollama generation and 768-dimensional embeddings verified
 - Full live demo still requires Kubernetes and Prometheus to be running
 
@@ -81,7 +81,16 @@ does not block analysis from current evidence.
 
 ## Latest Release Memory
 
-v0.27.0 added host-level Linux correlation. This is the current broad SRE
+v0.28.0 added Kubernetes node-to-Linux correlation planning:
+
+```bash
+aop investigate k8s-node --node worker-01 --condition DiskPressure
+```
+
+This maps Kubernetes node conditions to exact Linux host evidence commands
+without SSH, node drain, kubelet restart, cleanup, or remediation.
+
+v0.27.0 added host-level Linux correlation. This is the current broad Linux SRE
 entry point:
 
 ```bash

@@ -9,17 +9,17 @@ so the project remains honest and easy to explain.
 ## Current Baseline
 
 ```text
-Current release: v0.27.0
+Current release: v0.28.0
 Status: implemented and pushed
 ```
 
-v0.27.0 adds host-level Linux correlation:
+v0.28.0 adds Kubernetes node-to-Linux correlation planning:
 
 ```text
-aop investigate linux host
-  -> run disk, memory, CPU, network, boot, and optional service investigations
-  -> rank the most urgent host diagnosis by severity and confidence
-  -> persist one Linux host memory record
+aop investigate k8s-node --node worker-01 --condition DiskPressure
+  -> map Kubernetes node condition to Linux host evidence
+  -> recommend exact AOP Linux commands for the node symptom
+  -> preserve do-not-assume and cloud checks
   -> stay read-only
 ```
 
@@ -54,6 +54,7 @@ aop lx storage
 aop lx dns
 aop investigate linux boot
 aop investigate linux host
+aop investigate k8s-node --node worker-01 --condition DiskPressure
 ```
 
 The human-readable Linux ladder is maintained in
@@ -61,6 +62,8 @@ The human-readable Linux ladder is maintained in
 
 ## Completed Linux And Data Foundation
 
+v0.28 added Kubernetes node-to-Linux correlation planning for DiskPressure,
+MemoryPressure, PIDPressure, NetworkUnavailable, and Ready=False.
 v0.27 added host-level correlation across existing Linux domain
 investigations.
 v0.26 deepened deterministic Linux disk investigation with block-device, LVM,
@@ -109,20 +112,20 @@ panic clues, `df`/`du` mismatch, inode exhaustion, deleted-open files,
 read-only remounts, LVM expansion mismatch, container runtime disk pressure,
 and Kubernetes symptoms that require Linux node correlation.
 
-## Next: v0.28
+## Next: v0.29
 
 Purpose:
 
 ```text
-Connect Linux host correlation to Kubernetes node troubleshooting.
+Add container runtime troubleshooting depth for Kubernetes nodes.
 ```
 
 Target outcomes:
 
-- Kubernetes node-pressure host correlation
-- kubelet and container runtime service checks
-- `/var/lib/kubelet` and `/var/lib/containerd` storage guidance
-- CNI/network hints from Linux NIC and route evidence
+- containerd and CRI-O service investigation shortcuts
+- runtime storage path guidance for `/var/lib/containerd` and `/var/lib/containers`
+- image pull failure runtime evidence
+- kubelet/runtime log planning
 - no automatic remediation
 - cloud volume follow-up guidance without mutating storage
 - keep AI RCA grounded in deterministic evidence and explicit gaps

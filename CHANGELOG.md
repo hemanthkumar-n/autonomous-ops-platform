@@ -4,6 +4,32 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.28.0 - Kubernetes Node To Linux Correlation
+
+Date: 2026-08-14
+
+### Added
+
+- `aop investigate k8s-node`
+- node-condition planner for `DiskPressure`, `MemoryPressure`, `PIDPressure`,
+  `NetworkUnavailable`, `ReadyFalse`, and `NodeNotReady`
+- Linux evidence plans that point Kubernetes node symptoms to
+  `aop investigate linux host`, disk/storage, memory, process/cgroup, network,
+  kubelet, and container runtime checks
+- JSON and summary output for node-to-Linux plans
+- supported-condition listing through `--list-conditions`
+- tests for condition normalization, DiskPressure, PIDPressure, multi-condition
+  priority, CLI summary, CLI JSON, default NodeNotReady planning, and version
+  reporting
+
+### Safety
+
+The command is a planner. It does not SSH into nodes, mutate Kubernetes
+objects, drain nodes, restart kubelet/runtime, delete images, clean files, or
+execute Linux remediation.
+
+---
+
 ## v0.27.0 - Linux Host-Level Correlation
 
 Date: 2026-08-14

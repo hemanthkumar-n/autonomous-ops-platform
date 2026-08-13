@@ -17,7 +17,7 @@ from app.cli.remediate import memory
     }
 )
 @click.version_option(
-    version="0.27.0",
+    version="0.28.0",
     prog_name="aop",
 )
 def main() -> None:

@@ -12,6 +12,25 @@ aop investigate k8s-linux --incident OOMKilled
 aop investigate k8s-linux --incident DiskPressure --format json
 ```
 
+Use `aop investigate k8s-node` when a Kubernetes node condition needs a Linux
+host evidence plan:
+
+```bash
+aop investigate k8s-node --node worker-01
+aop investigate k8s-node --node worker-01 --condition DiskPressure
+aop investigate k8s-node --node worker-01 --condition DiskPressure --condition ReadyFalse
+aop investigate k8s-node --node worker-01 --condition NetworkUnavailable --format json
+```
+
+This does not SSH into the node or change Kubernetes resources. It tells the
+SRE which Linux host command should come next, such as:
+
+```bash
+aop investigate linux host --path /var/lib/kubelet --service kubelet.service
+aop investigate linux disk --path /var/lib/containerd
+aop investigate linux network --iface <node-interface>
+```
+
 Use `aop investigate k8s-knowledge` when you want curated Kubernetes issue
 knowledge, safe commands, do-not-assume rules, and source links:
 
