@@ -4,6 +4,33 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.24.0 - Linux Expert Shortcuts
+
+Date: 2026-08-14
+
+### Added
+
+- top-level `aop lx` shortcut group
+- `aop lx list`
+- Linux expert shortcuts for boot, kernel, grubby, storage, LVM, DNS, NFS,
+  limits, SELinux, and container runtime troubleshooting
+- shortcut output with first safe checks, next AOP commands, dangerous
+  commands to avoid, do-not-assume rule, Kubernetes relation, and cloud
+  relation
+- JSON output through `aop lx explain <topic> --json`
+- Linux shortcut memory at
+  `app/memory/knowledgebase/linux_expert_shortcuts_catalog.md`
+- tests for Linux shortcut listing, boot/grub/storage guidance, and JSON
+  guardrails
+
+### Boundary
+
+Shortcuts are read-only knowledge guidance. They do not change kernels, boot
+arguments, filesystems, routes, SELinux mode, services, mounts, limits, or
+container runtime state.
+
+---
+
 ## v0.23.0 - Kubernetes Expert Shortcuts
 
 Date: 2026-08-11

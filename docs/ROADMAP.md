@@ -9,18 +9,19 @@ so the project remains honest and easy to explain.
 ## Current Baseline
 
 ```text
-Current release: v0.23.0
+Current release: v0.24.0
 Status: implemented and pushed
 ```
 
-v0.23.0 adds short Kubernetes expert shortcuts:
+v0.24.0 adds short Linux expert shortcuts:
 
 ```text
-aop kx oom
-  -> curated Kubernetes issue knowledge
-  -> Linux evidence requirements
-  -> safe next AOP commands
+aop lx grub
+  -> first safe checks
+  -> next AOP commands
+  -> dangerous commands to avoid
   -> do-not-assume reminder
+  -> Kubernetes and cloud relation
 ```
 
 Implemented commands:
@@ -47,6 +48,11 @@ aop investigate k8s -n ai-lab
 aop kx oom
 aop kx disk
 aop kx node
+aop lx boot
+aop lx kernel
+aop lx grub
+aop lx storage
+aop lx dns
 ```
 
 The human-readable Linux ladder is maintained in
@@ -54,6 +60,8 @@ The human-readable Linux ladder is maintained in
 
 ## Completed Linux And Data Foundation
 
+v0.24 added short Linux expert shortcuts for boot, kernel, grubby, storage,
+LVM, DNS, NFS, limits, SELinux, and container runtime troubleshooting.
 v0.23 added short Kubernetes expert shortcuts for common SRE troubleshooting
 symptoms while reusing the v0.20/v0.21 knowledge and correlation catalogs.
 v0.22 integrated Kubernetes issue knowledge and Kubernetes-to-Linux
@@ -94,24 +102,23 @@ panic clues, `df`/`du` mismatch, inode exhaustion, deleted-open files,
 read-only remounts, LVM expansion mismatch, container runtime disk pressure,
 and Kubernetes symptoms that require Linux node correlation.
 
-## Next: v0.24
+## Next: v0.25
 
 Purpose:
 
 ```text
-Add matching Linux expert shortcuts for boot, kernel, storage, DNS, NFS,
-limits, SELinux, and container-runtime troubleshooting.
+Convert the highest-value Linux shortcut areas into deeper deterministic
+investigators.
 ```
 
 Target outcomes:
 
-- `aop lx boot`
-- `aop lx kernel`
-- `aop lx storage`
-- `aop lx dns`
-- `aop lx nfs`
-- `aop lx limits`
-- preserve read-only safety and do-not-assume rules
+- `aop investigate linux boot`
+- `aop investigate linux kernel`
+- `aop investigate linux storage`
+- `aop investigate linux dns`
+- stronger evidence parsing for previous boot, kernel errors, grubby/default
+  kernel, storage errors, and resolver failures
 - keep AI RCA grounded in deterministic evidence and explicit gaps
 
 ## Later Roadmap

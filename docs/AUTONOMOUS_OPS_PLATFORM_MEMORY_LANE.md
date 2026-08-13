@@ -54,12 +54,12 @@ Remediation is advisory and non-destructive.
 
 ## Current Baseline
 
-- Version: `0.23.0`
+- Version: `0.24.0`
 - Branch: `main`
 - Remote baseline: `origin/main`
 - Python: `3.11+`
 - CLI entry point: `aop`
-- Tests: one hundred thirty-nine offline regression tests passing
+- Tests: one hundred forty-three offline regression tests passing
 - Real Ollama generation and 768-dimensional embeddings verified
 - Full live demo still requires Kubernetes and Prometheus to be running
 
@@ -259,6 +259,22 @@ aop kx node
 aop kx explain DiskPressure --json
 ```
 
+Linux expert shortcuts:
+
+```text
+aop lx list
+aop lx boot
+aop lx kernel
+aop lx grub
+aop lx storage
+aop lx lvm
+aop lx dns
+aop lx nfs
+aop lx limits
+aop lx selinux
+aop lx runtime
+```
+
 Linux command reasoning:
 
 ```text
@@ -416,6 +432,10 @@ aop investigate k8s-linux --incident DiskPressure --format json
 aop kx oom
 aop kx disk
 aop kx node
+aop lx boot
+aop lx grub
+aop lx storage
+aop lx dns
 aop investigate k8s --namespace ai-lab
 aop investigate k8s --namespace ai-lab \
   --format markdown \
@@ -442,6 +462,7 @@ docs/linux/LINUX_EXPERTISE_BLUEPRINT.md
 docs/linux/LINUX_INVESTIGATION_LADDER.md
 docs/linux/tshelper-original/
 app/memory/knowledgebase/linux_troubleshooting_command_catalog.md
+app/memory/knowledgebase/linux_expert_shortcuts_catalog.md
 ```
 
 Sample incidents:
@@ -512,11 +533,12 @@ ENABLE_DESTRUCTIVE_REMEDIATION=false
 
 ## Next Priorities
 
-1. Add matching Linux expert shortcuts through `aop lx`.
-2. Prepare dashboard/evidence timeline summaries from the enriched workflow.
-3. Run and record a complete live Kubernetes/Prometheus showcase.
-4. Add CI for tests, formatting, linting, and type checks.
-5. Validate Linux disk diagnosis against real ext4, XFS, LVM, container, and
+1. Convert boot/kernel/grubby into deterministic Linux investigators.
+2. Convert storage/LVM/NFS into deterministic Linux investigators.
+3. Prepare dashboard/evidence timeline summaries from the enriched workflow.
+4. Run and record a complete live Kubernetes/Prometheus showcase.
+5. Add CI for tests, formatting, linting, and type checks.
+6. Validate Linux disk diagnosis against real ext4, XFS, LVM, container, and
    cloud-volume examples.
 5. Extend the next Linux scenario plan into deterministic investigation,
    starting with CPU/load and `D` state.

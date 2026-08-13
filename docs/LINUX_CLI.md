@@ -7,6 +7,23 @@ practices.
 For the current end-to-end troubleshooting order, read
 [`linux/LINUX_INVESTIGATION_LADDER.md`](linux/LINUX_INVESTIGATION_LADDER.md).
 
+Use `aop lx` when you need short Linux expert shortcuts:
+
+```bash
+aop lx list
+aop lx boot
+aop lx kernel
+aop lx grub
+aop lx storage
+aop lx lvm
+aop lx dns
+aop lx nfs
+aop lx limits
+aop lx selinux
+aop lx runtime
+aop lx explain storage --json
+```
+
 ## Quick Start
 
 ```bash

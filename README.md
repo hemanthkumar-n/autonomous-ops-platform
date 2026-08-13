@@ -10,7 +10,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-blue" alt="Python 3.11+" />
-  <img src="https://img.shields.io/badge/AOP-v0.23.0-success" alt="AOP v0.23.0" />
+  <img src="https://img.shields.io/badge/AOP-v0.24.0-success" alt="AOP v0.24.0" />
   <img src="https://img.shields.io/badge/Kubernetes-SRE%20Shortcuts-326CE5" alt="Kubernetes SRE Shortcuts" />
   <img src="https://img.shields.io/badge/Observability-Prometheus-red" alt="Prometheus" />
   <img src="https://img.shields.io/badge/LLM-Ollama-green" alt="Ollama" />
@@ -80,7 +80,7 @@ release exists.
 Current version:
 
 ```text
-AOP v0.23.0
+AOP v0.24.0
 ```
 
 The implemented and tested paths currently cover Kubernetes incident
@@ -90,13 +90,14 @@ Linux network/NIC investigation, NIC/interface-card evidence,
 systemd service investigation, a consolidated Linux investigation ladder,
 Kubernetes-to-Linux correlation training, command-reasoning workflows,
 curated Kubernetes issue knowledge, Kubernetes investigation guidance,
-Kubernetes expert shortcuts, complex Linux scenario plans, and
+Kubernetes expert shortcuts, Linux expert shortcuts, complex Linux scenario plans, and
 provider-neutral evidence/dashboard contracts.
 
 ### Release Memory
 
 | Release | What it proves | Human reference |
 |---|---|---|
+| `v0.24.0` | AOP has short Linux expert shortcuts with safety guardrails | [`docs/releases/v0.24-linux-expert-shortcuts.md`](docs/releases/v0.24-linux-expert-shortcuts.md) |
 | `v0.23.0` | AOP has short Kubernetes expert shortcuts for SRE muscle memory | [`docs/releases/v0.23-kubernetes-expert-shortcuts.md`](docs/releases/v0.23-kubernetes-expert-shortcuts.md) |
 | `v0.22.0` | AOP can enrich real Kubernetes investigations with issue knowledge and Linux evidence guidance | [`docs/releases/v0.22-kubernetes-investigation-guidance.md`](docs/releases/v0.22-kubernetes-investigation-guidance.md) |
 | `v0.21.0` | AOP has curated Kubernetes issue knowledge with source-aware troubleshooting guidance | [`docs/releases/v0.21-kubernetes-issue-knowledge.md`](docs/releases/v0.21-kubernetes-issue-knowledge.md) |
@@ -143,6 +144,8 @@ provider-neutral evidence/dashboard contracts.
 - `aop investigate k8s` report enrichment with Kubernetes knowledge,
   Linux evidence guidance, and do-not-assume rules
 - `aop kx` Kubernetes expert shortcuts for common troubleshooting symptoms
+- `aop lx` Linux expert shortcuts for boot, kernel, grubby, storage, LVM,
+  DNS, NFS, limits, SELinux, and runtime troubleshooting
 - Linux command explanation through `aop linux explain`
 - read-only disk investigation planning through `aop linux plan disk`
 - read-only complex Linux scenario plans through `aop linux plan scenario`
@@ -159,7 +162,7 @@ provider-neutral evidence/dashboard contracts.
 - Markdown and JSON incident reports
 - typed Pydantic contracts
 - provider-neutral evidence, alert, metric, timeline, and dashboard contracts
-- one hundred thirty-nine offline regression tests
+- one hundred forty-three offline regression tests
 
 ### Not Yet Implemented
 
@@ -210,6 +213,9 @@ aop kb ev
 aop kx oom
 aop kx crash
 aop kx image
+aop lx boot
+aop lx grub
+aop lx storage
 aop investigate k8s-knowledge --symptom CrashLoopBackOff
 aop investigate k8s-linux --incident OOMKilled
 
@@ -260,6 +266,11 @@ aop kx list
 aop kx oom
 aop kx disk
 aop kx node
+aop lx list
+aop lx boot
+aop lx grub
+aop lx storage
+aop lx dns
 aop linux logs
 aop linux kernel
 aop linux boot
@@ -826,7 +837,7 @@ python -m unittest discover -s tests -v
 Current baseline:
 
 ```text
-139 tests passing
+143 tests passing
 ```
 
 The tests cover:
@@ -865,6 +876,7 @@ The tests cover:
   commands, do-not-assume rules, and JSON output
 - Kubernetes investigation guidance in summary, JSON, and Markdown reports
 - Kubernetes expert shortcut CLI behavior and JSON output
+- Linux expert shortcut CLI behavior and JSON output
 - Linux complex scenario catalog listing, alias lookup, human output, and JSON
   output
 - Kubernetes health and JSON output
@@ -897,6 +909,7 @@ Live Kubernetes and Prometheus validation remains a separate environment test.
 | [`docs/linux/tshelper-original/`](docs/linux/tshelper-original/) | Preserved original `tshelper` source materials |
 | [`linux_troubleshooting_command_catalog.md`](app/memory/knowledgebase/linux_troubleshooting_command_catalog.md) | Canonical Linux commands, arguments, interpretation, and safety memory |
 | [`linux_complex_troubleshooting_scenarios.md`](app/memory/knowledgebase/linux_complex_troubleshooting_scenarios.md) | Complex Linux scenario memory for v0.14 planning |
+| [`linux_expert_shortcuts_catalog.md`](app/memory/knowledgebase/linux_expert_shortcuts_catalog.md) | Linux expert shortcut memory and safety guardrails |
 | [`kubernetes_linux_correlation_catalog.md`](app/memory/knowledgebase/kubernetes_linux_correlation_catalog.md) | Kubernetes symptom to Linux evidence training memory |
 | [`kubernetes_issue_catalog.md`](app/memory/knowledgebase/kubernetes_issue_catalog.md) | Curated Kubernetes issue knowledge and source policy |
 | [`docs/setup/installation.md`](docs/setup/installation.md) | Detailed local installation |

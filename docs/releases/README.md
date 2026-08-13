@@ -10,6 +10,7 @@ unfinished.
 
 | Release | Focus | Reference |
 |---|---|---|
+| `v0.24.0` | Linux expert shortcuts | [`v0.24-linux-expert-shortcuts.md`](v0.24-linux-expert-shortcuts.md) |
 | `v0.23.0` | Kubernetes expert shortcuts | [`v0.23-kubernetes-expert-shortcuts.md`](v0.23-kubernetes-expert-shortcuts.md) |
 | `v0.22.0` | Kubernetes investigation guidance integration | [`v0.22-kubernetes-investigation-guidance.md`](v0.22-kubernetes-investigation-guidance.md) |
 | `v0.21.0` | Kubernetes issue knowledge catalog | [`v0.21-kubernetes-issue-knowledge.md`](v0.21-kubernetes-issue-knowledge.md) |

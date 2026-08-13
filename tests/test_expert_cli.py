@@ -53,6 +53,47 @@ class ExpertCLITests(unittest.TestCase):
             payload["linux_correlation"]["next_aop_commands"],
         )
 
+    def test_lx_list_shows_shortcuts(self) -> None:
+        result = CliRunner().invoke(main, ["lx", "list"])
+
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn("boot", result.output)
+        self.assertIn("grubby", result.output)
+        self.assertIn("storage", result.output)
+
+    def test_lx_boot_renders_safe_checks_and_dangerous_commands(self) -> None:
+        result = CliRunner().invoke(main, ["lx", "boot"])
+
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn("Linux Boot", result.output)
+        self.assertIn("journalctl --list-boots", result.output)
+        self.assertIn("Dangerous commands to avoid", result.output)
+        self.assertIn("reboot", result.output)
+        self.assertIn("Do not assume", result.output)
+
+    def test_lx_grub_mentions_grubby_and_boot_args(self) -> None:
+        result = CliRunner().invoke(main, ["lx", "grub"])
+
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn("grubby --default-kernel", result.output)
+        self.assertIn("cat /proc/cmdline", result.output)
+        self.assertIn("rollback kernel", result.output)
+
+    def test_lx_storage_json_contains_dangerous_guardrails(self) -> None:
+        result = CliRunner().invoke(
+            main,
+            ["lx", "explain", "storage", "--json"],
+        )
+
+        self.assertEqual(result.exit_code, 0)
+        payload = json.loads(result.output)
+        self.assertEqual(payload["topic"], "storage")
+        self.assertIn("xfs_repair <device>", payload["dangerous"])
+        self.assertIn(
+            "aop investigate linux disk --path /var",
+            payload["aop_commands"],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
