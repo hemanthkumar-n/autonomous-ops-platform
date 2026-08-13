@@ -894,6 +894,70 @@ def collect_service(service: str) -> dict:
     }
 
 
+def collect_boot_kernel(recent_minutes: int = 240) -> dict:
+    """
+    Collect boot, kernel, kdump, and grubby evidence without changing state.
+    """
+
+    if platform.system() != "Linux":
+        return {
+            "domain": "boot_kernel",
+            "status": "unsupported",
+            "host": socket.gethostname(),
+            "platform": platform.platform(),
+            "message": "Linux boot/kernel diagnostics require a Linux host",
+            "recent_minutes": recent_minutes,
+            "results": [],
+        }
+
+    specs = [
+        _spec("running_kernel", "Running kernel release", "uname", "-r"),
+        _spec("kernel_identity", "Kernel identity and architecture", "uname", "-a"),
+        _spec("boot_args", "Current kernel boot arguments", "cat", "/proc/cmdline"),
+        _spec("boot_history", "systemd boot history", "journalctl", "--list-boots"),
+        _spec("last_reboots", "Recent reboot history", "last", "reboot", "-n", "10"),
+        _spec("boot_health", "Current boot health", "systemctl", "is-system-running"),
+        _spec("boot_time", "Boot performance", "systemd-analyze", "time"),
+        _spec(
+            "current_kernel_errors",
+            f"Current boot kernel warnings/errors ({recent_minutes}m)",
+            "journalctl",
+            "-k",
+            "-p",
+            "warning",
+            "--since",
+            f"{recent_minutes} minutes ago",
+            "--no-pager",
+        ),
+        _spec(
+            "previous_boot_errors",
+            "Previous boot kernel and system warnings/errors",
+            "journalctl",
+            "-b",
+            "-1",
+            "-p",
+            "warning",
+            "-n",
+            "120",
+            "--no-pager",
+        ),
+        _spec("kdump_status", "kdump crash capture status", "kdumpctl", "status"),
+        _spec("grubby_default", "grubby default kernel", "grubby", "--default-kernel"),
+        _spec("grubby_index", "grubby default index", "grubby", "--default-index"),
+        _spec("grubby_info", "grubby boot entry inventory", "grubby", "--info=ALL"),
+    ]
+    results = [run_command(spec) for spec in specs]
+    return {
+        "domain": "boot_kernel",
+        "status": "collected",
+        "host": socket.gethostname(),
+        "platform": platform.platform(),
+        "message": "",
+        "recent_minutes": recent_minutes,
+        "results": [result.to_dict() for result in results],
+    }
+
+
 def _sort_sized_lines(
     output: str,
     top: int,

@@ -9,19 +9,18 @@ so the project remains honest and easy to explain.
 ## Current Baseline
 
 ```text
-Current release: v0.24.0
+Current release: v0.25.0
 Status: implemented and pushed
 ```
 
-v0.24.0 adds short Linux expert shortcuts:
+v0.25.0 adds deterministic Linux boot/kernel/grubby investigation:
 
 ```text
-aop lx grub
-  -> first safe checks
-  -> next AOP commands
-  -> dangerous commands to avoid
-  -> do-not-assume reminder
-  -> Kubernetes and cloud relation
+aop investigate linux boot
+  -> collect boot, kernel, kdump, and grubby evidence
+  -> classify panic, OOM, hung-task, storage-error, and default-kernel signals
+  -> persist Linux boot/kernel incident memory
+  -> stay read-only
 ```
 
 Implemented commands:
@@ -53,6 +52,7 @@ aop lx kernel
 aop lx grub
 aop lx storage
 aop lx dns
+aop investigate linux boot
 ```
 
 The human-readable Linux ladder is maintained in
@@ -60,6 +60,8 @@ The human-readable Linux ladder is maintained in
 
 ## Completed Linux And Data Foundation
 
+v0.25 added deterministic Linux boot, kernel, kdump, grubby/default-kernel,
+and boot-argument investigation.
 v0.24 added short Linux expert shortcuts for boot, kernel, grubby, storage,
 LVM, DNS, NFS, limits, SELinux, and container runtime troubleshooting.
 v0.23 added short Kubernetes expert shortcuts for common SRE troubleshooting
@@ -102,23 +104,21 @@ panic clues, `df`/`du` mismatch, inode exhaustion, deleted-open files,
 read-only remounts, LVM expansion mismatch, container runtime disk pressure,
 and Kubernetes symptoms that require Linux node correlation.
 
-## Next: v0.25
+## Next: v0.26
 
 Purpose:
 
 ```text
-Convert the highest-value Linux shortcut areas into deeper deterministic
-investigators.
+Continue Linux depth with deterministic storage, LVM, and NFS investigation.
 ```
 
 Target outcomes:
 
-- `aop investigate linux boot`
-- `aop investigate linux kernel`
 - `aop investigate linux storage`
-- `aop investigate linux dns`
-- stronger evidence parsing for previous boot, kernel errors, grubby/default
-  kernel, storage errors, and resolver failures
+- LVM layer mapping
+- NFS stale mount and D-state correlation
+- read-only filesystem and storage-error correlation
+- cloud volume follow-up guidance without mutating storage
 - keep AI RCA grounded in deterministic evidence and explicit gaps
 
 ## Later Roadmap

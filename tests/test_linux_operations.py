@@ -7,6 +7,7 @@ from unittest.mock import Mock, patch
 from app.tools.linux.operations import (
     CommandResult,
     CommandSpec,
+    collect_boot_kernel,
     collect_cpu,
     collect_disk,
     collect_memory,
@@ -443,6 +444,37 @@ class LinuxOperationsTests(unittest.TestCase):
         )
         self.assertIn("--grep", journal_spec.argv)
         self.assertIn("30 minutes ago", journal_spec.argv)
+
+    @patch(
+        "app.tools.linux.operations.platform.system",
+        return_value="Linux",
+    )
+    @patch("app.tools.linux.operations.run_command")
+    def test_boot_kernel_collection_is_read_only_and_ordered(
+        self,
+        run_command_mock,
+        _platform_system,
+    ) -> None:
+        def fake_run(spec):
+            return CommandResult(
+                key=spec.key,
+                label=spec.label,
+                command=" ".join(spec.argv),
+                status="ok",
+                output="",
+            )
+
+        run_command_mock.side_effect = fake_run
+
+        payload = collect_boot_kernel(recent_minutes=30)
+
+        keys = [item["key"] for item in payload["results"]]
+        self.assertEqual(keys[0], "running_kernel")
+        self.assertIn("boot_args", keys)
+        self.assertIn("grubby_default", keys)
+        commands = [item["command"] for item in payload["results"]]
+        self.assertNotIn("grubby --set-default", "\n".join(commands))
+        self.assertNotIn("grubby --update-kernel", "\n".join(commands))
 
 
 if __name__ == "__main__":

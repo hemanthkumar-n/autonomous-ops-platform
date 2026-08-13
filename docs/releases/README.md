@@ -10,6 +10,7 @@ unfinished.
 
 | Release | Focus | Reference |
 |---|---|---|
+| `v0.25.0` | Linux boot, kernel, and grubby investigation | [`v0.25-linux-boot-kernel-investigation.md`](v0.25-linux-boot-kernel-investigation.md) |
 | `v0.24.0` | Linux expert shortcuts | [`v0.24-linux-expert-shortcuts.md`](v0.24-linux-expert-shortcuts.md) |
 | `v0.23.0` | Kubernetes expert shortcuts | [`v0.23-kubernetes-expert-shortcuts.md`](v0.23-kubernetes-expert-shortcuts.md) |
 | `v0.22.0` | Kubernetes investigation guidance integration | [`v0.22-kubernetes-investigation-guidance.md`](v0.22-kubernetes-investigation-guidance.md) |

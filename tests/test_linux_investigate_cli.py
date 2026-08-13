@@ -8,6 +8,8 @@ from click.testing import CliRunner
 
 from app.cli.main import main
 from app.schemas.linux import (
+    LinuxBootKernelFinding,
+    LinuxBootKernelInvestigation,
     LinuxCpuFinding,
     LinuxCpuInvestigation,
     LinuxDiskFinding,
@@ -181,6 +183,37 @@ def _service_investigation() -> LinuxServiceInvestigation:
                 next_explanation=(
                     "start-limit-hit means systemd stopped trying after "
                     "repeated failures."
+                ),
+            )
+        ],
+    )
+
+
+def _boot_kernel_investigation() -> LinuxBootKernelInvestigation:
+    return LinuxBootKernelInvestigation(
+        status="diagnosed",
+        hostname="worker-01",
+        platform="Linux",
+        primary_diagnosis="previous_boot_panic",
+        severity="critical",
+        confidence=96,
+        summary="Previous boot contains kernel panic/oops evidence.",
+        running_kernel="5.14.0-1.el9.x86_64",
+        default_kernel="/boot/vmlinuz-5.14.0-2.el9.x86_64",
+        default_index="0",
+        boot_args="BOOT_IMAGE=/vmlinuz crashkernel=auto",
+        kdump_status="Kdump is operational",
+        findings=[
+            LinuxBootKernelFinding(
+                code="previous_boot_panic",
+                severity="critical",
+                confidence=96,
+                summary="Previous boot contains kernel panic/oops evidence.",
+                evidence=["kernel: Kernel panic - not syncing"],
+                next="Preserve previous-boot journal and check kdump.",
+                next_explanation=(
+                    "Previous-boot panic evidence is stronger than current "
+                    "clean logs after a reboot."
                 ),
             )
         ],
@@ -491,6 +524,59 @@ class LinuxInvestigateCLITests(unittest.TestCase):
         self.assertEqual(payload["primary_diagnosis"], "start_limit_hit")
         run_workflow.assert_called_once_with(
             service="nginx.service",
+            persist=False,
+        )
+
+    @patch(
+        "app.orchestration.linux_boot_kernel_workflow.run_linux_boot_kernel_workflow"
+    )
+    def test_boot_summary_renders_kernel_state_and_why(
+        self,
+        run_workflow,
+    ) -> None:
+        run_workflow.return_value = (_boot_kernel_investigation(), "boot.json")
+
+        result = CliRunner().invoke(
+            main,
+            ["investigate", "linux", "boot"],
+        )
+
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn("previous_boot_panic", result.output)
+        self.assertIn("running=5.14.0-1", result.output)
+        self.assertIn("default=/boot/vmlinuz-5.14.0-2", result.output)
+        self.assertIn("Boot args:", result.output)
+        self.assertIn("Why:", result.output)
+        self.assertIn("boot.json", result.output)
+
+    @patch(
+        "app.orchestration.linux_boot_kernel_workflow.run_linux_boot_kernel_workflow"
+    )
+    def test_boot_json_forwards_scope_and_no_persist(
+        self,
+        run_workflow,
+    ) -> None:
+        run_workflow.return_value = (_boot_kernel_investigation(), None)
+
+        result = CliRunner().invoke(
+            main,
+            [
+                "investigate",
+                "linux",
+                "boot",
+                "--recent-minutes",
+                "30",
+                "--format",
+                "json",
+                "--no-persist",
+            ],
+        )
+
+        self.assertEqual(result.exit_code, 0)
+        payload = json.loads(result.output)
+        self.assertEqual(payload["primary_diagnosis"], "previous_boot_panic")
+        run_workflow.assert_called_once_with(
+            recent_minutes=30,
             persist=False,
         )
 

@@ -4,6 +4,31 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.25.0 - Linux Boot, Kernel, and grubby Investigation
+
+Date: 2026-08-14
+
+### Added
+
+- `aop investigate linux boot`
+- read-only boot/kernel evidence collector for running kernel, boot args,
+  boot history, current and previous boot logs, kdump, and grubby inventory
+- deterministic findings for previous boot panic/oops, current kernel
+  panic/oops, kernel OOM, hung tasks, kernel storage errors, kdump
+  unavailable, running/default kernel mismatch, risky boot args, and
+  insufficient evidence
+- Linux boot/kernel incident memory persistence
+- tests for agent parsing, workflow persistence, collector safety, and CLI
+  summary/JSON output
+
+### Safety
+
+The investigation does not change default kernels, boot arguments, GRUB
+configuration, kdump configuration, kernel parameters, drivers, filesystems,
+or reboot state.
+
+---
+
 ## v0.24.0 - Linux Expert Shortcuts
 
 Date: 2026-08-14

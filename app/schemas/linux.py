@@ -176,6 +176,37 @@ class LinuxServiceInvestigation(BaseModel):
     raw_evidence: dict = Field(default_factory=dict)
 
 
+class LinuxBootKernelFinding(BaseModel):
+    code: str
+    severity: str
+    confidence: int = Field(ge=0, le=100)
+    summary: str
+    evidence: list[str] = Field(default_factory=list)
+    next: str
+    next_explanation: str = ""
+
+
+class LinuxBootKernelInvestigation(BaseModel):
+    status: str
+    hostname: str
+    platform: str
+    primary_diagnosis: str
+    severity: str
+    confidence: int = Field(ge=0, le=100)
+    summary: str
+    running_kernel: str | None = None
+    default_kernel: str | None = None
+    default_index: str | None = None
+    boot_args: str | None = None
+    kdump_status: str | None = None
+    current_kernel_errors: list[str] = Field(default_factory=list)
+    previous_boot_errors: list[str] = Field(default_factory=list)
+    boot_history: list[str] = Field(default_factory=list)
+    findings: list[LinuxBootKernelFinding] = Field(default_factory=list)
+    evidence_gaps: list[str] = Field(default_factory=list)
+    raw_evidence: dict = Field(default_factory=dict)
+
+
 class LinuxInternalsEvidence(BaseModel):
     status: str
     hostname: str

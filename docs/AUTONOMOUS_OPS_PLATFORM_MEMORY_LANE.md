@@ -54,12 +54,12 @@ Remediation is advisory and non-destructive.
 
 ## Current Baseline
 
-- Version: `0.24.0`
+- Version: `0.25.0`
 - Branch: `main`
 - Remote baseline: `origin/main`
 - Python: `3.11+`
 - CLI entry point: `aop`
-- Tests: one hundred forty-three offline regression tests passing
+- Tests: one hundred fifty-two offline regression tests passing
 - Real Ollama generation and 768-dimensional embeddings verified
 - Full live demo still requires Kubernetes and Prometheus to be running
 
@@ -275,6 +275,17 @@ aop lx selinux
 aop lx runtime
 ```
 
+Linux boot/kernel/grubby investigation:
+
+```text
+aop investigate linux boot
+aop investigate linux boot --recent-minutes 30 --format json
+```
+
+Classifies previous-boot panic/oops, current kernel panic/oops, kernel OOM,
+hung tasks, kernel storage errors, kdump availability, running/default kernel
+mismatch, risky boot args, and insufficient evidence.
+
 Linux command reasoning:
 
 ```text
@@ -436,6 +447,7 @@ aop lx boot
 aop lx grub
 aop lx storage
 aop lx dns
+aop investigate linux boot
 aop investigate k8s --namespace ai-lab
 aop investigate k8s --namespace ai-lab \
   --format markdown \
@@ -533,8 +545,7 @@ ENABLE_DESTRUCTIVE_REMEDIATION=false
 
 ## Next Priorities
 
-1. Convert boot/kernel/grubby into deterministic Linux investigators.
-2. Convert storage/LVM/NFS into deterministic Linux investigators.
+1. Convert storage/LVM/NFS into deterministic Linux investigators.
 3. Prepare dashboard/evidence timeline summaries from the enriched workflow.
 4. Run and record a complete live Kubernetes/Prometheus showcase.
 5. Add CI for tests, formatting, linting, and type checks.

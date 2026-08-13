@@ -35,6 +35,7 @@ aop linux plan scenario --list
 aop linux plan scenario high-load
 aop linux cpu
 aop investigate linux cpu
+aop investigate linux boot
 aop linux memory
 aop investigate linux memory
 aop investigate linux memory --pid 4242
@@ -330,6 +331,30 @@ Why: Kernel OOM evidence proves a process or cgroup could not satisfy memory all
 
 This workflow is deterministic. It does not call an LLM and does not kill,
 restart, clear cache, change limits, tune sysctl values, or modify swap.
+
+## Boot, Kernel, And grubby Investigation
+
+```bash
+aop investigate linux boot
+aop investigate linux boot --recent-minutes 30
+aop investigate linux boot --format json
+```
+
+This command classifies:
+
+- previous boot panic/oops evidence
+- current kernel panic/oops evidence
+- kernel OOM near boot/reboot context
+- hung task or blocked kernel waits
+- kernel storage/filesystem errors
+- unavailable kdump crash capture
+- running/default kernel mismatch
+- risky boot arguments such as cgroup or crashkernel controls
+- insufficient evidence
+
+It collects `uname`, `/proc/cmdline`, boot history, previous boot journal,
+current kernel journal, kdump status, and read-only `grubby` information. It
+does not change default kernel, boot arguments, GRUB config, or reboot state.
 
 ## CPU, Load, And D-State Investigation
 

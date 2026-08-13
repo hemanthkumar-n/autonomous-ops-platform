@@ -10,7 +10,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-blue" alt="Python 3.11+" />
-  <img src="https://img.shields.io/badge/AOP-v0.24.0-success" alt="AOP v0.24.0" />
+  <img src="https://img.shields.io/badge/AOP-v0.25.0-success" alt="AOP v0.25.0" />
   <img src="https://img.shields.io/badge/Kubernetes-SRE%20Shortcuts-326CE5" alt="Kubernetes SRE Shortcuts" />
   <img src="https://img.shields.io/badge/Observability-Prometheus-red" alt="Prometheus" />
   <img src="https://img.shields.io/badge/LLM-Ollama-green" alt="Ollama" />
@@ -80,7 +80,7 @@ release exists.
 Current version:
 
 ```text
-AOP v0.24.0
+AOP v0.25.0
 ```
 
 The implemented and tested paths currently cover Kubernetes incident
@@ -90,13 +90,15 @@ Linux network/NIC investigation, NIC/interface-card evidence,
 systemd service investigation, a consolidated Linux investigation ladder,
 Kubernetes-to-Linux correlation training, command-reasoning workflows,
 curated Kubernetes issue knowledge, Kubernetes investigation guidance,
-Kubernetes expert shortcuts, Linux expert shortcuts, complex Linux scenario plans, and
-provider-neutral evidence/dashboard contracts.
+Kubernetes expert shortcuts, Linux expert shortcuts, Linux boot/kernel/grubby
+investigation, complex Linux scenario plans, and provider-neutral
+evidence/dashboard contracts.
 
 ### Release Memory
 
 | Release | What it proves | Human reference |
 |---|---|---|
+| `v0.25.0` | AOP can diagnose boot, kernel, kdump, and grubby/default-kernel evidence safely | [`docs/releases/v0.25-linux-boot-kernel-investigation.md`](docs/releases/v0.25-linux-boot-kernel-investigation.md) |
 | `v0.24.0` | AOP has short Linux expert shortcuts with safety guardrails | [`docs/releases/v0.24-linux-expert-shortcuts.md`](docs/releases/v0.24-linux-expert-shortcuts.md) |
 | `v0.23.0` | AOP has short Kubernetes expert shortcuts for SRE muscle memory | [`docs/releases/v0.23-kubernetes-expert-shortcuts.md`](docs/releases/v0.23-kubernetes-expert-shortcuts.md) |
 | `v0.22.0` | AOP can enrich real Kubernetes investigations with issue knowledge and Linux evidence guidance | [`docs/releases/v0.22-kubernetes-investigation-guidance.md`](docs/releases/v0.22-kubernetes-investigation-guidance.md) |
@@ -146,6 +148,8 @@ provider-neutral evidence/dashboard contracts.
 - `aop kx` Kubernetes expert shortcuts for common troubleshooting symptoms
 - `aop lx` Linux expert shortcuts for boot, kernel, grubby, storage, LVM,
   DNS, NFS, limits, SELinux, and runtime troubleshooting
+- `aop investigate linux boot` deterministic diagnosis for boot, kernel,
+  panic/oops, kdump, grubby/default-kernel, and boot-argument evidence
 - Linux command explanation through `aop linux explain`
 - read-only disk investigation planning through `aop linux plan disk`
 - read-only complex Linux scenario plans through `aop linux plan scenario`
@@ -162,7 +166,7 @@ provider-neutral evidence/dashboard contracts.
 - Markdown and JSON incident reports
 - typed Pydantic contracts
 - provider-neutral evidence, alert, metric, timeline, and dashboard contracts
-- one hundred forty-three offline regression tests
+- one hundred fifty-two offline regression tests
 
 ### Not Yet Implemented
 
@@ -216,6 +220,7 @@ aop kx image
 aop lx boot
 aop lx grub
 aop lx storage
+aop investigate linux boot
 aop investigate k8s-knowledge --symptom CrashLoopBackOff
 aop investigate k8s-linux --incident OOMKilled
 
@@ -271,6 +276,8 @@ aop lx boot
 aop lx grub
 aop lx storage
 aop lx dns
+aop investigate linux boot
+aop investigate linux boot --recent-minutes 30 --format json
 aop linux logs
 aop linux kernel
 aop linux boot
@@ -837,7 +844,7 @@ python -m unittest discover -s tests -v
 Current baseline:
 
 ```text
-143 tests passing
+152 tests passing
 ```
 
 The tests cover:
@@ -877,6 +884,8 @@ The tests cover:
 - Kubernetes investigation guidance in summary, JSON, and Markdown reports
 - Kubernetes expert shortcut CLI behavior and JSON output
 - Linux expert shortcut CLI behavior and JSON output
+- Linux boot/kernel/grubby incident classification, workflow orchestration,
+  CLI output, collector safety, and structured memory persistence
 - Linux complex scenario catalog listing, alias lookup, human output, and JSON
   output
 - Kubernetes health and JSON output
