@@ -4,6 +4,34 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.29.0 - Container Runtime Troubleshooting Planner
+
+Date: 2026-08-14
+
+### Added
+
+- `aop investigate linux runtime`
+- runtime planner for `containerd`, `crio`/`cri-o`, and `docker`
+- symptom planning for image pulls, container creation, runtime disk pressure,
+  NodeNotReady, runtime-down, CNI/network failures, container log pressure,
+  PID pressure, and cgroup issues
+- evidence plans for runtime service state, kubelet relation, journals,
+  runtime storage paths, runtime inventory, CNI, process/cgroup pressure,
+  Kubernetes symptoms, and AWS/cloud context
+- dangerous-action guidance for runtime restarts, kubelet restarts, runtime
+  directory deletion, and image pruning
+- JSON and summary output
+- tests for runtime aliases, symptom aliases, containerd, CRI-O, Docker,
+  dangerous actions, CLI summary, CLI JSON, and list output
+
+### Safety
+
+This release remains planner/read-only. It does not restart runtimes, restart
+kubelet, prune images, delete runtime directories, modify CNI, alter cgroups,
+or execute remediation. Live execution stays reserved for later server trials.
+
+---
+
 ## v0.28.0 - Kubernetes Node To Linux Correlation
 
 Date: 2026-08-14

@@ -10,6 +10,7 @@ unfinished.
 
 | Release | Focus | Reference |
 |---|---|---|
+| `v0.29.0` | Container runtime troubleshooting planner | [`v0.29-container-runtime-troubleshooting-planner.md`](v0.29-container-runtime-troubleshooting-planner.md) |
 | `v0.28.0` | Kubernetes node to Linux correlation | [`v0.28-kubernetes-node-linux-correlation.md`](v0.28-kubernetes-node-linux-correlation.md) |
 | `v0.27.0` | Linux host-level correlation | [`v0.27-linux-host-correlation.md`](v0.27-linux-host-correlation.md) |
 | `v0.26.0` | Linux storage, LVM, multipath, and NFS investigation | [`v0.26-linux-storage-lvm-nfs-investigation.md`](v0.26-linux-storage-lvm-nfs-investigation.md) |

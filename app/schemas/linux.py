@@ -252,6 +252,36 @@ class LinuxHostInvestigation(BaseModel):
     raw_evidence: dict = Field(default_factory=dict)
 
 
+class LinuxRuntimeEvidenceArea(BaseModel):
+    area: str
+    reason: str
+    commands: list[str] = Field(default_factory=list)
+
+
+class LinuxRuntimeDangerousAction(BaseModel):
+    action: str
+    why_dangerous: str
+    safer_first_step: str
+
+
+class LinuxRuntimePlan(BaseModel):
+    runtime: str
+    symptom: str
+    primary_diagnosis: str
+    severity: str
+    confidence: int = Field(ge=0, le=100)
+    summary: str
+    service_units: list[str] = Field(default_factory=list)
+    storage_paths: list[str] = Field(default_factory=list)
+    evidence: list[LinuxRuntimeEvidenceArea] = Field(default_factory=list)
+    next_aop_commands: list[str] = Field(default_factory=list)
+    kubernetes_correlation: list[str] = Field(default_factory=list)
+    aws_correlation: list[str] = Field(default_factory=list)
+    do_not_assume: list[str] = Field(default_factory=list)
+    dangerous_actions: list[LinuxRuntimeDangerousAction] = Field(default_factory=list)
+    memory_note: str
+
+
 class LinuxInternalsEvidence(BaseModel):
     status: str
     hostname: str

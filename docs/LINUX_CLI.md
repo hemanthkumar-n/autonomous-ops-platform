@@ -341,6 +341,48 @@ choosing the next investigation path.
 It remains read-only and does not run remediation, restart, cleanup, mount,
 filesystem repair, kernel, or bootloader mutation commands.
 
+## Container Runtime Troubleshooting Planner
+
+Use runtime planning when Kubernetes points toward containerd, CRI-O, Docker,
+kubelet, image pulls, container creation, runtime storage, CNI, or cgroups:
+
+```bash
+aop investigate linux runtime
+aop investigate linux runtime --runtime containerd --symptom image-pull
+aop investigate linux runtime --runtime crio --symptom disk-pressure
+aop investigate linux runtime --runtime docker --symptom runtime-down
+aop investigate linux runtime --list
+aop investigate linux runtime --runtime containerd --symptom cgroup --format json
+```
+
+Supported symptoms:
+
+- `image-pull`
+- `container-create`
+- `disk-pressure`
+- `node-not-ready`
+- `runtime-down`
+- `cni-network`
+- `log-pressure`
+- `pid-pressure`
+- `cgroup`
+
+The command trains the agent and the SRE on what to preserve first:
+
+- runtime and kubelet service state
+- runtime and kubelet journals
+- runtime storage paths
+- pod log paths
+- runtime inventory
+- image pull evidence
+- CNI evidence
+- PID/cgroup pressure
+- Kubernetes and AWS/cloud correlation
+- dangerous actions to avoid
+
+It does not restart kubelet/containerd/CRI-O/Docker, prune images, delete
+runtime directories, alter CNI, change cgroups, or execute remediation.
+
 ## Memory And OOM Investigation
 
 Raw memory collection and incident diagnosis are separate commands:

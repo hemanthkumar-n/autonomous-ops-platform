@@ -650,6 +650,139 @@ def investigate_linux_host(
         click.echo(f"Memory record: {saved_path}")
 
 
+@investigate_linux.command("runtime")
+@click.option(
+    "--runtime",
+    "runtime_name",
+    type=click.Choice(["containerd", "crio", "cri-o", "docker"], case_sensitive=False),
+    default="containerd",
+    show_default=True,
+    help="Container runtime to plan for.",
+)
+@click.option(
+    "--symptom",
+    help=(
+        "Runtime symptom such as image-pull, container-create, disk-pressure, "
+        "node-not-ready, runtime-down, cni-network, log-pressure, pid-pressure, or cgroup."
+    ),
+)
+@click.option(
+    "--list",
+    "list_values",
+    is_flag=True,
+    help="List supported runtimes and symptoms.",
+)
+@click.option(
+    "--format",
+    "output_format",
+    type=click.Choice(["summary", "json"], case_sensitive=False),
+    default="summary",
+    show_default=True,
+)
+def investigate_linux_runtime(
+    runtime_name: str,
+    symptom: str | None,
+    list_values: bool,
+    output_format: str,
+) -> None:
+    """
+    Plan container runtime, kubelet, image, CNI, and storage evidence.
+    """
+
+    from app.agents.linux.runtime_agent import (
+        build_runtime_plan,
+        list_runtime_symptoms,
+        list_supported_runtimes,
+    )
+
+    if list_values:
+        click.echo("Runtimes")
+        for item in list_supported_runtimes():
+            click.echo(f"- {item}")
+        click.echo()
+        click.echo("Symptoms")
+        for item in list_runtime_symptoms():
+            click.echo(f"- {item}")
+        return
+
+    try:
+        plan = build_runtime_plan(
+            runtime=runtime_name,
+            symptom=symptom,
+        )
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if output_format == "json":
+        click.echo(plan.model_dump_json(indent=2))
+        return
+
+    click.echo(
+        f"Linux runtime plan: {plan.severity.upper()} "
+        f"runtime={plan.runtime} symptom={plan.symptom}"
+    )
+    click.echo(
+        f"Primary diagnosis: {plan.primary_diagnosis} "
+        f"({plan.confidence}%)"
+    )
+    click.echo(plan.summary)
+
+    if plan.service_units:
+        click.echo()
+        click.echo("Service units")
+        for unit in plan.service_units:
+            click.echo(f"- {unit}")
+
+    if plan.storage_paths:
+        click.echo()
+        click.echo("Storage paths")
+        for path in plan.storage_paths:
+            click.echo(f"- {path}")
+
+    if plan.evidence:
+        click.echo()
+        click.echo("Evidence plan")
+        for item in plan.evidence:
+            click.echo(f"- {item.area}: {item.reason}")
+            for command in item.commands:
+                click.echo(f"  command: {command}")
+
+    if plan.next_aop_commands:
+        click.echo()
+        click.echo("Next AOP commands")
+        for command in plan.next_aop_commands:
+            click.echo(f"- {command}")
+
+    if plan.kubernetes_correlation:
+        click.echo()
+        click.echo("Kubernetes correlation")
+        for item in plan.kubernetes_correlation:
+            click.echo(f"- {item}")
+
+    if plan.aws_correlation:
+        click.echo()
+        click.echo("AWS/cloud correlation")
+        for item in plan.aws_correlation:
+            click.echo(f"- {item}")
+
+    if plan.do_not_assume:
+        click.echo()
+        click.echo("Do not assume")
+        for item in plan.do_not_assume:
+            click.echo(f"- {item}")
+
+    if plan.dangerous_actions:
+        click.echo()
+        click.echo("Dangerous actions to avoid first")
+        for item in plan.dangerous_actions:
+            click.echo(f"- {item.action}")
+            click.echo(f"  Why dangerous: {item.why_dangerous}")
+            click.echo(f"  Safer first step: {item.safer_first_step}")
+
+    click.echo()
+    click.echo(f"Memory note: {plan.memory_note}")
+
+
 @investigate_linux.command("cpu")
 @click.option(
     "--top",

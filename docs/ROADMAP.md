@@ -9,17 +9,17 @@ so the project remains honest and easy to explain.
 ## Current Baseline
 
 ```text
-Current release: v0.28.0
+Current release: v0.29.0
 Status: implemented and pushed
 ```
 
-v0.28.0 adds Kubernetes node-to-Linux correlation planning:
+v0.29.0 adds container runtime troubleshooting planning:
 
 ```text
-aop investigate k8s-node --node worker-01 --condition DiskPressure
-  -> map Kubernetes node condition to Linux host evidence
-  -> recommend exact AOP Linux commands for the node symptom
-  -> preserve do-not-assume and cloud checks
+aop investigate linux runtime --runtime containerd --symptom image-pull
+  -> plan runtime, kubelet, storage, CNI, image, log, PID, and cgroup evidence
+  -> mark dangerous runtime actions to avoid first
+  -> train agents before live server execution
   -> stay read-only
 ```
 
@@ -55,6 +55,7 @@ aop lx dns
 aop investigate linux boot
 aop investigate linux host
 aop investigate k8s-node --node worker-01 --condition DiskPressure
+aop investigate linux runtime --runtime containerd --symptom image-pull
 ```
 
 The human-readable Linux ladder is maintained in
@@ -62,6 +63,9 @@ The human-readable Linux ladder is maintained in
 
 ## Completed Linux And Data Foundation
 
+v0.29 added container runtime troubleshooting planning for containerd, CRI-O,
+Docker, kubelet relation, image pulls, runtime storage, CNI, logs, PID
+pressure, and cgroups.
 v0.28 added Kubernetes node-to-Linux correlation planning for DiskPressure,
 MemoryPressure, PIDPressure, NetworkUnavailable, and Ready=False.
 v0.27 added host-level correlation across existing Linux domain
@@ -112,20 +116,20 @@ panic clues, `df`/`du` mismatch, inode exhaustion, deleted-open files,
 read-only remounts, LVM expansion mismatch, container runtime disk pressure,
 and Kubernetes symptoms that require Linux node correlation.
 
-## Next: v0.29
+## Next: v0.30
 
 Purpose:
 
 ```text
-Add container runtime troubleshooting depth for Kubernetes nodes.
+Begin AWS troubleshooting planning and CloudWatch evidence mapping.
 ```
 
 Target outcomes:
 
-- containerd and CRI-O service investigation shortcuts
-- runtime storage path guidance for `/var/lib/containerd` and `/var/lib/containers`
-- image pull failure runtime evidence
-- kubelet/runtime log planning
+- AWS logs and metric evidence planner
+- EC2/EBS/EKS node correlation
+- CloudWatch log group and metric checklist
+- VPC/NAT/ELB/EBS next evidence guidance
 - no automatic remediation
 - cloud volume follow-up guidance without mutating storage
 - keep AI RCA grounded in deterministic evidence and explicit gaps
