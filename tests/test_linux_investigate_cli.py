@@ -35,6 +35,16 @@ def _investigation() -> LinuxDiskInvestigation:
         summary="Inode utilization is 97%.",
         filesystem_use_percent=60,
         inode_use_percent=97,
+        mount_source="/dev/mapper/vg0-var",
+        filesystem_type="xfs",
+        mount_point="/var",
+        lvm_volume_groups=["vg0 100.00g 2.00g wz--n-"],
+        multipath_devices=["mpatha dm-2 NETAPP,LUN"],
+        io_sample={
+            "device": "dm-2",
+            "await_ms": 120.0,
+            "util_percent": 98.0,
+        },
         findings=[
             LinuxDiskFinding(
                 code="inode_exhaustion",
@@ -244,6 +254,10 @@ class LinuxInvestigateCLITests(unittest.TestCase):
         self.assertEqual(result.exit_code, 0)
         self.assertIn("inode_exhaustion", result.output)
         self.assertIn("Inode use: 97%", result.output)
+        self.assertIn("Mount: source=/dev/mapper/vg0-var", result.output)
+        self.assertIn("I/O sample: device=dm-2", result.output)
+        self.assertIn("LVM volume groups: 1", result.output)
+        self.assertIn("Multipath records: 1", result.output)
         self.assertIn("Why:", result.output)
         self.assertIn("byte capacity is available", result.output)
         self.assertIn("memory.json", result.output)

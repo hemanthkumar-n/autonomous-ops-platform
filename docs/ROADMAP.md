@@ -9,17 +9,18 @@ so the project remains honest and easy to explain.
 ## Current Baseline
 
 ```text
-Current release: v0.25.0
+Current release: v0.26.0
 Status: implemented and pushed
 ```
 
-v0.25.0 adds deterministic Linux boot/kernel/grubby investigation:
+v0.26.0 deepens deterministic Linux disk investigation into storage-layer
+troubleshooting:
 
 ```text
-aop investigate linux boot
-  -> collect boot, kernel, kdump, and grubby evidence
-  -> classify panic, OOM, hung-task, storage-error, and default-kernel signals
-  -> persist Linux boot/kernel incident memory
+aop investigate linux disk --path /var
+  -> collect filesystem, inode, mount, block-device, LVM, multipath, NFS, and I/O evidence
+  -> classify capacity, inode, deleted-file, read-only, storage-error, NFS, LVM, multipath, and latency signals
+  -> persist Linux disk incident memory
   -> stay read-only
 ```
 
@@ -60,6 +61,8 @@ The human-readable Linux ladder is maintained in
 
 ## Completed Linux And Data Foundation
 
+v0.26 deepened deterministic Linux disk investigation with block-device, LVM,
+multipath, NFS, and I/O latency evidence.
 v0.25 added deterministic Linux boot, kernel, kdump, grubby/default-kernel,
 and boot-argument investigation.
 v0.24 added short Linux expert shortcuts for boot, kernel, grubby, storage,
@@ -104,20 +107,21 @@ panic clues, `df`/`du` mismatch, inode exhaustion, deleted-open files,
 read-only remounts, LVM expansion mismatch, container runtime disk pressure,
 and Kubernetes symptoms that require Linux node correlation.
 
-## Next: v0.26
+## Next: v0.27
 
 Purpose:
 
 ```text
-Continue Linux depth with deterministic storage, LVM, and NFS investigation.
+Build a host-level Linux investigation that correlates existing domain agents.
 ```
 
 Target outcomes:
 
-- `aop investigate linux storage`
-- LVM layer mapping
-- NFS stale mount and D-state correlation
-- read-only filesystem and storage-error correlation
+- `aop investigate linux host`
+- disk, memory, CPU, network, service, boot, and cgroup summary in one report
+- evidence-backed primary diagnosis across domains
+- Kubernetes node correlation hints when kubelet/container paths are involved
+- no automatic remediation
 - cloud volume follow-up guidance without mutating storage
 - keep AI RCA grounded in deterministic evidence and explicit gaps
 

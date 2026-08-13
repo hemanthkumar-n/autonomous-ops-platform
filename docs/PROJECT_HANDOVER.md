@@ -30,10 +30,10 @@ Do not treat empty modules or directory names as implemented capabilities.
 ## Verified Baseline
 
 ```text
-Release: 0.25.0
+Release: 0.26.0
 Branch: main
 Remote: origin/main
-Offline tests: 152 passing
+Offline tests: 156 passing
 CLI entry point: aop
 Python: 3.11+
 ```
@@ -51,7 +51,7 @@ git status --short --branch
 Expected version:
 
 ```text
-aop, version 0.25.0
+aop, version 0.26.0
 ```
 
 ## What AOP Is
@@ -108,8 +108,8 @@ aop kb inv -n ai-lab
   pressure evidence
 - timed counter deltas for Linux internals and cgroups
 - ordered disk investigation covering capacity, inodes, mount context,
-  directory usage, recent large files, deleted-open files, and kernel storage
-  errors
+  block devices, LVM, multipath, NFS, I/O latency, directory usage, recent
+  large files, deleted-open files, and kernel storage errors
 - command explanation through `aop linux explain`
 - read-only disk investigation planning through `aop linux plan disk`
 - read-only complex scenario plans through `aop linux plan scenario`
@@ -117,6 +117,8 @@ aop kb inv -n ai-lab
 - deterministic `aop investigate linux disk` classification
 - disk severity, confidence, supporting evidence, evidence gaps, and safe next
   checks
+- storage-layer disk findings for read-only block devices, multipath path
+  loss, NFS mount risk, LVM free-space or thin-pool pressure, and I/O latency
 - Linux-native disk incident memory with semantic-indexing fallback
 - deterministic `aop investigate linux memory` classification for OOM, swap,
   `MemAvailable`, and cgroup memory events

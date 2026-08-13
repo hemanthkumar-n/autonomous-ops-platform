@@ -26,6 +26,12 @@ def _evidence(
     filesystem: str = "/dev/sda1 ext4 100G 96G 4G 96% /var",
     inodes: str = "/dev/sda1 100000 40000 60000 40% /var",
     mount: str = "/dev/sda1 ext4 rw,relatime /var",
+    block_devices: str = "",
+    lvm_vgs: str = "",
+    lvm_lvs: str = "",
+    multipath: str = "",
+    nfs: str = "",
+    iostat: str = "",
     recent: str = "",
     deleted: str = "",
     kernel: str = "-- No entries --",
@@ -52,6 +58,13 @@ def _evidence(
                 "mount",
                 "SOURCE FSTYPE OPTIONS TARGET\n" + mount,
             ),
+            _result("block_devices", "NAME KNAME TYPE SIZE FSTYPE MOUNTPOINTS PKNAME MODEL SERIAL ROTA RO STATE\n" + block_devices),
+            _result("lvm_pvs", ""),
+            _result("lvm_vgs", lvm_vgs),
+            _result("lvm_lvs", lvm_lvs),
+            _result("multipath", multipath),
+            _result("nfs_mountstats", nfs),
+            _result("io_stats", iostat),
             _result("directory_usage", "9000\t/var/log"),
             _result("large_recent_files", recent),
             _result("deleted_open_files", deleted),
@@ -130,6 +143,68 @@ class LinuxDiskAgentTests(unittest.TestCase):
             if item.code == "deleted_open_files"
         )
         self.assertIn("process still has them open", deleted_open.next_explanation)
+
+    def test_nfs_risk_is_distinct_from_local_disk_capacity(self) -> None:
+        investigation = analyze_disk_evidence(
+            _evidence(
+                filesystem="nfs01:/export nfs4 100G 40G 60G 40% /mnt/share",
+                inodes="nfs01:/export 100000 40000 60000 40% /mnt/share",
+                mount="nfs01:/export nfs4 rw,soft,timeo=600 /mnt/share",
+                kernel="kernel: nfs: server nfs01 not responding, still trying",
+            )
+        )
+
+        self.assertEqual(investigation.primary_diagnosis, "nfs_mount_risk")
+        self.assertIn("NFS", investigation.findings[0].summary)
+        self.assertIn("server health", investigation.findings[0].next)
+
+    def test_multipath_path_loss_outranks_capacity(self) -> None:
+        investigation = analyze_disk_evidence(
+            _evidence(
+                filesystem="/dev/mapper/mpatha ext4 100G 88G 12G 88% /data",
+                mount="/dev/mapper/mpatha ext4 rw,relatime /data",
+                multipath=(
+                    "mpatha dm-2 NETAPP,LUN\n"
+                    "`- 3:0:0:1 sdb 8:16 failed faulty running"
+                ),
+            )
+        )
+
+        self.assertEqual(investigation.primary_diagnosis, "multipath_path_loss")
+        self.assertIn("SAN", investigation.findings[0].next_explanation)
+
+    def test_lvm_thin_pool_pressure_is_reported(self) -> None:
+        investigation = analyze_disk_evidence(
+            _evidence(
+                filesystem="/dev/mapper/vg0-app ext4 100G 50G 50G 50% /app",
+                mount="/dev/mapper/vg0-app ext4 rw,relatime /app",
+                lvm_lvs=" thinpool vg0 500.00g  95.50  91.00 twi-aotz--",
+            )
+        )
+
+        self.assertEqual(
+            investigation.primary_diagnosis,
+            "lvm_thin_pool_pressure",
+        )
+        self.assertIn("Thin-pool", investigation.findings[0].next_explanation)
+
+    def test_storage_latency_pressure_uses_iostat_sample(self) -> None:
+        investigation = analyze_disk_evidence(
+            _evidence(
+                filesystem="/dev/sda1 ext4 100G 50G 50G 50% /var",
+                iostat=(
+                    "Device r/s w/s rkB/s wkB/s rrqm/s wrqm/s %rrqm %wrqm "
+                    "r_await w_await aqu-sz rareq-sz wareq-sz svctm %util\n"
+                    "sda 1 20 4 800 0 0 0 0 4.00 180.00 5.0 4 40 0 98.00"
+                ),
+            )
+        )
+
+        self.assertEqual(
+            investigation.primary_diagnosis,
+            "storage_latency_pressure",
+        )
+        self.assertEqual(investigation.io_sample["device"], "sda")
 
     def test_missing_df_becomes_insufficient_evidence(self) -> None:
         evidence = _evidence()

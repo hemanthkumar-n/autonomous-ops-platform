@@ -250,6 +250,27 @@ def investigate_linux_disk(
         click.echo(
             f"Inode use: {investigation.inode_use_percent:.0f}%"
         )
+    if investigation.mount_source or investigation.filesystem_type:
+        click.echo(
+            "Mount: "
+            f"source={investigation.mount_source or 'unknown'} "
+            f"type={investigation.filesystem_type or 'unknown'} "
+            f"target={investigation.mount_point or 'unknown'}"
+        )
+    if investigation.io_sample:
+        click.echo(
+            "I/O sample: "
+            + " ".join(
+                f"{key}={value}"
+                for key, value in investigation.io_sample.items()
+            )
+        )
+    if investigation.lvm_volume_groups:
+        click.echo(f"LVM volume groups: {len(investigation.lvm_volume_groups)}")
+    if investigation.multipath_devices:
+        click.echo(f"Multipath records: {len(investigation.multipath_devices)}")
+    if investigation.nfs_mounts:
+        click.echo(f"NFS mounts: {len(investigation.nfs_mounts)}")
 
     if investigation.findings:
         click.echo()

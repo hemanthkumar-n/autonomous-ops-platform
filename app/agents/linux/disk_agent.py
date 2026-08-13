@@ -12,9 +12,11 @@ _PERCENT_PATTERN = re.compile(r"(?P<value>\d+(?:\.\d+)?)%")
 _KERNEL_ERROR_PATTERN = re.compile(
     r"(i/o error|buffer i/o|blk_update_request|end_request|"
     r"ext4-fs error|xfs.*corrupt|btrfs.*error|nvme.*reset|"
-    r"scsi.*error|read-only)",
+    r"scsi.*error|read-only|nfs: server .*not responding|"
+    r"task .*blocked|multipath.*failed)",
     re.IGNORECASE,
 )
+_SIZE_PATTERN = re.compile(r"(?P<value>\d+(?:\.\d+)?)(?P<unit>[kmgtp])", re.I)
 
 
 def _result_map(evidence: dict) -> dict[str, dict]:
@@ -67,6 +69,90 @@ def _parse_mount(
     )
 
 
+def _parse_size_to_gib(value: str) -> float | None:
+    match = _SIZE_PATTERN.search(value.strip())
+    if not match:
+        return None
+
+    number = float(match.group("value"))
+    unit = match.group("unit").lower()
+    multipliers = {
+        "k": 1 / (1024 * 1024),
+        "m": 1 / 1024,
+        "g": 1,
+        "t": 1024,
+        "p": 1024 * 1024,
+    }
+    return number * multipliers[unit]
+
+
+def _lowest_vg_free_percent(lines: list[str]) -> float | None:
+    lowest: float | None = None
+    for line in lines:
+        fields = line.split()
+        if len(fields) < 3:
+            continue
+        total = _parse_size_to_gib(fields[1])
+        free = _parse_size_to_gib(fields[2])
+        if total is None or free is None or total <= 0:
+            continue
+        percent = (free / total) * 100
+        lowest = percent if lowest is None else min(lowest, percent)
+    return lowest
+
+
+def _thin_pool_high_watermark(lines: list[str]) -> float | None:
+    highest: float | None = None
+    for line in lines:
+        for token in line.split():
+            try:
+                value = float(token)
+            except ValueError:
+                continue
+            if 0 <= value <= 100:
+                highest = value if highest is None else max(highest, value)
+    return highest
+
+
+def _parse_iostat_sample(lines: list[str]) -> dict[str, str | float]:
+    headers: list[str] = []
+    best: dict[str, str | float] = {}
+    best_util = 0.0
+
+    for line in lines:
+        parts = line.split()
+        if not parts:
+            continue
+        if parts[0].lower() == "device":
+            headers = [item.lower() for item in parts]
+            continue
+        if not headers or len(parts) < len(headers):
+            continue
+        row = dict(zip(headers, parts, strict=False))
+        try:
+            util = float(row.get("%util", "0"))
+        except ValueError:
+            continue
+        if util >= best_util:
+            best_util = util
+            best = {
+                "device": row.get("device", ""),
+                "await_ms": _float_or_zero(row.get("await", "0")),
+                "read_await_ms": _float_or_zero(row.get("r_await", "0")),
+                "write_await_ms": _float_or_zero(row.get("w_await", "0")),
+                "util_percent": util,
+            }
+
+    return best
+
+
+def _float_or_zero(value: str) -> float:
+    try:
+        return float(value)
+    except ValueError:
+        return 0.0
+
+
 def _use_severity(percent: float) -> str:
     if percent >= 95:
         return "critical"
@@ -106,6 +192,36 @@ def _next_explanation(code: str) -> str:
             "writes, or read-only remounts even when capacity is available. "
             "Correlate kernel messages with the affected device and storage "
             "backend."
+        ),
+        "nfs_mount_risk": (
+            "NFS symptoms can look like application hangs, D-state load, or "
+            "slow writes. Confirm server reachability, mount options, and RPC "
+            "latency before blaming local disk capacity."
+        ),
+        "multipath_path_loss": (
+            "Multipath path loss means the host may be surviving on fewer SAN "
+            "paths or queueing I/O. Check HBA, fabric, array, and path policy "
+            "before restarting workloads."
+        ),
+        "lvm_low_free_space": (
+            "Low VG free space is a planning and recovery constraint. It can "
+            "block snapshot growth, LV extension, and emergency expansion "
+            "even when the mounted filesystem is not full yet."
+        ),
+        "lvm_thin_pool_pressure": (
+            "Thin-pool data or metadata pressure can fail writes suddenly. "
+            "Treat pool usage separately from filesystem usage and expand or "
+            "clean with a controlled plan."
+        ),
+        "block_device_read_only": (
+            "A read-only block device points below the filesystem layer. "
+            "Check device state, hypervisor/cloud volume state, SAN paths, "
+            "and kernel errors before remounting."
+        ),
+        "storage_latency_pressure": (
+            "High await or utilization means applications may be blocked on "
+            "I/O even when free space is available. Correlate with D-state "
+            "tasks, filesystem logs, and storage backend metrics."
         ),
         "inode_exhaustion": (
             "Inode exhaustion can produce 'No space left on device' even "
@@ -171,6 +287,13 @@ def analyze_disk_evidence(evidence: dict) -> LinuxDiskInvestigation:
     recent_files = results.get("large_recent_files", {})
     deleted_files = results.get("deleted_open_files", {})
     kernel_errors = results.get("kernel_storage_errors", {})
+    block_devices_result = results.get("block_devices", {})
+    lvm_pvs_result = results.get("lvm_pvs", {})
+    lvm_vgs_result = results.get("lvm_vgs", {})
+    lvm_lvs_result = results.get("lvm_lvs", {})
+    multipath_result = results.get("multipath", {})
+    nfs_mountstats_result = results.get("nfs_mountstats", {})
+    io_stats_result = results.get("io_stats", {})
 
     filesystem_percent = (
         _parse_percent(filesystem.get("output", ""))
@@ -194,6 +317,19 @@ def analyze_disk_evidence(evidence: dict) -> LinuxDiskInvestigation:
         deleted_files.get("output", ""),
         "command",
     )
+    block_devices = _data_lines(block_devices_result.get("output", ""), "name")
+    lvm_physical_volumes = _data_lines(lvm_pvs_result.get("output", ""))
+    lvm_volume_groups = _data_lines(lvm_vgs_result.get("output", ""))
+    lvm_logical_volumes = _data_lines(lvm_lvs_result.get("output", ""))
+    multipath_devices = _data_lines(multipath_result.get("output", ""))
+    nfs_mounts = [
+        line
+        for line in _data_lines(nfs_mountstats_result.get("output", ""))
+        if " type nfs" in line.lower() or " type nfs4" in line.lower()
+    ]
+    io_sample = _parse_iostat_sample(
+        _data_lines(io_stats_result.get("output", ""))
+    )
     kernel_lines = _data_lines(kernel_errors.get("output", ""))
     kernel_storage_errors = [
         line
@@ -206,6 +342,25 @@ def analyze_disk_evidence(evidence: dict) -> LinuxDiskInvestigation:
     read_only = "ro" in mount_options or any(
         "read-only" in line.lower()
         for line in kernel_storage_errors
+    )
+    fs_type = (filesystem_type or "").lower()
+    nfs_like = fs_type in {"nfs", "nfs4"} or bool(nfs_mounts)
+    multipath_loss = any(
+        any(token in line.lower() for token in ("failed", "faulty", "undef"))
+        for line in multipath_devices
+    )
+    block_read_only = any(
+        line.split()[-2:-1] == ["1"] or line.endswith(" 1")
+        for line in block_devices
+        if line.split()
+    )
+    vg_free_percent = _lowest_vg_free_percent(lvm_volume_groups)
+    thin_pool_percent = _thin_pool_high_watermark(lvm_logical_volumes)
+    util_percent = float(io_sample.get("util_percent", 0.0) or 0.0)
+    await_ms = max(
+        float(io_sample.get("await_ms", 0.0) or 0.0),
+        float(io_sample.get("read_await_ms", 0.0) or 0.0),
+        float(io_sample.get("write_await_ms", 0.0) or 0.0),
     )
 
     if read_only:
@@ -230,10 +385,26 @@ def analyze_disk_evidence(evidence: dict) -> LinuxDiskInvestigation:
             )
         )
 
+    if block_read_only:
+        findings.append(
+            _finding(
+                "block_device_read_only",
+                "critical",
+                94,
+                "One or more block devices report read-only state.",
+                block_devices[:5],
+                (
+                    "Identify the read-only device and correlate with cloud, "
+                    "SAN, hypervisor, kernel, and filesystem state."
+                ),
+            )
+        )
+
     non_read_only_errors = [
         line
         for line in kernel_storage_errors
         if "read-only" not in line.lower()
+        and not (nfs_like and "nfs" in line.lower())
     ]
     if non_read_only_errors:
         findings.append(
@@ -246,6 +417,105 @@ def analyze_disk_evidence(evidence: dict) -> LinuxDiskInvestigation:
                 (
                     "Correlate the affected device and mount with SMART, NVMe, "
                     "SAN, cloud-volume, or filesystem diagnostics."
+                ),
+            )
+        )
+
+    if multipath_loss:
+        findings.append(
+            _finding(
+                "multipath_path_loss",
+                "critical",
+                94,
+                "Multipath evidence shows failed, faulty, or undefined paths.",
+                multipath_devices[:8],
+                (
+                    "Check HBA, fabric, array, cloud storage attachment, and "
+                    "multipath policy before moving or restarting workloads."
+                ),
+            )
+        )
+
+    if nfs_like:
+        risky_options = [
+            option
+            for option in mount_options
+            if option in {"soft", "intr"} or option.startswith("timeo=")
+        ]
+        nfs_errors = [
+            line
+            for line in kernel_storage_errors
+            if "nfs" in line.lower()
+        ]
+        if risky_options or nfs_errors:
+            nfs_evidence = [
+                *(
+                    [f"mount options: {','.join(risky_options)}"]
+                    if risky_options
+                    else []
+                ),
+                *nfs_errors[:4],
+            ]
+            findings.append(
+                _finding(
+                    "nfs_mount_risk",
+                    "warning" if not nfs_errors else "critical",
+                    90 if not nfs_errors else 96,
+                    "NFS evidence may explain application I/O hangs or write failures.",
+                    nfs_evidence,
+                    (
+                        "Check NFS server health, network path, mount options, "
+                        "RPC latency, and client kernel messages."
+                    ),
+                )
+            )
+
+    if vg_free_percent is not None and vg_free_percent <= 5:
+        findings.append(
+            _finding(
+                "lvm_low_free_space",
+                "warning",
+                88,
+                f"Lowest LVM volume-group free space is {vg_free_percent:.1f}%.",
+                lvm_volume_groups[:5],
+                (
+                    "Review VG free space before planning snapshots, LV "
+                    "extension, filesystem growth, or emergency remediation."
+                ),
+            )
+        )
+
+    if thin_pool_percent is not None and thin_pool_percent >= 85:
+        findings.append(
+            _finding(
+                "lvm_thin_pool_pressure",
+                "critical" if thin_pool_percent >= 95 else "warning",
+                86,
+                f"LVM thin-pool usage signal is {thin_pool_percent:.1f}%.",
+                lvm_logical_volumes[:5],
+                (
+                    "Check thin-pool data and metadata usage before writes "
+                    "fail or snapshots exhaust the pool."
+                ),
+            )
+        )
+
+    if util_percent >= 90 or await_ms >= 100:
+        findings.append(
+            _finding(
+                "storage_latency_pressure",
+                "warning",
+                84,
+                (
+                    f"iostat shows util={util_percent:.1f}% and "
+                    f"await={await_ms:.1f}ms on {io_sample.get('device', 'device')}."
+                ),
+                [
+                    " ".join(f"{key}={value}" for key, value in io_sample.items())
+                ],
+                (
+                    "Correlate I/O wait, D-state tasks, filesystem logs, and "
+                    "backend volume metrics before blaming CPU or application code."
                 ),
             )
         )
@@ -336,12 +606,18 @@ def analyze_disk_evidence(evidence: dict) -> LinuxDiskInvestigation:
 
     priority = {
         "read_only_filesystem": 0,
-        "storage_io_errors": 1,
-        "inode_exhaustion": 2,
-        "filesystem_capacity_exhaustion": 3,
-        "deleted_open_files": 4,
-        "rapid_file_growth": 5,
-        "insufficient_evidence": 6,
+        "block_device_read_only": 1,
+        "storage_io_errors": 2,
+        "multipath_path_loss": 3,
+        "nfs_mount_risk": 4,
+        "lvm_thin_pool_pressure": 5,
+        "inode_exhaustion": 6,
+        "filesystem_capacity_exhaustion": 7,
+        "storage_latency_pressure": 8,
+        "lvm_low_free_space": 9,
+        "deleted_open_files": 10,
+        "rapid_file_growth": 11,
+        "insufficient_evidence": 12,
     }
     findings.sort(key=lambda item: priority[item.code])
 
@@ -378,6 +654,13 @@ def analyze_disk_evidence(evidence: dict) -> LinuxDiskInvestigation:
         filesystem_type=filesystem_type,
         mount_point=mount_point,
         mount_options=mount_options,
+        block_devices=block_devices,
+        lvm_physical_volumes=lvm_physical_volumes,
+        lvm_volume_groups=lvm_volume_groups,
+        lvm_logical_volumes=lvm_logical_volumes,
+        multipath_devices=multipath_devices,
+        nfs_mounts=nfs_mounts,
+        io_sample=io_sample,
         largest_paths=largest_paths,
         recent_large_files=recent_large_files,
         deleted_open_files=deleted_open_files,

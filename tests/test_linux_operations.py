@@ -338,6 +338,13 @@ class LinuxOperationsTests(unittest.TestCase):
                 "filesystem",
                 "inodes",
                 "mount",
+                "block_devices",
+                "lvm_pvs",
+                "lvm_vgs",
+                "lvm_lvs",
+                "multipath",
+                "nfs_mountstats",
+                "io_stats",
                 "directory_usage",
                 "large_recent_files",
                 "deleted_open_files",
@@ -345,11 +352,11 @@ class LinuxOperationsTests(unittest.TestCase):
             ],
         )
         self.assertEqual(
-            payload["results"][3]["output"].splitlines(),
+            payload["results"][10]["output"].splitlines(),
             ["5000\t/var/large", "1000\t/var/medium"],
         )
         self.assertEqual(
-            payload["results"][4]["output"].splitlines(),
+            payload["results"][11]["output"].splitlines(),
             [
                 "900\t2026-06-10T10:01:00\t/var/b.log",
                 "200\t2026-06-10T10:00:00\t/var/a.log",
@@ -368,6 +375,23 @@ class LinuxOperationsTests(unittest.TestCase):
         self.assertIn("-xdev", find_spec.argv)
         self.assertIn("+500M", find_spec.argv)
         self.assertIn("-30", find_spec.argv)
+        dangerous = {
+            "mkfs",
+            "fsck",
+            "mount",
+            "umount",
+            "lvextend",
+            "lvremove",
+            "pvremove",
+            "multipathd",
+        }
+        self.assertFalse(
+            dangerous.intersection(
+                command
+                for spec in specs
+                for command in spec.argv
+            )
+        )
 
     @patch(
         "app.tools.linux.operations.platform.system",

@@ -4,6 +4,32 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.26.0 - Linux Storage, LVM, Multipath, and NFS Investigation
+
+Date: 2026-08-14
+
+### Added
+
+- deeper `aop investigate linux disk` storage-layer evidence
+- read-only collection for block-device topology, LVM PV/VG/LV state,
+  multipath paths, NFS mountstats, and block-device latency/utilization
+- deterministic findings for read-only block devices, multipath path loss,
+  NFS mount risk, LVM low-free-space, LVM thin-pool pressure, and storage
+  latency pressure
+- CLI summary lines for mount context, I/O sample, LVM volume groups,
+  multipath records, and NFS mount records
+- release memory for v0.26 storage troubleshooting depth
+- tests for NFS, multipath, LVM thin-pool pressure, I/O latency, collector
+  safety, and CLI rendering
+
+### Safety
+
+The investigation remains read-only. It does not run `fsck`, `mkfs`, `mount`,
+`umount`, `lvextend`, `lvremove`, `multipathd`, cleanup, resize, or repair
+commands.
+
+---
+
 ## v0.25.0 - Linux Boot, Kernel, and grubby Investigation
 
 Date: 2026-08-14

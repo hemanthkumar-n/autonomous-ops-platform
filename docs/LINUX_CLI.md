@@ -268,6 +268,11 @@ parses that evidence and classifies:
 - deleted-open files
 - rapid large-file growth
 - read-only filesystem state
+- read-only block-device state
+- LVM low-free-space and thin-pool pressure
+- multipath path loss
+- NFS mount risk and server-not-responding evidence
+- block-device I/O latency or utilization pressure
 - kernel filesystem or storage I/O errors
 - insufficient evidence
 
@@ -287,6 +292,22 @@ aop investigate linux disk --path /var --no-persist
 The result includes a primary diagnosis, severity, confidence, supporting
 evidence, alternative findings, recommended next checks, why those checks
 matter, and evidence gaps.
+
+The v0.26 storage depth intentionally keeps one command:
+
+```bash
+aop investigate linux disk --path /data
+```
+
+Behind that command AOP now collects safe read-only evidence from `df`,
+`findmnt`, `lsblk`, LVM inventory, multipath state, `/proc/self/mountstats`,
+`iostat`, `du`, `find`, `lsof`, and kernel storage logs. This is the old Linux
+admin reality: a write failure might be capacity, inodes, deleted files,
+read-only remount, SAN path loss, thin-pool exhaustion, NFS trouble, or storage
+latency.
+
+The investigation does not run `fsck`, `mkfs`, `mount`, `umount`, `lvextend`,
+`lvremove`, `multipathd`, cleanup commands, or any destructive storage action.
 
 ## Memory And OOM Investigation
 

@@ -47,6 +47,13 @@ class LinuxDiskInvestigation(BaseModel):
     filesystem_type: str | None = None
     mount_point: str | None = None
     mount_options: list[str] = Field(default_factory=list)
+    block_devices: list[str] = Field(default_factory=list)
+    lvm_physical_volumes: list[str] = Field(default_factory=list)
+    lvm_volume_groups: list[str] = Field(default_factory=list)
+    lvm_logical_volumes: list[str] = Field(default_factory=list)
+    multipath_devices: list[str] = Field(default_factory=list)
+    nfs_mounts: list[str] = Field(default_factory=list)
+    io_sample: dict[str, str | float] = Field(default_factory=dict)
     largest_paths: list[str] = Field(default_factory=list)
     recent_large_files: list[str] = Field(default_factory=list)
     deleted_open_files: list[str] = Field(default_factory=list)
