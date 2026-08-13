@@ -14,6 +14,9 @@ from app.schemas.linux import (
     LinuxCpuInvestigation,
     LinuxDiskFinding,
     LinuxDiskInvestigation,
+    LinuxHostDomainSummary,
+    LinuxHostFinding,
+    LinuxHostInvestigation,
     LinuxMemoryFinding,
     LinuxMemoryInvestigation,
     LinuxNetworkFinding,
@@ -91,6 +94,55 @@ def _memory_investigation() -> LinuxMemoryInvestigation:
                 next_explanation=(
                     "Kernel OOM evidence proves a process or cgroup could "
                     "not satisfy memory allocation."
+                ),
+            )
+        ],
+    )
+
+
+def _host_investigation() -> LinuxHostInvestigation:
+    return LinuxHostInvestigation(
+        status="diagnosed",
+        hostname="worker-01",
+        platform="Linux",
+        path="/tmp",
+        iface="ens5",
+        pid=4242,
+        service="kubelet.service",
+        primary_diagnosis="disk_multipath_path_loss",
+        severity="critical",
+        confidence=94,
+        summary=(
+            "Host-level correlation points first to disk: Multipath paths failed."
+        ),
+        domains=[
+            LinuxHostDomainSummary(
+                domain="disk",
+                primary_diagnosis="multipath_path_loss",
+                severity="critical",
+                confidence=94,
+                summary="Multipath paths failed.",
+                findings=["multipath_path_loss"],
+            ),
+            LinuxHostDomainSummary(
+                domain="cpu",
+                primary_diagnosis="d_state_blocked_tasks",
+                severity="warning",
+                confidence=92,
+                summary="D-state tasks are blocked.",
+                findings=["d_state_blocked_tasks"],
+            ),
+        ],
+        findings=[
+            LinuxHostFinding(
+                code="disk_multipath_path_loss",
+                severity="critical",
+                confidence=94,
+                summary="disk: Multipath paths failed.",
+                evidence=["multipath_path_loss"],
+                next="Check storage path health first.",
+                next_explanation=(
+                    "Disk-looking incidents often start below the filesystem."
                 ),
             )
         ],
@@ -371,6 +423,92 @@ class LinuxInvestigateCLITests(unittest.TestCase):
             pid=4242,
             top=20,
             recent_minutes=30,
+            persist=False,
+        )
+
+    @patch(
+        "app.orchestration.linux_host_workflow.run_linux_host_workflow"
+    )
+    def test_host_summary_renders_domain_correlation(
+        self,
+        run_workflow,
+    ) -> None:
+        run_workflow.return_value = (_host_investigation(), "host.json")
+
+        result = CliRunner().invoke(
+            main,
+            [
+                "investigate",
+                "linux",
+                "host",
+                "--path",
+                "/tmp",
+                "--iface",
+                "ens5",
+                "--pid",
+                "4242",
+                "--service",
+                "kubelet.service",
+            ],
+        )
+
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn("disk_multipath_path_loss", result.output)
+        self.assertIn("Domain summary", result.output)
+        self.assertIn("disk", result.output)
+        self.assertIn("Correlated findings", result.output)
+        self.assertIn("Why:", result.output)
+        self.assertIn("host.json", result.output)
+
+    @patch(
+        "app.orchestration.linux_host_workflow.run_linux_host_workflow"
+    )
+    def test_host_json_forwards_scope_and_no_persist(
+        self,
+        run_workflow,
+    ) -> None:
+        run_workflow.return_value = (_host_investigation(), None)
+
+        result = CliRunner().invoke(
+            main,
+            [
+                "investigate",
+                "linux",
+                "host",
+                "--path",
+                "/tmp",
+                "--iface",
+                "ens5",
+                "--pid",
+                "4242",
+                "--service",
+                "kubelet.service",
+                "--top",
+                "20",
+                "--recent-minutes",
+                "30",
+                "--large-size-mb",
+                "500",
+                "--format",
+                "json",
+                "--no-persist",
+            ],
+        )
+
+        self.assertEqual(result.exit_code, 0)
+        payload = json.loads(result.output)
+        self.assertEqual(
+            payload["primary_diagnosis"],
+            "disk_multipath_path_loss",
+        )
+        run_workflow.assert_called_once_with(
+            scan_path="/tmp",
+            iface="ens5",
+            pid=4242,
+            service="kubelet.service",
+            top=20,
+            recent_minutes=30,
+            large_size_mb=500,
             persist=False,
         )
 

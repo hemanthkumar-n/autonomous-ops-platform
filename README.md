@@ -10,7 +10,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-blue" alt="Python 3.11+" />
-  <img src="https://img.shields.io/badge/AOP-v0.26.0-success" alt="AOP v0.26.0" />
+  <img src="https://img.shields.io/badge/AOP-v0.27.0-success" alt="AOP v0.27.0" />
   <img src="https://img.shields.io/badge/Kubernetes-SRE%20Shortcuts-326CE5" alt="Kubernetes SRE Shortcuts" />
   <img src="https://img.shields.io/badge/Observability-Prometheus-red" alt="Prometheus" />
   <img src="https://img.shields.io/badge/LLM-Ollama-green" alt="Ollama" />
@@ -80,7 +80,7 @@ release exists.
 Current version:
 
 ```text
-AOP v0.26.0
+AOP v0.27.0
 ```
 
 The implemented and tested paths currently cover Kubernetes incident
@@ -92,12 +92,14 @@ Kubernetes-to-Linux correlation training, command-reasoning workflows,
 curated Kubernetes issue knowledge, Kubernetes investigation guidance,
 Kubernetes expert shortcuts, Linux expert shortcuts, Linux boot/kernel/grubby
 investigation, deeper Linux storage/LVM/NFS investigation, complex Linux
-scenario plans, and provider-neutral evidence/dashboard contracts.
+scenario plans, host-level Linux correlation, and provider-neutral
+evidence/dashboard contracts.
 
 ### Release Memory
 
 | Release | What it proves | Human reference |
 |---|---|---|
+| `v0.27.0` | AOP can correlate Linux disk, memory, CPU, network, boot, and service findings into one host-level SRE diagnosis | [`docs/releases/v0.27-linux-host-correlation.md`](docs/releases/v0.27-linux-host-correlation.md) |
 | `v0.26.0` | AOP can diagnose Linux storage-layer risk across filesystems, block devices, LVM, multipath, NFS, and I/O latency | [`docs/releases/v0.26-linux-storage-lvm-nfs-investigation.md`](docs/releases/v0.26-linux-storage-lvm-nfs-investigation.md) |
 | `v0.25.0` | AOP can diagnose boot, kernel, kdump, and grubby/default-kernel evidence safely | [`docs/releases/v0.25-linux-boot-kernel-investigation.md`](docs/releases/v0.25-linux-boot-kernel-investigation.md) |
 | `v0.24.0` | AOP has short Linux expert shortcuts with safety guardrails | [`docs/releases/v0.24-linux-expert-shortcuts.md`](docs/releases/v0.24-linux-expert-shortcuts.md) |
@@ -152,6 +154,8 @@ scenario plans, and provider-neutral evidence/dashboard contracts.
   DNS, NFS, limits, SELinux, and runtime troubleshooting
 - `aop investigate linux boot` deterministic diagnosis for boot, kernel,
   panic/oops, kdump, grubby/default-kernel, and boot-argument evidence
+- `aop investigate linux host` host-level correlation across disk, memory,
+  CPU, network, boot, and optional systemd service investigations
 - Linux command explanation through `aop linux explain`
 - read-only disk investigation planning through `aop linux plan disk`
 - read-only complex Linux scenario plans through `aop linux plan scenario`
@@ -168,7 +172,7 @@ scenario plans, and provider-neutral evidence/dashboard contracts.
 - Markdown and JSON incident reports
 - typed Pydantic contracts
 - provider-neutral evidence, alert, metric, timeline, and dashboard contracts
-- one hundred fifty-six offline regression tests
+- one hundred sixty offline regression tests
 
 ### Not Yet Implemented
 
@@ -846,7 +850,7 @@ python -m unittest discover -s tests -v
 Current baseline:
 
 ```text
-156 tests passing
+160 tests passing
 ```
 
 The tests cover:

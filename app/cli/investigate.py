@@ -506,6 +506,150 @@ def investigate_linux_memory(
         click.echo(f"Memory record: {saved_path}")
 
 
+@investigate_linux.command("host")
+@click.option(
+    "--path",
+    "scan_path",
+    type=click.Path(
+        exists=True,
+        file_okay=False,
+        path_type=str,
+    ),
+    default="/",
+    show_default=True,
+    help="Filesystem path used for disk/storage correlation.",
+)
+@click.option(
+    "--iface",
+    help="Optional interface name for network/NIC correlation.",
+)
+@click.option(
+    "--pid",
+    type=click.IntRange(1),
+    default=None,
+    help="Optional PID for cgroup-aware memory correlation.",
+)
+@click.option(
+    "--service",
+    "service_name",
+    help="Optional systemd service for service-state correlation.",
+)
+@click.option(
+    "--top",
+    type=click.IntRange(1, 100),
+    default=10,
+    show_default=True,
+    help="Maximum process/file records retained by child investigations.",
+)
+@click.option(
+    "--recent-minutes",
+    type=click.IntRange(1, 10_080),
+    default=60,
+    show_default=True,
+    help="Recent evidence window for child investigations.",
+)
+@click.option(
+    "--large-size-mb",
+    type=click.IntRange(1),
+    default=1024,
+    show_default=True,
+    help="Minimum recent-file size in MiB for disk correlation.",
+)
+@click.option(
+    "--format",
+    "output_format",
+    type=click.Choice(["summary", "json"], case_sensitive=False),
+    default="summary",
+    show_default=True,
+)
+@click.option(
+    "--no-persist",
+    is_flag=True,
+    help="Do not save structured or semantic Linux host memory.",
+)
+def investigate_linux_host(
+    scan_path: str,
+    iface: str | None,
+    pid: int | None,
+    service_name: str | None,
+    top: int,
+    recent_minutes: int,
+    large_size_mb: int,
+    output_format: str,
+    no_persist: bool,
+) -> None:
+    """
+    Correlate disk, memory, CPU, network, boot, and service evidence.
+    """
+
+    from app.orchestration.linux_host_workflow import (
+        run_linux_host_workflow,
+    )
+
+    try:
+        investigation, saved_path = run_linux_host_workflow(
+            scan_path=scan_path,
+            iface=iface,
+            pid=pid,
+            service=service_name,
+            top=top,
+            recent_minutes=recent_minutes,
+            large_size_mb=large_size_mb,
+            persist=not no_persist,
+        )
+    except Exception as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if output_format == "json":
+        click.echo(investigation.model_dump_json(indent=2))
+        return
+
+    click.echo(
+        f"Linux host investigation: {investigation.severity.upper()} "
+        f"host={investigation.hostname} path={investigation.path}"
+    )
+    click.echo(
+        f"Primary diagnosis: {investigation.primary_diagnosis} "
+        f"({investigation.confidence}%)"
+    )
+    click.echo(investigation.summary)
+
+    click.echo()
+    click.echo("Domain summary")
+    for domain in investigation.domains:
+        click.echo(
+            f"{domain.severity.upper():8} "
+            f"{domain.domain:8} "
+            f"{domain.primary_diagnosis:36} "
+            f"{domain.confidence}%"
+        )
+        click.echo(f"         {domain.summary}")
+
+    if investigation.findings:
+        click.echo()
+        click.echo("Correlated findings")
+        for finding in investigation.findings:
+            click.echo(
+                f"{finding.severity.upper():8} "
+                f"{finding.code:40} "
+                f"{finding.confidence}%"
+            )
+            click.echo(f"         {finding.summary}")
+            click.echo(f"         Next: {finding.next}")
+            if finding.next_explanation:
+                click.echo(f"         Why: {finding.next_explanation}")
+
+    if investigation.evidence_gaps:
+        click.echo()
+        click.echo("Evidence gaps")
+        for gap in investigation.evidence_gaps:
+            click.echo(f"- {gap}")
+
+    if saved_path:
+        click.echo()
+        click.echo(f"Memory record: {saved_path}")
+
+
 @investigate_linux.command("cpu")
 @click.option(
     "--top",

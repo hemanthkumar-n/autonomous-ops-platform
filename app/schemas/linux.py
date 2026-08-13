@@ -214,6 +214,44 @@ class LinuxBootKernelInvestigation(BaseModel):
     raw_evidence: dict = Field(default_factory=dict)
 
 
+class LinuxHostDomainSummary(BaseModel):
+    domain: str
+    primary_diagnosis: str
+    severity: str
+    confidence: int = Field(ge=0, le=100)
+    summary: str
+    findings: list[str] = Field(default_factory=list)
+    evidence_gaps: list[str] = Field(default_factory=list)
+
+
+class LinuxHostFinding(BaseModel):
+    code: str
+    severity: str
+    confidence: int = Field(ge=0, le=100)
+    summary: str
+    evidence: list[str] = Field(default_factory=list)
+    next: str
+    next_explanation: str = ""
+
+
+class LinuxHostInvestigation(BaseModel):
+    status: str
+    hostname: str
+    platform: str
+    primary_diagnosis: str
+    severity: str
+    confidence: int = Field(ge=0, le=100)
+    summary: str
+    path: str = "/"
+    iface: str | None = None
+    pid: int | None = None
+    service: str | None = None
+    domains: list[LinuxHostDomainSummary] = Field(default_factory=list)
+    findings: list[LinuxHostFinding] = Field(default_factory=list)
+    evidence_gaps: list[str] = Field(default_factory=list)
+    raw_evidence: dict = Field(default_factory=dict)
+
+
 class LinuxInternalsEvidence(BaseModel):
     status: str
     hostname: str

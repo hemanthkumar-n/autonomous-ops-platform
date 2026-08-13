@@ -10,6 +10,7 @@ unfinished.
 
 | Release | Focus | Reference |
 |---|---|---|
+| `v0.27.0` | Linux host-level correlation | [`v0.27-linux-host-correlation.md`](v0.27-linux-host-correlation.md) |
 | `v0.26.0` | Linux storage, LVM, multipath, and NFS investigation | [`v0.26-linux-storage-lvm-nfs-investigation.md`](v0.26-linux-storage-lvm-nfs-investigation.md) |
 | `v0.25.0` | Linux boot, kernel, and grubby investigation | [`v0.25-linux-boot-kernel-investigation.md`](v0.25-linux-boot-kernel-investigation.md) |
 | `v0.24.0` | Linux expert shortcuts | [`v0.24-linux-expert-shortcuts.md`](v0.24-linux-expert-shortcuts.md) |

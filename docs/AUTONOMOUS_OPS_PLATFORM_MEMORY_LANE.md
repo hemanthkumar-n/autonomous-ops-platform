@@ -54,12 +54,12 @@ Remediation is advisory and non-destructive.
 
 ## Current Baseline
 
-- Version: `0.26.0`
+- Version: `0.27.0`
 - Branch: `main`
 - Remote baseline: `origin/main`
 - Python: `3.11+`
 - CLI entry point: `aop`
-- Tests: one hundred fifty-six offline regression tests passing
+- Tests: one hundred sixty offline regression tests passing
 - Real Ollama generation and 768-dimensional embeddings verified
 - Full live demo still requires Kubernetes and Prometheus to be running
 
@@ -81,8 +81,20 @@ does not block analysis from current evidence.
 
 ## Latest Release Memory
 
+v0.27.0 added host-level Linux correlation. This is the current broad SRE
+entry point:
+
+```bash
+aop investigate linux host
+```
+
+It runs disk, memory, CPU, network, boot, and optional service investigations,
+then ranks the most urgent host diagnosis by severity and confidence. Child
+domain checks run with persistence disabled so AOP stores one host-level memory
+record instead of many duplicated records.
+
 v0.26.0 deepened Linux disk investigation into storage-layer troubleshooting.
-The same command remains the entry point:
+The same disk command remains the entry point:
 
 ```bash
 aop investigate linux disk --path /var

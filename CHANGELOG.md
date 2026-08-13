@@ -4,6 +4,30 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.27.0 - Linux Host-Level Correlation
+
+Date: 2026-08-14
+
+### Added
+
+- `aop investigate linux host`
+- host-level schema for domain summaries, correlated findings, evidence gaps,
+  and one primary host diagnosis
+- Linux host workflow that runs disk, memory, CPU, network, boot, and optional
+  service investigations with child persistence disabled
+- Linux host incident memory persistence under `linux.host`
+- CLI summary and JSON output for cross-domain host diagnosis
+- tests for host workflow ranking, single memory persistence, CLI summary,
+  JSON output, and version reporting
+
+### Safety
+
+The host investigation only orchestrates existing read-only investigators. It
+does not restart services, clean files, repair filesystems, modify kernels,
+change networking, alter cgroups, or execute remediation.
+
+---
+
 ## v0.26.0 - Linux Storage, LVM, Multipath, and NFS Investigation
 
 Date: 2026-08-14

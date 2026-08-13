@@ -311,6 +311,38 @@ The investigation does not run `fsck`, `mkfs`, `mount`, `umount`, `lvextend`,
 
 ## Memory And OOM Investigation
 
+## Host-Level Correlation
+
+Use host-level correlation when the symptom is broad or unclear:
+
+```bash
+aop investigate linux host
+aop investigate linux host --path /var --iface ens5
+aop investigate linux host --path /var/lib/kubelet --pid 4242
+aop investigate linux host --service kubelet.service
+aop investigate linux host --format json
+```
+
+This command runs the existing deterministic Linux investigators with
+persistence disabled for the child checks, then stores one host-level memory
+record. It correlates:
+
+- disk and storage findings
+- memory, swap, OOM, and optional PID/cgroup findings
+- CPU, load, D-state, I/O wait, and steal findings
+- network and optional NIC findings
+- boot, kernel, kdump, and grubby findings
+- optional systemd service findings
+
+The output gives one primary host diagnosis plus a domain summary. This is the
+first AOP command that behaves like an SRE looking across the whole host before
+choosing the next investigation path.
+
+It remains read-only and does not run remediation, restart, cleanup, mount,
+filesystem repair, kernel, or bootloader mutation commands.
+
+## Memory And OOM Investigation
+
 Raw memory collection and incident diagnosis are separate commands:
 
 ```bash

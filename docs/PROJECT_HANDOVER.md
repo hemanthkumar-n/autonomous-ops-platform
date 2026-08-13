@@ -30,10 +30,10 @@ Do not treat empty modules or directory names as implemented capabilities.
 ## Verified Baseline
 
 ```text
-Release: 0.26.0
+Release: 0.27.0
 Branch: main
 Remote: origin/main
-Offline tests: 156 passing
+Offline tests: 159 passing
 CLI entry point: aop
 Python: 3.11+
 ```
@@ -51,7 +51,7 @@ git status --short --branch
 Expected version:
 
 ```text
-aop, version 0.26.0
+aop, version 0.27.0
 ```
 
 ## What AOP Is
@@ -146,6 +146,7 @@ aop kb inv -n ai-lab
 - short Linux expert shortcuts through `aop lx`
 - deterministic Linux boot/kernel/grubby investigation through
   `aop investigate linux boot`
+- host-level Linux correlation through `aop investigate linux host`
 
 Useful commands:
 
@@ -172,6 +173,7 @@ aop lx grub
 aop lx storage
 aop lx dns
 aop investigate linux boot
+aop investigate linux host
 aop linux disk --path /var
 aop investigate linux memory
 aop investigate linux memory --pid 4242
