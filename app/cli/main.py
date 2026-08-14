@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import click
 
+from app.cli.ai import ai
 from app.cli.health import health
 from app.cli.investigate import investigate
 from app.cli.kubernetes import kubernetes
@@ -17,7 +18,7 @@ from app.cli.remediate import memory
     }
 )
 @click.version_option(
-    version="0.31.0",
+    version="0.32.0",
     prog_name="aop",
 )
 def main() -> None:
@@ -27,6 +28,7 @@ def main() -> None:
 
 
 main.add_command(health)
+main.add_command(ai)
 main.add_command(precheck)
 main.add_command(investigate)
 main.add_command(memory)

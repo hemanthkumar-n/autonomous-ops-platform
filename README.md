@@ -10,7 +10,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-blue" alt="Python 3.11+" />
-  <img src="https://img.shields.io/badge/AOP-v0.31.0-success" alt="AOP v0.31.0" />
+  <img src="https://img.shields.io/badge/AOP-v0.32.0-success" alt="AOP v0.32.0" />
   <img src="https://img.shields.io/badge/Kubernetes-SRE%20Shortcuts-326CE5" alt="Kubernetes SRE Shortcuts" />
   <img src="https://img.shields.io/badge/Observability-Prometheus-red" alt="Prometheus" />
   <img src="https://img.shields.io/badge/LLM-Ollama-green" alt="Ollama" />
@@ -80,7 +80,7 @@ release exists.
 Current version:
 
 ```text
-AOP v0.31.0
+AOP v0.32.0
 ```
 
 The implemented and tested paths currently cover Kubernetes incident
@@ -95,13 +95,15 @@ investigation, deeper Linux storage/LVM/NFS investigation, complex Linux
 scenario plans, host-level Linux correlation, and provider-neutral
 evidence/dashboard contracts, Kubernetes node-to-Linux evidence planning,
 container runtime troubleshooting planning, the first enterprise-grade
-canonical investigation case model, and provider-neutral LLM routing with
-optional Kimi/Moonshot configuration.
+canonical investigation case model, provider-neutral LLM routing with optional
+Kimi/Moonshot configuration, and deterministic AI token-budget/model-tier
+planning.
 
 ### Release Memory
 
 | Release | What it proves | Human reference |
 |---|---|---|
+| `v0.32.0` | AOP can estimate evidence tokens and choose a light, standard, deep, or local reasoning tier before spending model calls | [`docs/releases/v0.32-ai-token-budget-model-policy.md`](docs/releases/v0.32-ai-token-budget-model-policy.md) |
 | `v0.31.0` | AOP can route reasoning through a provider boundary instead of hardcoding one LLM backend | [`docs/releases/v0.31-llm-provider-routing.md`](docs/releases/v0.31-llm-provider-routing.md) |
 | `v0.30.0` | AOP has a canonical investigation case model for enterprise-grade agent reasoning | [`docs/releases/v0.30-enterprise-investigation-core.md`](docs/releases/v0.30-enterprise-investigation-core.md) |
 | `v0.29.0` | AOP can train SREs and agents through safe container runtime troubleshooting plans | [`docs/releases/v0.29-container-runtime-troubleshooting-planner.md`](docs/releases/v0.29-container-runtime-troubleshooting-planner.md) |
@@ -189,7 +191,9 @@ optional Kimi/Moonshot configuration.
 - provider-neutral evidence, alert, metric, timeline, and dashboard contracts
 - provider-neutral LLM routing
 - optional Kimi/Moonshot provider configuration
-- one hundred ninety-one offline regression tests
+- deterministic AI token-budget and model-tier planning
+- `aop ai budget` zero-cost estimation command
+- two hundred one offline regression tests
 
 ### Not Yet Implemented
 
@@ -744,6 +748,7 @@ future placeholders.
 | Metrics | Prometheus |
 | Local LLM | Ollama |
 | Optional LLM provider | Kimi/Moonshot through `LLM_PROVIDER=kimi` |
+| AI token planning | Deterministic budget estimator and tier policy |
 | Reasoning model | `qwen2.5-coder:latest` |
 | Embeddings | `nomic-embed-text` |
 | Vector memory | ChromaDB |
@@ -802,6 +807,12 @@ MOONSHOT_API_KEY=
 KIMI_MODEL_NAME=kimi-k2.6
 KIMI_BASE_URL=https://api.moonshot.ai/v1
 EMBEDDING_MODEL_NAME=nomic-embed-text
+AI_LIGHT_MODEL_NAME=gpt-5-nano
+AI_STANDARD_MODEL_NAME=gpt-5-mini
+AI_DEEP_MODEL_NAME=gpt-5.1
+AI_LIGHT_INPUT_TOKEN_BUDGET=3000
+AI_STANDARD_INPUT_TOKEN_BUDGET=10000
+AI_DEEP_INPUT_TOKEN_BUDGET=30000
 
 INCIDENT_HISTORY_DIR=data/incidents
 VECTORSTORE_PATH=data/vectorstore/chroma
@@ -816,6 +827,7 @@ Validate:
 ```bash
 aop --version
 aop health
+aop ai budget --task classification --text "pod CrashLoopBackOff"
 aop kb --help
 ```
 
@@ -872,7 +884,7 @@ python -m unittest discover -s tests -v
 Current baseline:
 
 ```text
-191 tests passing
+201 tests passing
 ```
 
 The tests cover:

@@ -30,10 +30,10 @@ Do not treat empty modules or directory names as implemented capabilities.
 ## Verified Baseline
 
 ```text
-Release: 0.31.0
+Release: 0.32.0
 Branch: main
 Remote: origin/main
-Offline tests: 191 passing
+Offline tests: 201 passing
 CLI entry point: aop
 Python: 3.11+
 ```
@@ -51,7 +51,7 @@ git status --short --branch
 Expected version:
 
 ```text
-aop, version 0.31.0
+aop, version 0.32.0
 ```
 
 ## What AOP Is
@@ -83,6 +83,7 @@ execute a large list of commands.
 - optional Prometheus enrichment
 - Ollama RCA and remediation guidance
 - provider-neutral LLM routing with optional Kimi/Moonshot configuration
+- deterministic AI token-budget and model-tier planning
 - JSON incident persistence, Chroma semantic memory, and exact-memory fallback
 - Markdown and JSON reports
 - provider-neutral evidence, alert, metric, timeline, and dashboard contracts

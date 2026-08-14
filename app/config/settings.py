@@ -190,6 +190,36 @@ class Settings:
             180,
         )
 
+        self.AI_LIGHT_MODEL_NAME = os.getenv(
+            "AI_LIGHT_MODEL_NAME",
+            "gpt-5-nano",
+        )
+
+        self.AI_STANDARD_MODEL_NAME = os.getenv(
+            "AI_STANDARD_MODEL_NAME",
+            "gpt-5-mini",
+        )
+
+        self.AI_DEEP_MODEL_NAME = os.getenv(
+            "AI_DEEP_MODEL_NAME",
+            "gpt-5.1",
+        )
+
+        self.AI_LIGHT_INPUT_TOKEN_BUDGET = _get_int(
+            os.getenv("AI_LIGHT_INPUT_TOKEN_BUDGET"),
+            3000,
+        )
+
+        self.AI_STANDARD_INPUT_TOKEN_BUDGET = _get_int(
+            os.getenv("AI_STANDARD_INPUT_TOKEN_BUDGET"),
+            10000,
+        )
+
+        self.AI_DEEP_INPUT_TOKEN_BUDGET = _get_int(
+            os.getenv("AI_DEEP_INPUT_TOKEN_BUDGET"),
+            30000,
+        )
+
         # =========================
         # Vector memory
         # =========================
@@ -241,6 +271,24 @@ class Settings:
         if self.LLM_PROVIDER not in {"ollama", "kimi", "moonshot"}:
             raise ValueError(
                 "LLM_PROVIDER must be one of: ollama, kimi, moonshot"
+            )
+
+        if min(
+            self.AI_LIGHT_INPUT_TOKEN_BUDGET,
+            self.AI_STANDARD_INPUT_TOKEN_BUDGET,
+            self.AI_DEEP_INPUT_TOKEN_BUDGET,
+        ) <= 0:
+            raise ValueError(
+                "AI input token budgets must be > 0"
+            )
+
+        if not (
+            self.AI_LIGHT_INPUT_TOKEN_BUDGET
+            <= self.AI_STANDARD_INPUT_TOKEN_BUDGET
+            <= self.AI_DEEP_INPUT_TOKEN_BUDGET
+        ):
+            raise ValueError(
+                "AI token budgets must be ordered light <= standard <= deep"
             )
 
         if self.MAX_LOG_LINES <= 0:

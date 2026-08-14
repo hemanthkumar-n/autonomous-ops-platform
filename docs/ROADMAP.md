@@ -9,8 +9,17 @@ so the project remains honest and easy to explain.
 ## Current Baseline
 
 ```text
-Current release: v0.31.0
+Current release: v0.32.0
 Status: implemented and pushed
+```
+
+v0.32.0 adds AI token-budget and model-tier planning:
+
+```text
+evidence text
+  -> deterministic token estimate
+  -> light / standard / deep / local tier
+  -> visible budget decision
 ```
 
 v0.31.0 adds provider-neutral LLM routing:

@@ -10,6 +10,7 @@ unfinished.
 
 | Release | Focus | Reference |
 |---|---|---|
+| `v0.32.0` | AI token budget and model tier policy | [`v0.32-ai-token-budget-model-policy.md`](v0.32-ai-token-budget-model-policy.md) |
 | `v0.31.0` | LLM provider routing | [`v0.31-llm-provider-routing.md`](v0.31-llm-provider-routing.md) |
 | `v0.30.0` | Enterprise investigation core | [`v0.30-enterprise-investigation-core.md`](v0.30-enterprise-investigation-core.md) |
 | `v0.29.0` | Container runtime troubleshooting planner | [`v0.29-container-runtime-troubleshooting-planner.md`](v0.29-container-runtime-troubleshooting-planner.md) |

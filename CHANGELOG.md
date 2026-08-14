@@ -4,6 +4,26 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.32.0 - AI Token Budget And Model Tier Policy
+
+Date: 2026-08-14
+
+### Added
+
+- deterministic token estimation helpers for prompt/evidence planning
+- model-tier policy for light, standard, deep, and local reasoning paths
+- `aop ai budget` CLI command for zero-cost model-tier planning demos
+- configuration for light, standard, and deep model names and input budgets
+- tests for token budget boundaries, model-tier selection, and AI CLI output
+
+### Changed
+
+- AOP now has a governance layer before live multi-model routing, so agents can
+  learn when to classify cheaply, reason normally, escalate deeply, or stay
+  local for remediation planning.
+
+---
+
 ## v0.31.0 - LLM Provider Routing
 
 Date: 2026-08-14
