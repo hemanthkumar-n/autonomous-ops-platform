@@ -206,6 +206,53 @@ class RunbookSearchResult(BaseModel):
     total_matches: int
 
 
+class ExternalKnowledgeStory(BaseModel):
+    """
+    Provenance-first metadata for an externally published incident story.
+    """
+
+    story_id: str
+    source_catalog: str
+    source_catalog_url: str
+    canonical_url: str
+    source_host: str
+    title: str
+    published_year: Optional[int] = None
+    technologies: list[str] = []
+    impact: str = ""
+    content_scope: str = "metadata_only"
+    review_state: str = "source_review_required"
+    license_status: str = "unverified"
+    source_checksum: str
+
+
+class ExternalKnowledgeCatalog(BaseModel):
+    """
+    Versioned external incident metadata snapshot.
+    """
+
+    schema_version: str = "1"
+    source_catalog: str
+    source_catalog_url: str
+    imported_at: datetime
+    story_count: int
+    stories: list[ExternalKnowledgeStory]
+    content_policy: str = (
+        "Metadata and links only. Original source review is required before "
+        "extracting root cause, solution, or reusable guidance."
+    )
+
+
+class ExternalStoryMatch(BaseModel):
+    """
+    Deterministically scored external incident-story match.
+    """
+
+    story: ExternalKnowledgeStory
+    score: int
+    matched_terms: list[str]
+
+
 class KnowledgeArtifact(BaseModel):
     """
     Future architecture / operational knowledge object.

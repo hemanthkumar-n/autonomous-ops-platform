@@ -4,6 +4,32 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.39.0 - External Kubernetes Failure Story Import
+
+Date: 2026-08-14
+
+### Added
+
+- provenance-first external incident metadata contracts
+- structured k8s.af HTML parser and metadata-only importer
+- committed snapshot of 59 public Kubernetes failure-story links with
+  technology and impact metadata
+- stable story IDs, source checksums, URL deduplication, and publication-year
+  extraction
+- `aop runbooks import k8s-af`, `aop runbooks sources`, and
+  `aop runbooks stories search`
+- tests for parsing, deduplication, offline import, search ranking, CLI safety
+  output, and bundled snapshot integrity
+
+### Safety
+
+- Linked article bodies are not copied into AOP.
+- Imported records remain `metadata_only`, `license_status=unverified`, and
+  `source_review_required`.
+- Historical stories do not enter RCA as verified root cause or remediation.
+
+---
+
 ## v0.38.0 - Runbook RAG Retrieval Foundation
 
 Date: 2026-08-14

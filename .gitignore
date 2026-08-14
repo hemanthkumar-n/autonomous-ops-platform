@@ -15,6 +15,7 @@ backup_readme/
 
 data/vectorstore/
 data/incidents/
+data/runbooks/external/
 app/memory/incident_history/incidents/
 app/memory/vectorstore/chroma_db/
 chroma.sqlite3

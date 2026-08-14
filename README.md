@@ -10,7 +10,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-blue" alt="Python 3.11+" />
-  <img src="https://img.shields.io/badge/AOP-v0.38.0-success" alt="AOP v0.38.0" />
+  <img src="https://img.shields.io/badge/AOP-v0.39.0-success" alt="AOP v0.39.0" />
   <img src="https://img.shields.io/badge/Kubernetes-SRE%20Shortcuts-326CE5" alt="Kubernetes SRE Shortcuts" />
   <img src="https://img.shields.io/badge/Observability-Prometheus-red" alt="Prometheus" />
   <img src="https://img.shields.io/badge/LLM-Ollama-green" alt="Ollama" />
@@ -107,7 +107,7 @@ release exists.
 Current version:
 
 ```text
-AOP v0.38.0
+AOP v0.39.0
 ```
 
 The implemented and tested paths currently cover Kubernetes incident
@@ -129,12 +129,14 @@ Incident Pattern Intelligence recurrence lookup wired into Kubernetes
 investigation output, bounded pattern context in RCA prompts, Linux summary
 recurrence hints, and a safe troubleshooting catalog runner ported from the
 old AOP CLI transition branch, plus the first bounded runbook/RAG retrieval
-foundation for trusted investigation context.
+foundation for trusted investigation context and a provenance-first import of
+59 public Kubernetes failure-story links from k8s.af.
 
 ### Release Memory
 
 | Release | What it proves | Human reference |
 |---|---|---|
+| `v0.39.0` | AOP can import and search attributed Kubernetes failure-story metadata without treating it as verified remediation | [`docs/releases/v0.39-k8s-af-external-knowledge-import.md`](docs/releases/v0.39-k8s-af-external-knowledge-import.md) |
 | `v0.38.0` | AOP can retrieve trusted runbook snippets and feed bounded RAG context into RCA prompts | [`docs/releases/v0.38-runbook-rag-retrieval-foundation.md`](docs/releases/v0.38-runbook-rag-retrieval-foundation.md) |
 | `v0.37.0` | AOP can safely inspect and run known catalog commands while closing stale feature branches | [`docs/releases/v0.37-safe-catalog-runner-branch-closure.md`](docs/releases/v0.37-safe-catalog-runner-branch-closure.md) |
 | `v0.36.0` | AOP can feed bounded recurrence context into RCA prompts and show Linux recurrence hints | [`docs/releases/v0.36-pattern-context-rca-linux-summaries.md`](docs/releases/v0.36-pattern-context-rca-linux-summaries.md) |
@@ -171,6 +173,9 @@ foundation for trusted investigation context.
 - `aop catalog` command for listing, searching, and safely running known
   troubleshooting catalog commands
 - `aop runbooks` command for trusted runbook/RAG snippet retrieval
+- metadata-only k8s.af importer with 59 attributed historical Kubernetes
+  failure stories
+- external story search by symptom text and involved technology
 - native `aop linux` health and diagnostic commands
 - bounded, shell-free Linux command execution with JSON output
 - CPU, memory, disk, network, process, service, log, kernel, boot, and security
@@ -241,7 +246,7 @@ foundation for trusted investigation context.
 - bounded incident-pattern context in Kubernetes RCA prompts
 - bounded runbook/RAG context in Kubernetes RCA prompts
 - Linux investigation summary recurrence hints
-- two hundred nineteen offline regression tests
+- two hundred twenty-four offline regression tests
 
 ### Not Yet Implemented
 
@@ -949,7 +954,7 @@ python -m unittest discover -s tests -v
 Current baseline:
 
 ```text
-219 tests passing
+224 tests passing
 ```
 
 The tests cover:
@@ -1014,6 +1019,7 @@ Live Kubernetes and Prometheus validation remains a separate environment test.
 | [`docs/AOP_PRODUCT_VISION.md`](docs/AOP_PRODUCT_VISION.md) | Linux, Kubernetes, AWS, UI, Slack/Teams, and onboarding vision |
 | [`docs/architecture/enterprise-platform-evolution.md`](docs/architecture/enterprise-platform-evolution.md) | Restored enterprise platform evolution, architecture, and integration direction |
 | [`docs/architecture/observability-dashboard-strategy.md`](docs/architecture/observability-dashboard-strategy.md) | Observability, dashboard, alert-signal, and future provider strategy |
+| [`docs/architecture/external-knowledge-ingestion.md`](docs/architecture/external-knowledge-ingestion.md) | Provenance, review states, and safety rules for public and company knowledge ingestion |
 | [`docs/roadmap/incident-pattern-intelligence.md`](docs/roadmap/incident-pattern-intelligence.md) | Incident fingerprinting, recurrence detection, and pattern-aware RCA roadmap |
 | [`docs/AUTONOMOUS_OPS_PLATFORM_MEMORY_LANE.md`](docs/AUTONOMOUS_OPS_PLATFORM_MEMORY_LANE.md) | Compact current implementation memory |
 | [`docs/releases/`](docs/releases/) | Human-readable release notes for future team members and AI handoffs |

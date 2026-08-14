@@ -9,8 +9,18 @@ so the project remains honest and easy to explain.
 ## Current Baseline
 
 ```text
-Current release: v0.38.0
+Current release: v0.39.0
 Status: implemented and pushed
+```
+
+v0.39.0 adds external Kubernetes failure-story metadata:
+
+```text
+k8s.af
+  -> metadata-only import
+  -> provenance and review state
+  -> historical story search
+  -> no unreviewed solution claims
 ```
 
 v0.38.0 adds the first runbook/RAG retrieval foundation:
@@ -142,6 +152,8 @@ aop investigate k8s-node --node worker-01 --condition DiskPressure
 aop investigate linux runtime --runtime containerd --symptom image-pull
 aop runbooks list
 aop runbooks search --domain kubernetes --incident-type MemoryExhaustion --text "OOMKilled cgroup memory limit"
+aop runbooks sources
+aop runbooks stories search --technology CoreDNS --text "DNS OOM outage"
 ```
 
 The human-readable Linux ladder is maintained in
@@ -204,23 +216,23 @@ panic clues, `df`/`du` mismatch, inode exhaustion, deleted-open files,
 read-only remounts, LVM expansion mismatch, container runtime disk pressure,
 and Kubernetes symptoms that require Linux node correlation.
 
-## Next: v0.39
+## Next: v0.40
 
 Purpose:
 
 ```text
-Expand runbook ingestion beyond the built-in trusted chunk catalog.
+Review selected external incident sources into attributed reusable knowledge.
 ```
 
 Target outcomes:
 
-- source-controlled Markdown runbook ingestion
-- stable chunk IDs and source paths
-- ownership and service metadata
-- stale-content warnings
-- token-budget gating before prompt inclusion
+- original-source review state transitions
+- explicit reported-fact versus AOP-inference fields
+- Kubernetes version, cloud provider, and architecture applicability
+- reusable checks separated from historical workarounds
+- reviewer identity and review timestamp
+- only reviewed guidance eligible for bounded RAG
 - no automatic remediation
-- retrieved runbook match treated as guidance, not proof
 
 Reference:
 

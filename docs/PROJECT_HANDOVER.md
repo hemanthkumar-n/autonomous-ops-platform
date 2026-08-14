@@ -22,10 +22,12 @@ Read next:
    providers.
 7. `docs/roadmap/incident-pattern-intelligence.md` before building recurrence,
    fingerprinting, clustering, or pattern-aware RCA.
-8. `docs/releases/` for release-by-release human context.
-9. `docs/linux/LINUX_INVESTIGATION_LADDER.md` for the current Linux
+8. `docs/architecture/external-knowledge-ingestion.md` before importing public
+   postmortems, tickets, vendor runbooks, or company knowledge.
+9. `docs/releases/` for release-by-release human context.
+10. `docs/linux/LINUX_INVESTIGATION_LADDER.md` for the current Linux
    troubleshooting order.
-10. `docs/LINUX_CLI.md` and
+11. `docs/LINUX_CLI.md` and
    `app/memory/knowledgebase/linux_troubleshooting_command_catalog.md` before
    extending Linux diagnostics.
 
@@ -34,10 +36,10 @@ Do not treat empty modules or directory names as implemented capabilities.
 ## Verified Baseline
 
 ```text
-Release: 0.38.0
+Release: 0.39.0
 Branch: main
 Remote: origin/main
-Offline tests: 219 passing
+Offline tests: 224 passing
 CLI entry point: aop
 Python: 3.11+
 ```
@@ -55,7 +57,7 @@ git status --short --branch
 Expected version:
 
 ```text
-aop, version 0.38.0
+aop, version 0.39.0
 ```
 
 ## What AOP Is

@@ -56,12 +56,12 @@ Remediation is advisory and non-destructive.
 
 ## Current Baseline
 
-- Version: `0.38.0`
+- Version: `0.39.0`
 - Branch: `main`
 - Remote baseline: `origin/main`
 - Python: `3.11+`
 - CLI entry point: `aop`
-- Tests: two hundred nineteen offline regression tests passing
+- Tests: two hundred twenty-four offline regression tests passing
 - Real Ollama generation and 768-dimensional embeddings verified
 - Full live demo still requires Kubernetes and Prometheus to be running
 
@@ -82,6 +82,20 @@ Semantic-memory failure degrades to exact structured memory. Missing memory
 does not block analysis from current evidence.
 
 ## Latest Release Memory
+
+v0.39.0 adds provenance-first external Kubernetes incident metadata:
+
+```text
+k8s.af index
+  -> 59 attributed story records
+  -> stable IDs and checksums
+  -> historical metadata search
+  -> source review required before RCA guidance
+```
+
+The snapshot stores links, technology tags, impact, and publication year. It
+does not copy article bodies or claim that historical mitigations are current
+solutions.
 
 v0.38.0 adds the first runbook/RAG retrieval foundation:
 
