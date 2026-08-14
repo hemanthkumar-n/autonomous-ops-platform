@@ -10,7 +10,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-blue" alt="Python 3.11+" />
-  <img src="https://img.shields.io/badge/AOP-v0.30.0-success" alt="AOP v0.30.0" />
+  <img src="https://img.shields.io/badge/AOP-v0.31.0-success" alt="AOP v0.31.0" />
   <img src="https://img.shields.io/badge/Kubernetes-SRE%20Shortcuts-326CE5" alt="Kubernetes SRE Shortcuts" />
   <img src="https://img.shields.io/badge/Observability-Prometheus-red" alt="Prometheus" />
   <img src="https://img.shields.io/badge/LLM-Ollama-green" alt="Ollama" />
@@ -80,7 +80,7 @@ release exists.
 Current version:
 
 ```text
-AOP v0.30.0
+AOP v0.31.0
 ```
 
 The implemented and tested paths currently cover Kubernetes incident
@@ -93,14 +93,16 @@ curated Kubernetes issue knowledge, Kubernetes investigation guidance,
 Kubernetes expert shortcuts, Linux expert shortcuts, Linux boot/kernel/grubby
 investigation, deeper Linux storage/LVM/NFS investigation, complex Linux
 scenario plans, host-level Linux correlation, and provider-neutral
-evidence/dashboard contracts, Kubernetes node-to-Linux evidence planning, and
-container runtime troubleshooting planning, plus the first enterprise-grade
-canonical investigation case model.
+evidence/dashboard contracts, Kubernetes node-to-Linux evidence planning,
+container runtime troubleshooting planning, the first enterprise-grade
+canonical investigation case model, and provider-neutral LLM routing with
+optional Kimi/Moonshot configuration.
 
 ### Release Memory
 
 | Release | What it proves | Human reference |
 |---|---|---|
+| `v0.31.0` | AOP can route reasoning through a provider boundary instead of hardcoding one LLM backend | [`docs/releases/v0.31-llm-provider-routing.md`](docs/releases/v0.31-llm-provider-routing.md) |
 | `v0.30.0` | AOP has a canonical investigation case model for enterprise-grade agent reasoning | [`docs/releases/v0.30-enterprise-investigation-core.md`](docs/releases/v0.30-enterprise-investigation-core.md) |
 | `v0.29.0` | AOP can train SREs and agents through safe container runtime troubleshooting plans | [`docs/releases/v0.29-container-runtime-troubleshooting-planner.md`](docs/releases/v0.29-container-runtime-troubleshooting-planner.md) |
 | `v0.28.0` | AOP can map Kubernetes node conditions to the right Linux host evidence plan | [`docs/releases/v0.28-kubernetes-node-linux-correlation.md`](docs/releases/v0.28-kubernetes-node-linux-correlation.md) |
@@ -185,7 +187,9 @@ canonical investigation case model.
 - Markdown and JSON incident reports
 - typed Pydantic contracts
 - provider-neutral evidence, alert, metric, timeline, and dashboard contracts
-- one hundred eighty-seven offline regression tests
+- provider-neutral LLM routing
+- optional Kimi/Moonshot provider configuration
+- one hundred ninety-one offline regression tests
 
 ### Not Yet Implemented
 
@@ -198,7 +202,8 @@ canonical investigation case model.
 - authentication and RBAC
 - automatic remediation execution
 - multi-tenant company onboarding
-- Kimi/Moonshot provider runtime support
+- live-validated Kimi/Moonshot production rollout, scoring, cost controls, and
+  fallback policy
 
 These are roadmap capabilities, not current claims.
 
@@ -738,13 +743,13 @@ future placeholders.
 | Kubernetes | Kubernetes Python client |
 | Metrics | Prometheus |
 | Local LLM | Ollama |
+| Optional LLM provider | Kimi/Moonshot through `LLM_PROVIDER=kimi` |
 | Reasoning model | `qwen2.5-coder:latest` |
 | Embeddings | `nomic-embed-text` |
 | Vector memory | ChromaDB |
 | CLI | Click |
 | HTTP | HTTPX and Requests |
 | Future service layer | FastAPI |
-| Planned AI provider | Kimi/Moonshot, not implemented |
 
 ---
 
@@ -791,7 +796,11 @@ PROMETHEUS_URL=http://localhost:9090
 ENABLE_METRICS_ENRICHMENT=true
 
 OLLAMA_BASE_URL=http://localhost:11434
+LLM_PROVIDER=ollama
 LLM_MODEL_NAME=qwen2.5-coder:latest
+MOONSHOT_API_KEY=
+KIMI_MODEL_NAME=kimi-k2.6
+KIMI_BASE_URL=https://api.moonshot.ai/v1
 EMBEDDING_MODEL_NAME=nomic-embed-text
 
 INCIDENT_HISTORY_DIR=data/incidents
@@ -863,7 +872,7 @@ python -m unittest discover -s tests -v
 Current baseline:
 
 ```text
-187 tests passing
+191 tests passing
 ```
 
 The tests cover:

@@ -254,7 +254,8 @@ Planned future reasoning provider:
 Kimi / Moonshot
 ```
 
-Kimi is a roadmap provider, not current runtime support. Do not claim Kimi
+Kimi is now a configurable provider route, not yet a live-validated production
+rollout. Do not claim Kimi
 execution until a provider implementation, configuration, health check, tests,
 and documentation exist.
 

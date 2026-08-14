@@ -110,7 +110,7 @@ metric.
 | Frontend graphing | ECharts or equivalent chart library | Flexible custom incident timelines, graphs, and operational panels |
 | Local analytics | DuckDB later | Useful for local investigation over JSON, CSV, and Parquet evidence |
 | High-scale analytics | Evaluate later | ClickHouse, Timescale, Mimir, VictoriaMetrics, or similar only when scale requires |
-| LLM provider expansion | Kimi/Moonshot planned, not implemented | Future reasoning provider behind the existing provider abstraction |
+| LLM provider expansion | Kimi/Moonshot selectable, not live-validated | Future reasoning provider behind the existing provider abstraction |
 
 ## AOP Data Model Direction
 
@@ -226,15 +226,15 @@ Current default reasoning model:
 qwen2.5-coder:latest
 ```
 
-Planned provider direction:
+Optional provider direction:
 
 ```text
 Kimi / Moonshot
 ```
 
-Kimi should be documented as a future external reasoning provider only until
-implementation exists. Do not add `.env` secrets, advertise support, or claim
-runtime compatibility before the provider is implemented and tested.
+Kimi should be documented as selectable provider support only until live
+validation, cost controls, scoring, fallback policy, and model-call
+observability are implemented. Do not commit `.env` secrets.
 
 The correct future implementation path is:
 

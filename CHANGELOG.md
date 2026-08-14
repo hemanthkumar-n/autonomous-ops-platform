@@ -4,6 +4,25 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.31.0 - LLM Provider Routing
+
+Date: 2026-08-14
+
+### Added
+
+- provider router so agents can select `ollama`, `kimi`, or `moonshot`
+  through one LLM client boundary
+- Kimi/Moonshot provider support behind explicit configuration
+- offline LLM routing tests that avoid live network calls
+
+### Changed
+
+- Ollama remains the default local provider
+- Kimi/Moonshot is documented as configurable provider support, not a
+  validated live production integration
+
+---
+
 ## v0.30.0 - Enterprise Investigation Core
 
 Date: 2026-08-14

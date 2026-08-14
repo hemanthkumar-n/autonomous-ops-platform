@@ -10,6 +10,7 @@ unfinished.
 
 | Release | Focus | Reference |
 |---|---|---|
+| `v0.31.0` | LLM provider routing | [`v0.31-llm-provider-routing.md`](v0.31-llm-provider-routing.md) |
 | `v0.30.0` | Enterprise investigation core | [`v0.30-enterprise-investigation-core.md`](v0.30-enterprise-investigation-core.md) |
 | `v0.29.0` | Container runtime troubleshooting planner | [`v0.29-container-runtime-troubleshooting-planner.md`](v0.29-container-runtime-troubleshooting-planner.md) |
 | `v0.28.0` | Kubernetes node to Linux correlation | [`v0.28-kubernetes-node-linux-correlation.md`](v0.28-kubernetes-node-linux-correlation.md) |

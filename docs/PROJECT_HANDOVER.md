@@ -30,10 +30,10 @@ Do not treat empty modules or directory names as implemented capabilities.
 ## Verified Baseline
 
 ```text
-Release: 0.30.0
+Release: 0.31.0
 Branch: main
 Remote: origin/main
-Offline tests: 187 passing
+Offline tests: 191 passing
 CLI entry point: aop
 Python: 3.11+
 ```
@@ -51,7 +51,7 @@ git status --short --branch
 Expected version:
 
 ```text
-aop, version 0.30.0
+aop, version 0.31.0
 ```
 
 ## What AOP Is
@@ -82,6 +82,7 @@ execute a large list of commands.
 - Kubernetes incident investigation with deterministic classification
 - optional Prometheus enrichment
 - Ollama RCA and remediation guidance
+- provider-neutral LLM routing with optional Kimi/Moonshot configuration
 - JSON incident persistence, Chroma semantic memory, and exact-memory fallback
 - Markdown and JSON reports
 - provider-neutral evidence, alert, metric, timeline, and dashboard contracts
@@ -202,7 +203,8 @@ The original authored `tshelper` materials remain preserved under
 - automatic Kubernetes-to-Linux live node evidence collection
 - live Linux node evidence collection from Kubernetes incidents
 - AWS and CloudWatch collectors
-- Kimi/Moonshot provider runtime support
+- live-validated Kimi/Moonshot production rollout, scoring, cost controls, and
+  fallback policy
 - operator web UI or FastAPI service
 - Slack or Microsoft Teams notifications and approvals
 - authentication, RBAC, tenant isolation, and company onboarding
@@ -244,9 +246,10 @@ metrics source. AOP should own provider-neutral evidence and dashboard
 contracts before building custom UI, graphing, alert triage, or multi-source
 observability. See `docs/architecture/observability-dashboard-strategy.md`.
 
-Kimi/Moonshot is a planned future reasoning provider only. Current implemented
-LLM runtime is Ollama. Do not add Kimi environment variables or claim runtime
-support until the provider, settings, health checks, tests, and docs exist.
+Kimi/Moonshot provider routing exists behind explicit configuration. Ollama
+remains the default and validated local path. Do not claim live Kimi production
+validation, cost controls, scoring, or fallback policy until those are tested
+and documented.
 
 ## Recommended Next Sequence
 
@@ -297,7 +300,8 @@ another framework unless the requested workflow requires branching,
 checkpointing, resumability, or approval pauses.
 
 Do not hardcode Grafana-only, Prometheus-only, or Ollama-only assumptions.
-Kimi/Moonshot is planned but not implemented.
+Kimi/Moonshot is selectable through provider routing, but live validation and
+enterprise controls are still pending.
 
 Explain the operational reasoning before making substantial Linux changes,
 then implement, test, document, commit, and push the completed work.

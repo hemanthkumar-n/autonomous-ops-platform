@@ -9,11 +9,20 @@ so the project remains honest and easy to explain.
 ## Current Baseline
 
 ```text
-Current release: v0.30.0
+Current release: v0.31.0
 Status: implemented and pushed
 ```
 
-v0.30.0 adds the enterprise investigation core:
+v0.31.0 adds provider-neutral LLM routing:
+
+```text
+LLMClient
+  -> LLMRouter
+  -> ollama by default
+  -> kimi / moonshot when explicitly configured
+```
+
+v0.30.0 added the enterprise investigation core:
 
 ```text
 domain investigation
@@ -165,9 +174,10 @@ Target outcomes:
 
 ### Kimi / Moonshot Provider
 
-Kimi/Moonshot is a planned future reasoning provider. Current implemented LLM
-runtime is Ollama. Do not claim Kimi support until provider code, settings,
-health checks, tests, and docs exist.
+Kimi/Moonshot provider routing is implemented behind explicit configuration.
+Ollama remains the default and validated local runtime. Next provider work is
+live validation, provider scoring, cost controls, fallback policy, and
+observability around model calls.
 
 ## Roadmap Rules
 

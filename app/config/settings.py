@@ -147,6 +147,11 @@ class Settings:
         # =========================
         # AI runtime
         # =========================
+        self.LLM_PROVIDER = os.getenv(
+            "LLM_PROVIDER",
+            "ollama",
+        ).strip().lower()
+
         self.OLLAMA_BASE_URL = _validate_url(
             os.getenv(
                 "OLLAMA_BASE_URL",
@@ -158,6 +163,21 @@ class Settings:
         self.LLM_MODEL_NAME = os.getenv(
             "LLM_MODEL_NAME",
             "qwen2.5-coder:latest",
+        )
+
+        self.MOONSHOT_API_KEY = os.getenv("MOONSHOT_API_KEY")
+
+        self.KIMI_MODEL_NAME = os.getenv(
+            "KIMI_MODEL_NAME",
+            os.getenv("KIMI_MODEL", "kimi-k2.6"),
+        )
+
+        self.KIMI_BASE_URL = _validate_url(
+            os.getenv(
+                "KIMI_BASE_URL",
+                "https://api.moonshot.ai/v1",
+            ),
+            "KIMI_BASE_URL",
         )
 
         self.EMBEDDING_MODEL_NAME = os.getenv(
@@ -218,6 +238,11 @@ class Settings:
                 "AI_REQUEST_TIMEOUT must be > 0"
             )
 
+        if self.LLM_PROVIDER not in {"ollama", "kimi", "moonshot"}:
+            raise ValueError(
+                "LLM_PROVIDER must be one of: ollama, kimi, moonshot"
+            )
+
         if self.MAX_LOG_LINES <= 0:
             raise ValueError(
                 "MAX_LOG_LINES must be > 0"
@@ -229,9 +254,10 @@ class Settings:
             )
 
         logger.info(
-            "Settings initialized env=%s workflow=%s llm=%s embedding=%s vectorstore=%s",
+            "Settings initialized env=%s workflow=%s llm_provider=%s llm_model=%s embedding=%s vectorstore=%s",
             self.ENVIRONMENT,
             self.WORKFLOW_VERSION,
+            self.LLM_PROVIDER,
             self.LLM_MODEL_NAME,
             self.EMBEDDING_MODEL_NAME,
             self.VECTORSTORE_PROVIDER,

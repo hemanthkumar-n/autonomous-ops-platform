@@ -36,7 +36,7 @@ docs/architecture/observability-dashboard-strategy.md
 ```
 
 Use that file before building dashboards, graphs, telemetry contracts, alert
-processing, or Kimi/Moonshot support.
+processing, or live-validated Kimi/Moonshot rollout.
 
 The previous detailed 555-line memory remains recoverable from Git:
 
@@ -54,12 +54,12 @@ Remediation is advisory and non-destructive.
 
 ## Current Baseline
 
-- Version: `0.30.0`
+- Version: `0.31.0`
 - Branch: `main`
 - Remote baseline: `origin/main`
 - Python: `3.11+`
 - CLI entry point: `aop`
-- Tests: one hundred eighty-seven offline regression tests passing
+- Tests: one hundred ninety-one offline regression tests passing
 - Real Ollama generation and 768-dimensional embeddings verified
 - Full live demo still requires Kubernetes and Prometheus to be running
 
@@ -80,6 +80,20 @@ Semantic-memory failure degrades to exact structured memory. Missing memory
 does not block analysis from current evidence.
 
 ## Latest Release Memory
+
+v0.31.0 added provider-neutral LLM routing:
+
+```text
+LLMClient
+  -> LLMRouter
+  -> ollama by default
+  -> kimi / moonshot when explicitly configured
+```
+
+Ollama remains the validated local demo path. Kimi/Moonshot support now has
+provider code, settings, and offline routing tests, but live production
+validation, provider scoring, cost controls, and fallback policy are still
+future work.
 
 v0.30.0 added the enterprise investigation core:
 
@@ -423,8 +437,10 @@ AI provider direction:
 
 ```text
 Current implemented LLM provider: Ollama.
-Planned future provider: Kimi/Moonshot.
-Kimi is not implemented yet; do not claim runtime support.
+Optional provider: Kimi/Moonshot.
+Kimi/Moonshot can be selected through `LLM_PROVIDER=kimi` or `moonshot` when
+`MOONSHOT_API_KEY` is configured. Do not claim live production validation,
+scoring, cost controls, or fallback policy yet.
 ```
 
 ## Kubernetes and Linux AI Criterion
@@ -612,7 +628,8 @@ ENABLE_DESTRUCTIVE_REMEDIATION=false
 - Kubernetes issue knowledge and Kubernetes-to-Linux correlation now enrich
   live Kubernetes investigation reports, but they still do not automatically
   collect Linux node evidence.
-- Kimi/Moonshot provider runtime support is not implemented.
+- Kimi/Moonshot provider routing is implemented, but live validation and
+  enterprise fallback/cost controls are not complete.
 - FastAPI and most non-Kubernetes domain modules are placeholders.
 - Test coverage is focused, not comprehensive.
 - RCA/remediation outputs are prose rather than structured action contracts.
