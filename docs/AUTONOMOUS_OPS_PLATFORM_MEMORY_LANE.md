@@ -56,12 +56,12 @@ Remediation is advisory and non-destructive.
 
 ## Current Baseline
 
-- Version: `0.34.0`
+- Version: `0.35.0`
 - Branch: `main`
 - Remote baseline: `origin/main`
 - Python: `3.11+`
 - CLI entry point: `aop`
-- Tests: two hundred seven offline regression tests passing
+- Tests: two hundred eight offline regression tests passing
 - Real Ollama generation and 768-dimensional embeddings verified
 - Full live demo still requires Kubernetes and Prometheus to be running
 
@@ -82,6 +82,18 @@ Semantic-memory failure degrades to exact structured memory. Missing memory
 does not block analysis from current evidence.
 
 ## Latest Release Memory
+
+v0.35.0 wired pattern intelligence into Kubernetes investigation output:
+
+```text
+current Kubernetes incident
+  -> exact historical fingerprint lookup
+  -> pattern_guidance in workflow JSON
+  -> summary and Markdown recurrence hints
+```
+
+Pattern memory remains bounded and deterministic. Historical recurrence is a
+clue, not proof of root cause.
 
 v0.34.0 added the first Incident Pattern Intelligence implementation:
 

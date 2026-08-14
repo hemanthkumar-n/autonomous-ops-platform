@@ -15,6 +15,9 @@ from app.config.logging_config import get_logger
 from app.config.settings import settings
 from app.llm.client import LLMClient
 from app.memory.incident_history.store_incident import store_incident
+from app.memory.incident_patterns.patterns import (
+    find_kubernetes_pattern_guidance,
+)
 from app.schemas.classification import IncidentClassification
 from app.schemas.incident import IncidentContext
 from app.schemas.workflow import (
@@ -164,6 +167,10 @@ def run_incident_workflow(
         incidents=incidents,
         classifications=classifications,
     )
+    pattern_guidance = find_kubernetes_pattern_guidance(
+        incidents=incidents,
+        classifications=classifications,
+    )
 
     workflow_execution = WorkflowExecutionResponse(
         incident_context=incidents,
@@ -171,6 +178,7 @@ def run_incident_workflow(
         rca_results=rca_results,
         remediation_results=remediation_results,
         correlation_guidance=correlation_guidance,
+        pattern_guidance=pattern_guidance,
     )
 
     should_persist = (

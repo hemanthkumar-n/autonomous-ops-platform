@@ -5,6 +5,7 @@ from app.schemas.classification import IncidentClassification
 from app.schemas.correlation import KubernetesLinuxCorrelation
 from app.schemas.incident import IncidentContext
 from app.schemas.kubernetes_knowledge import KubernetesIssueKnowledge
+from app.schemas.memory import IncidentPatternGuidance
 
 
 class IncidentKnowledgeGuidance(BaseModel):
@@ -24,3 +25,4 @@ class WorkflowExecutionResponse(BaseModel):
     rca_results: list[RCAResponse]
     remediation_results: list[RemediationResponse]
     correlation_guidance: list[IncidentKnowledgeGuidance] = []
+    pattern_guidance: list[IncidentPatternGuidance] = []

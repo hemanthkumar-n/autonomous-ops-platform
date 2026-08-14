@@ -25,6 +25,10 @@ def _markdown_report(workflow) -> str:
             workflow,
             classification,
         )
+        pattern_guidance = _pattern_guidance_for_classification(
+            workflow,
+            classification,
+        )
         sections.extend(
             [
                 f"## {incident.namespace}/{incident.pod_name}",
@@ -44,6 +48,7 @@ def _markdown_report(workflow) -> str:
                 "",
             ]
         )
+        sections.extend(_markdown_pattern_guidance(pattern_guidance))
         sections.extend(_markdown_guidance(guidance))
 
     return "\n".join(sections)
@@ -58,6 +63,50 @@ def _guidance_for_classification(workflow, classification):
         ):
             return guidance
     return None
+
+
+def _pattern_guidance_for_classification(workflow, classification):
+    for guidance in getattr(workflow, "pattern_guidance", []):
+        if (
+            guidance.namespace == classification.namespace
+            and guidance.pod_name == classification.pod_name
+            and guidance.container == classification.container
+        ):
+            return guidance
+    return None
+
+
+def _markdown_pattern_guidance(guidance) -> list[str]:
+    if guidance is None:
+        return []
+
+    sections = [
+        "### Incident Pattern Memory",
+        "",
+        f"- Fingerprint: `{guidance.fingerprint}`",
+        f"- Boundary: {guidance.evidence_note}",
+    ]
+
+    if not guidance.patterns:
+        sections.extend(
+            [
+                "- Recurrence: no exact historical pattern found.",
+                "",
+            ]
+        )
+        return sections
+
+    for pattern in guidance.patterns:
+        sections.extend(
+            [
+                f"- Recurrence: `{pattern.occurrence_count}` previous occurrence(s)",
+                f"- Latest match: `{pattern.latest_timestamp.isoformat()}`",
+                f"- Resources: {', '.join(pattern.resources)}",
+            ]
+        )
+
+    sections.append("")
+    return sections
 
 
 def _markdown_guidance(guidance) -> list[str]:
@@ -114,6 +163,26 @@ def _print_summary(workflow, saved_path: str | None) -> None:
             workflow,
             classification,
         )
+        pattern_guidance = _pattern_guidance_for_classification(
+            workflow,
+            classification,
+        )
+        if pattern_guidance:
+            click.echo("  Pattern memory:")
+            click.echo(f"  - fingerprint: {pattern_guidance.fingerprint}")
+            if pattern_guidance.patterns:
+                pattern = pattern_guidance.patterns[0]
+                click.echo(
+                    "  - recurrence: "
+                    f"{pattern.occurrence_count} previous occurrence(s)"
+                )
+                click.echo(
+                    "  - latest: "
+                    f"{pattern.latest_timestamp.isoformat()}"
+                )
+            else:
+                click.echo("  - recurrence: no exact historical pattern found")
+            click.echo(f"  - boundary: {pattern_guidance.evidence_note}")
         if guidance:
             click.echo(f"  K8s symptom: {guidance.symptom}")
             if guidance.kubernetes_knowledge:

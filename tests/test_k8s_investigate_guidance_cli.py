@@ -18,6 +18,11 @@ from app.schemas.workflow import (
     IncidentKnowledgeGuidance,
     WorkflowExecutionResponse,
 )
+from app.schemas.memory import (
+    IncidentPatternGuidance,
+    IncidentPatternOccurrence,
+    IncidentPatternSummary,
+)
 
 
 def _workflow() -> WorkflowExecutionResponse:
@@ -74,6 +79,40 @@ def _workflow() -> WorkflowExecutionResponse:
                 linux_correlation=correlate_k8s_linux("OOMKilled"),
             )
         ],
+        pattern_guidance=[
+            IncidentPatternGuidance(
+                pod_name="checkout",
+                namespace="payments",
+                container="app",
+                incident_type="MemoryExhaustion",
+                fingerprint="kubernetes:payments:checkout:memoryexhaustion:oomkilled",
+                patterns=[
+                    IncidentPatternSummary(
+                        fingerprint=(
+                            "kubernetes:payments:checkout:memoryexhaustion:oomkilled"
+                        ),
+                        domain="kubernetes",
+                        incident_type="MemoryExhaustion",
+                        occurrence_count=2,
+                        latest_timestamp="2026-08-14T00:00:00Z",
+                        severities=["Critical"],
+                        resources=["payments/checkout"],
+                        occurrences=[
+                            IncidentPatternOccurrence(
+                                incident_id="previous-1",
+                                timestamp="2026-08-14T00:00:00Z",
+                                domain="kubernetes",
+                                resource="payments/checkout",
+                                incident_type="MemoryExhaustion",
+                                severity="Critical",
+                                summary="Previous memory exhaustion.",
+                                source_file="memory.json",
+                            )
+                        ],
+                    )
+                ],
+            )
+        ],
     )
 
 
@@ -92,6 +131,8 @@ class KubernetesInvestigateGuidanceCLITests(unittest.TestCase):
 
         self.assertEqual(result.exit_code, 0)
         self.assertIn("K8s symptom: OOMKilled", result.output)
+        self.assertIn("Pattern memory", result.output)
+        self.assertIn("2 previous occurrence", result.output)
         self.assertIn("Linux evidence needed", result.output)
         self.assertIn(
             "aop investigate linux memory --pid <container-pid>",
@@ -121,7 +162,9 @@ class KubernetesInvestigateGuidanceCLITests(unittest.TestCase):
         self.assertEqual(result.exit_code, 0)
         payload = json.loads(result.output)
         guidance = payload["correlation_guidance"][0]
+        pattern_guidance = payload["pattern_guidance"][0]
         self.assertEqual(guidance["symptom"], "OOMKilled")
+        self.assertEqual(pattern_guidance["patterns"][0]["occurrence_count"], 2)
         self.assertEqual(
             guidance["kubernetes_knowledge"]["symptom"],
             "OOMKilled",
@@ -151,6 +194,8 @@ class KubernetesInvestigateGuidanceCLITests(unittest.TestCase):
         )
 
         self.assertEqual(result.exit_code, 0)
+        self.assertIn("### Incident Pattern Memory", result.output)
+        self.assertIn("2` previous occurrence", result.output)
         self.assertIn("### Kubernetes Knowledge", result.output)
         self.assertIn("Linux evidence needed", result.output)
         self.assertIn("Do not assume", result.output)

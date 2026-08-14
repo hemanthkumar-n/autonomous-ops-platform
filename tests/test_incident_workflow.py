@@ -19,6 +19,9 @@ class IncidentWorkflowTests(unittest.TestCase):
         "app.orchestration.incident_workflow.generate_all_remediations"
     )
     @patch(
+        "app.orchestration.incident_workflow.find_kubernetes_pattern_guidance"
+    )
+    @patch(
         "app.orchestration.incident_workflow.generate_rca"
     )
     @patch(
@@ -32,6 +35,7 @@ class IncidentWorkflowTests(unittest.TestCase):
         collect_context,
         classify,
         generate_rca,
+        find_patterns,
         generate_remediations,
         llm_client_class,
     ) -> None:
@@ -73,6 +77,7 @@ class IncidentWorkflowTests(unittest.TestCase):
         classify.return_value = [classification]
         generate_rca.return_value = rca
         generate_remediations.return_value = [remediation]
+        find_patterns.return_value = []
         llm_client_class.return_value = Mock()
 
         workflow, saved_path = run_incident_workflow(
@@ -107,6 +112,10 @@ class IncidentWorkflowTests(unittest.TestCase):
             pod_name=None,
         )
         llm_client_class.return_value.close.assert_called_once()
+        find_patterns.assert_called_once_with(
+            incidents=[incident],
+            classifications=[classification],
+        )
 
 
 if __name__ == "__main__":

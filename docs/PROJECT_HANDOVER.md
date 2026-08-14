@@ -34,10 +34,10 @@ Do not treat empty modules or directory names as implemented capabilities.
 ## Verified Baseline
 
 ```text
-Release: 0.34.0
+Release: 0.35.0
 Branch: main
 Remote: origin/main
-Offline tests: 207 passing
+Offline tests: 208 passing
 CLI entry point: aop
 Python: 3.11+
 ```
@@ -55,7 +55,7 @@ git status --short --branch
 Expected version:
 
 ```text
-aop, version 0.34.0
+aop, version 0.35.0
 ```
 
 ## What AOP Is
@@ -92,6 +92,7 @@ execute a large list of commands.
   roadmap
 - deterministic incident-pattern recurrence lookup through
   `aop memory patterns`
+- pattern-aware Kubernetes investigation output in summary, JSON, and Markdown
 - JSON incident persistence, Chroma semantic memory, and exact-memory fallback
 - Markdown and JSON reports
 - provider-neutral evidence, alert, metric, timeline, and dashboard contracts

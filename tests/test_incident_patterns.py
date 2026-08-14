@@ -9,8 +9,11 @@ from unittest.mock import patch
 from app.memory.incident_patterns.patterns import (
     build_kubernetes_pattern_fingerprint,
     build_linux_pattern_fingerprint,
+    find_kubernetes_pattern_guidance,
     find_incident_patterns,
 )
+from app.schemas.classification import IncidentClassification
+from app.schemas.incident import ContainerState, IncidentContext
 from app.schemas.memory import IncidentMemory, LinuxIncidentMemory
 
 
@@ -109,6 +112,44 @@ class IncidentPatternTests(unittest.TestCase):
 
         self.assertEqual(report.total_patterns, 1)
         self.assertEqual(report.patterns[0].domain, "linux.disk")
+
+    def test_finds_pattern_guidance_for_active_kubernetes_incident(self) -> None:
+        incident = IncidentContext(
+            pod_name="checkout-abc",
+            namespace="payments",
+            phase="Running",
+            container_states=[
+                ContainerState(
+                    container="app",
+                    state="OOMKilled",
+                    restart_count=5,
+                )
+            ],
+        )
+        classification = IncidentClassification(
+            pod_name="checkout-abc",
+            namespace="payments",
+            container="app",
+            container_state="OOMKilled",
+            restart_count=5,
+            incident_type="MemoryExhaustion",
+            severity="Critical",
+            confidence=95,
+            recommended_team="Application / Platform Engineering",
+        )
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            self._write_kubernetes_memory(Path(temp_dir))
+
+            with patch("app.memory.incident_patterns.patterns.settings.INCIDENT_HISTORY_DIR", temp_dir):
+                guidance = find_kubernetes_pattern_guidance(
+                    incidents=[incident],
+                    classifications=[classification],
+                )
+
+        self.assertEqual(len(guidance), 1)
+        self.assertEqual(guidance[0].patterns[0].occurrence_count, 2)
+        self.assertIn("clue, not proof", guidance[0].evidence_note)
 
     def _write_kubernetes_memory(self, storage: Path) -> None:
         payload = [

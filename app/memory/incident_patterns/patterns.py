@@ -7,8 +7,12 @@ from typing import Any
 
 from app.config.logging_config import get_logger
 from app.config.settings import settings
+from app.memory.fingerprints.signature import build_incident_fingerprint
+from app.schemas.classification import IncidentClassification
+from app.schemas.incident import IncidentContext
 from app.schemas.memory import (
     IncidentMemory,
+    IncidentPatternGuidance,
     IncidentPatternOccurrence,
     IncidentPatternReport,
     IncidentPatternSummary,
@@ -47,6 +51,30 @@ def build_kubernetes_pattern_fingerprint(memory: IncidentMemory) -> str:
             _normalize(memory.namespace),
             _normalize(memory.fingerprint.workload_name),
             _normalize(memory.incident_type),
+            _normalize(reason),
+        ]
+    )
+
+
+def build_kubernetes_fingerprint_from_current(
+    incident: IncidentContext,
+    classification: IncidentClassification,
+) -> str:
+    """
+    Build the same Kubernetes pattern fingerprint for an active incident.
+    """
+
+    fingerprint = build_incident_fingerprint(
+        incident=incident,
+        classification=classification,
+    )
+    reason = fingerprint.failure_reason or "unknown"
+    return ":".join(
+        [
+            "kubernetes",
+            _normalize(fingerprint.namespace),
+            _normalize(fingerprint.workload_name),
+            _normalize(classification.incident_type),
             _normalize(reason),
         ]
     )
@@ -212,6 +240,55 @@ def find_incident_patterns(
         total_occurrences=len(filtered),
         min_count=min_count,
     )
+
+
+def find_kubernetes_pattern_guidance(
+    incidents: list[IncidentContext],
+    classifications: list[IncidentClassification],
+    *,
+    min_count: int = 1,
+    max_patterns: int = 1,
+) -> list[IncidentPatternGuidance]:
+    """
+    Find exact historical recurrence hints for active Kubernetes incidents.
+    """
+
+    all_patterns = find_incident_patterns(
+        min_count=min_count,
+        limit=100,
+        domain="kubernetes",
+    )
+    by_fingerprint = {
+        pattern.fingerprint: pattern
+        for pattern in all_patterns.patterns
+    }
+
+    guidance: list[IncidentPatternGuidance] = []
+
+    for incident, classification in zip(
+        incidents,
+        classifications,
+        strict=False,
+    ):
+        fingerprint = build_kubernetes_fingerprint_from_current(
+            incident=incident,
+            classification=classification,
+        )
+        pattern = by_fingerprint.get(fingerprint)
+        patterns = [pattern] if pattern else []
+
+        guidance.append(
+            IncidentPatternGuidance(
+                pod_name=classification.pod_name,
+                namespace=classification.namespace,
+                container=classification.container,
+                incident_type=classification.incident_type,
+                fingerprint=fingerprint,
+                patterns=patterns[:max_patterns],
+            )
+        )
+
+    return guidance
 
 
 def _matches_filters(

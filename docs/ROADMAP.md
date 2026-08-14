@@ -9,8 +9,17 @@ so the project remains honest and easy to explain.
 ## Current Baseline
 
 ```text
-Current release: v0.34.0
+Current release: v0.35.0
 Status: implemented and pushed
+```
+
+v0.35.0 wires pattern intelligence into Kubernetes investigation output:
+
+```text
+current incident
+  -> exact historical pattern lookup
+  -> pattern_guidance
+  -> summary / JSON / Markdown output
 ```
 
 v0.34.0 adds the first Incident Pattern Intelligence implementation:
@@ -166,20 +175,19 @@ panic clues, `df`/`du` mismatch, inode exhaustion, deleted-open files,
 read-only remounts, LVM expansion mismatch, container runtime disk pressure,
 and Kubernetes symptoms that require Linux node correlation.
 
-## Next: v0.35
+## Next: v0.36
 
 Purpose:
 
 ```text
-Connect incident patterns into investigation output and RCA context.
+Connect bounded pattern summaries into RCA prompt context and Linux summaries.
 ```
 
 Target outcomes:
 
-- show similar recurring patterns during Kubernetes investigation
 - show Linux recurrence hints during Linux investigation summaries
-- include pattern evidence in Markdown reports
 - feed bounded pattern summaries into AI RCA prompts
+- preserve token-budget policy before model calls
 - no automatic remediation
 - similarity treated as a clue, not proof
 

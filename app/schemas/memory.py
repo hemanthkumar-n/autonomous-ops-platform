@@ -127,6 +127,22 @@ class IncidentPatternReport(BaseModel):
     min_count: int
 
 
+class IncidentPatternGuidance(BaseModel):
+    """
+    Pattern guidance attached to an active investigation.
+    """
+
+    pod_name: str
+    namespace: str
+    container: str
+    incident_type: str
+    fingerprint: str
+    patterns: list[IncidentPatternSummary] = []
+    evidence_note: str = (
+        "Historical recurrence is a clue, not proof of root cause."
+    )
+
+
 class RunbookMemory(BaseModel):
     """
     Future runbook knowledge contract.

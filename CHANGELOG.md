@@ -4,6 +4,25 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.35.0 - Pattern-Aware Investigation Output
+
+Date: 2026-08-14
+
+### Added
+
+- pattern guidance contract on Kubernetes workflow responses
+- exact historical pattern lookup for active Kubernetes incidents
+- pattern memory rendering in summary, JSON, and Markdown investigation output
+- tests for active-incident pattern guidance and CLI rendering
+
+### Safety
+
+- Historical recurrence is still treated as a clue, not proof of root cause.
+- Pattern memory is not sent to an LLM yet.
+- No remediation or infrastructure mutation is introduced.
+
+---
+
 ## v0.34.0 - Incident Pattern Intelligence
 
 Date: 2026-08-14

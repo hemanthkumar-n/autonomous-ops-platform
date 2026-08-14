@@ -10,7 +10,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-blue" alt="Python 3.11+" />
-  <img src="https://img.shields.io/badge/AOP-v0.34.0-success" alt="AOP v0.34.0" />
+  <img src="https://img.shields.io/badge/AOP-v0.35.0-success" alt="AOP v0.35.0" />
   <img src="https://img.shields.io/badge/Kubernetes-SRE%20Shortcuts-326CE5" alt="Kubernetes SRE Shortcuts" />
   <img src="https://img.shields.io/badge/Observability-Prometheus-red" alt="Prometheus" />
   <img src="https://img.shields.io/badge/LLM-Ollama-green" alt="Ollama" />
@@ -107,7 +107,7 @@ release exists.
 Current version:
 
 ```text
-AOP v0.34.0
+AOP v0.35.0
 ```
 
 The implemented and tested paths currently cover Kubernetes incident
@@ -125,12 +125,14 @@ container runtime troubleshooting planning, the first enterprise-grade
 canonical investigation case model, provider-neutral LLM routing with optional
 Kimi/Moonshot configuration, deterministic AI token-budget/model-tier
 planning, restored enterprise platform roadmap/narrative docs, and the first
-Incident Pattern Intelligence recurrence lookup.
+Incident Pattern Intelligence recurrence lookup wired into Kubernetes
+investigation output.
 
 ### Release Memory
 
 | Release | What it proves | Human reference |
 |---|---|---|
+| `v0.35.0` | AOP can surface exact historical recurrence hints inside Kubernetes investigation output | [`docs/releases/v0.35-pattern-aware-investigation-output.md`](docs/releases/v0.35-pattern-aware-investigation-output.md) |
 | `v0.34.0` | AOP can detect recurring Kubernetes and Linux incident patterns from structured memory | [`docs/releases/v0.34-incident-pattern-intelligence.md`](docs/releases/v0.34-incident-pattern-intelligence.md) |
 | `v0.33.0` | AOP has a clear enterprise platform narrative and incident-pattern intelligence roadmap | [`docs/releases/v0.33-enterprise-platform-narrative.md`](docs/releases/v0.33-enterprise-platform-narrative.md) |
 | `v0.32.0` | AOP can estimate evidence tokens and choose a light, standard, deep, or local reasoning tier before spending model calls | [`docs/releases/v0.32-ai-token-budget-model-policy.md`](docs/releases/v0.32-ai-token-budget-model-policy.md) |
@@ -226,7 +228,8 @@ Incident Pattern Intelligence recurrence lookup.
 - deterministic incident fingerprints for recurring Kubernetes and Linux
   memory patterns
 - `aop memory patterns` recurrence lookup
-- two hundred seven offline regression tests
+- pattern-aware Kubernetes investigation summary, JSON, and Markdown output
+- two hundred eight offline regression tests
 
 ### Not Yet Implemented
 
@@ -934,7 +937,7 @@ python -m unittest discover -s tests -v
 Current baseline:
 
 ```text
-207 tests passing
+208 tests passing
 ```
 
 The tests cover:
