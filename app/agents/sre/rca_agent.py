@@ -12,13 +12,21 @@ from app.memory.incident_patterns.patterns import (
 from app.memory.retrieval.hybrid_search import (
     hybrid_incident_search,
 )
+from app.memory.runbooks.retrieval import (
+    format_runbook_context_for_prompt,
+    search_runbooks,
+)
 from app.prompts.shared.cross_domain import (
     KUBERNETES_LINUX_CORRELATION_POLICY,
 )
 from app.schemas.ai import RCAResponse
 from app.schemas.classification import IncidentClassification
 from app.schemas.incident import IncidentContext
-from app.schemas.memory import IncidentPatternGuidance, MemoryQuery
+from app.schemas.memory import (
+    IncidentPatternGuidance,
+    MemoryQuery,
+    RunbookQuery,
+)
 from app.tools.kubernetes.incident_context import (
     collect_incident_context,
 )
@@ -85,6 +93,19 @@ def build_rca_prompt(
 
     historical_guidance = ""
     pattern_context = format_pattern_guidance_for_prompt(pattern_guidance)
+    runbook_result = search_runbooks(
+        RunbookQuery(
+            domain="kubernetes",
+            incident_type=classification.incident_type,
+            text=(
+                f"{incident.phase} {classification.container_state} "
+                f"{classification.incident_type} "
+                f"{incident.model_dump_json()}"
+            ),
+            limit=2,
+        )
+    )
+    runbook_context = format_runbook_context_for_prompt(runbook_result)
 
     if has_history:
         historical_guidance = """
@@ -93,12 +114,14 @@ Historical reasoning responsibilities:
 5. Detect recurrence patterns
 6. Highlight recurring operational risks
 7. Treat exact pattern recurrence as a clue, not proof
+8. Use trusted runbook context only as bounded guidance
 """
     else:
         historical_guidance = """
 Historical reasoning responsibilities:
 4. No historical incidents available. Base analysis only on current runtime evidence.
 5. Still review exact pattern memory if present, but do not infer missing facts.
+6. Use trusted runbook context only as bounded guidance.
 """
 
     return f"""
@@ -155,6 +178,9 @@ Historical Operational Memory:
 
 Bounded Incident Pattern Memory:
 {pattern_context}
+
+Bounded Runbook/RAG Context:
+{runbook_context}
 """
 
 def generate_rca(

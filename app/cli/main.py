@@ -11,6 +11,7 @@ from app.cli.linux import linux
 from app.cli.expert import kx, lx
 from app.cli.precheck import precheck
 from app.cli.remediate import memory
+from app.cli.runbooks import runbooks
 
 
 @click.group(
@@ -19,7 +20,7 @@ from app.cli.remediate import memory
     }
 )
 @click.version_option(
-    version="0.37.0",
+    version="0.38.0",
     prog_name="aop",
 )
 def main() -> None:
@@ -34,6 +35,7 @@ main.add_command(catalog)
 main.add_command(precheck)
 main.add_command(investigate)
 main.add_command(memory)
+main.add_command(runbooks)
 main.add_command(kubernetes)
 main.add_command(kubernetes, name="k8s")
 main.add_command(linux)

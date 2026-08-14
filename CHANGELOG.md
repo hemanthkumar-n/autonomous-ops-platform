@@ -4,6 +4,29 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.38.0 - Runbook RAG Retrieval Foundation
+
+Date: 2026-08-14
+
+### Added
+
+- source-controlled runbook chunk schema for trusted operational guidance
+- deterministic runbook retrieval by domain, incident type, and text terms
+- bounded prompt formatter for runbook/RAG context
+- `aop runbooks list` and `aop runbooks search`
+- Kubernetes RCA prompt integration for bounded runbook context
+- tests for retrieval scoring, prompt bounds, no-match behavior, RCA prompt
+  context, and CLI output
+
+### Safety
+
+- Runbook matches are guidance, not proof.
+- AOP does not dump full runbooks into prompts.
+- No remediation, SSH, Kubernetes mutation, or Linux state change is added.
+- If no trusted runbook chunk matches, AOP says so instead of inventing one.
+
+---
+
 ## v0.37.0 - Safe Catalog Runner And Branch Closure
 
 Date: 2026-08-14

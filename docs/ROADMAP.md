@@ -9,8 +9,17 @@ so the project remains honest and easy to explain.
 ## Current Baseline
 
 ```text
-Current release: v0.37.0
+Current release: v0.38.0
 Status: implemented and pushed
+```
+
+v0.38.0 adds the first runbook/RAG retrieval foundation:
+
+```text
+trusted runbook chunks
+  -> deterministic retrieval
+  -> bounded Runbook/RAG prompt context
+  -> guidance without proof inflation
 ```
 
 v0.37.0 closes stale feature branches and ports the useful safe catalog runner:
@@ -131,6 +140,8 @@ aop investigate linux boot
 aop investigate linux host
 aop investigate k8s-node --node worker-01 --condition DiskPressure
 aop investigate linux runtime --runtime containerd --symptom image-pull
+aop runbooks list
+aop runbooks search --domain kubernetes --incident-type MemoryExhaustion --text "OOMKilled cgroup memory limit"
 ```
 
 The human-readable Linux ladder is maintained in
@@ -193,23 +204,23 @@ panic clues, `df`/`du` mismatch, inode exhaustion, deleted-open files,
 read-only remounts, LVM expansion mismatch, container runtime disk pressure,
 and Kubernetes symptoms that require Linux node correlation.
 
-## Next: v0.38
+## Next: v0.39
 
 Purpose:
 
 ```text
-Build the first runbook/RAG retrieval foundation.
+Expand runbook ingestion beyond the built-in trusted chunk catalog.
 ```
 
 Target outcomes:
 
-- source-controlled runbook chunk model
-- runbook retrieval by incident type and domain
-- bounded runbook context for future RCA prompts
-- preserve token-budget policy before model calls
-- avoid dumping full runbooks into prompts
+- source-controlled Markdown runbook ingestion
+- stable chunk IDs and source paths
+- ownership and service metadata
+- stale-content warnings
+- token-budget gating before prompt inclusion
 - no automatic remediation
-- runbook match treated as guidance, not proof
+- retrieved runbook match treated as guidance, not proof
 
 Reference:
 

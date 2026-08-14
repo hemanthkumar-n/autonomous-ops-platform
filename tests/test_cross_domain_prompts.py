@@ -119,6 +119,23 @@ class CrossDomainPromptTests(unittest.TestCase):
         self.assertIn("3 previous occurrence", prompt)
         self.assertIn("clue, not proof", prompt)
 
+    @patch(
+        "app.agents.sre.rca_agent.build_historical_context",
+        return_value=("No history.", False),
+    )
+    def test_rca_prompt_includes_bounded_runbook_context(
+        self,
+        _history,
+    ) -> None:
+        prompt = build_rca_prompt(
+            _incident(),
+            _classification(),
+        )
+
+        self.assertIn("Bounded Runbook/RAG Context", prompt)
+        self.assertIn("Kubernetes OOMKilled", prompt)
+        self.assertIn("guidance, not proof", prompt)
+
     def test_combined_analysis_prompt_includes_policy(self) -> None:
         prompt = build_prompt(
             _incident(),

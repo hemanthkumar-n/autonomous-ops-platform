@@ -56,12 +56,12 @@ Remediation is advisory and non-destructive.
 
 ## Current Baseline
 
-- Version: `0.37.0`
+- Version: `0.38.0`
 - Branch: `main`
 - Remote baseline: `origin/main`
 - Python: `3.11+`
 - CLI entry point: `aop`
-- Tests: two hundred fourteen offline regression tests passing
+- Tests: two hundred nineteen offline regression tests passing
 - Real Ollama generation and 768-dimensional embeddings verified
 - Full live demo still requires Kubernetes and Prometheus to be running
 
@@ -82,6 +82,18 @@ Semantic-memory failure degrades to exact structured memory. Missing memory
 does not block analysis from current evidence.
 
 ## Latest Release Memory
+
+v0.38.0 adds the first runbook/RAG retrieval foundation:
+
+```text
+trusted runbook chunks
+  -> deterministic retrieval
+  -> bounded prompt context
+  -> RCA guidance without document dumping
+```
+
+Runbook matches are guidance, not proof. If no trusted runbook matches, AOP
+says that instead of inventing one.
 
 v0.37.0 closes the two old remote feature branches safely:
 

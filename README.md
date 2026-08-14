@@ -10,7 +10,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-blue" alt="Python 3.11+" />
-  <img src="https://img.shields.io/badge/AOP-v0.37.0-success" alt="AOP v0.37.0" />
+  <img src="https://img.shields.io/badge/AOP-v0.38.0-success" alt="AOP v0.38.0" />
   <img src="https://img.shields.io/badge/Kubernetes-SRE%20Shortcuts-326CE5" alt="Kubernetes SRE Shortcuts" />
   <img src="https://img.shields.io/badge/Observability-Prometheus-red" alt="Prometheus" />
   <img src="https://img.shields.io/badge/LLM-Ollama-green" alt="Ollama" />
@@ -85,9 +85,9 @@ The current implementation proves the early platform core:
 - token-budget and model-tier planning
 - safe, read-only investigation workflows
 
-The next intelligence milestone is Incident Pattern Intelligence: detecting
-recurrence, clustering related failures, and explaining what previous
-incidents and runbooks can teach the current investigation.
+The current intelligence milestone is bounded runbook/RAG retrieval: matching
+trusted operational snippets to an incident without dumping full documents into
+prompts.
 
 The dashboard and observability strategy is documented in
 [`docs/architecture/observability-dashboard-strategy.md`](docs/architecture/observability-dashboard-strategy.md).
@@ -107,7 +107,7 @@ release exists.
 Current version:
 
 ```text
-AOP v0.37.0
+AOP v0.38.0
 ```
 
 The implemented and tested paths currently cover Kubernetes incident
@@ -128,12 +128,14 @@ planning, restored enterprise platform roadmap/narrative docs, and the first
 Incident Pattern Intelligence recurrence lookup wired into Kubernetes
 investigation output, bounded pattern context in RCA prompts, Linux summary
 recurrence hints, and a safe troubleshooting catalog runner ported from the
-old AOP CLI transition branch.
+old AOP CLI transition branch, plus the first bounded runbook/RAG retrieval
+foundation for trusted investigation context.
 
 ### Release Memory
 
 | Release | What it proves | Human reference |
 |---|---|---|
+| `v0.38.0` | AOP can retrieve trusted runbook snippets and feed bounded RAG context into RCA prompts | [`docs/releases/v0.38-runbook-rag-retrieval-foundation.md`](docs/releases/v0.38-runbook-rag-retrieval-foundation.md) |
 | `v0.37.0` | AOP can safely inspect and run known catalog commands while closing stale feature branches | [`docs/releases/v0.37-safe-catalog-runner-branch-closure.md`](docs/releases/v0.37-safe-catalog-runner-branch-closure.md) |
 | `v0.36.0` | AOP can feed bounded recurrence context into RCA prompts and show Linux recurrence hints | [`docs/releases/v0.36-pattern-context-rca-linux-summaries.md`](docs/releases/v0.36-pattern-context-rca-linux-summaries.md) |
 | `v0.35.0` | AOP can surface exact historical recurrence hints inside Kubernetes investigation output | [`docs/releases/v0.35-pattern-aware-investigation-output.md`](docs/releases/v0.35-pattern-aware-investigation-output.md) |
@@ -168,6 +170,7 @@ old AOP CLI transition branch.
 - installable `aop` command
 - `aop catalog` command for listing, searching, and safely running known
   troubleshooting catalog commands
+- `aop runbooks` command for trusted runbook/RAG snippet retrieval
 - native `aop linux` health and diagnostic commands
 - bounded, shell-free Linux command execution with JSON output
 - CPU, memory, disk, network, process, service, log, kernel, boot, and security
@@ -236,8 +239,9 @@ old AOP CLI transition branch.
 - `aop memory patterns` recurrence lookup
 - pattern-aware Kubernetes investigation summary, JSON, and Markdown output
 - bounded incident-pattern context in Kubernetes RCA prompts
+- bounded runbook/RAG context in Kubernetes RCA prompts
 - Linux investigation summary recurrence hints
-- two hundred fourteen offline regression tests
+- two hundred nineteen offline regression tests
 
 ### Not Yet Implemented
 
@@ -945,7 +949,7 @@ python -m unittest discover -s tests -v
 Current baseline:
 
 ```text
-214 tests passing
+219 tests passing
 ```
 
 The tests cover:

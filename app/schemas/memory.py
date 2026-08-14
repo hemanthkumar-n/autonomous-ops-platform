@@ -155,6 +155,57 @@ class RunbookMemory(BaseModel):
     source: Optional[str] = None
 
 
+class RunbookChunk(BaseModel):
+    """
+    Source-controlled runbook knowledge chunk for bounded RAG context.
+    """
+
+    runbook_id: str
+    chunk_id: str
+    title: str
+    domain: str
+    incident_types: list[str]
+    keywords: list[str]
+    summary: str
+    guidance: list[str]
+    commands: list[str] = []
+    source: Optional[str] = None
+    safety_boundary: str = (
+        "Runbook match is guidance, not proof. Verify against live evidence."
+    )
+
+
+class RunbookQuery(BaseModel):
+    """
+    Runbook retrieval query contract.
+    """
+
+    domain: Optional[str] = None
+    incident_type: Optional[str] = None
+    text: str = ""
+    limit: int = 3
+
+
+class RunbookMatch(BaseModel):
+    """
+    Scored runbook retrieval match.
+    """
+
+    chunk: RunbookChunk
+    score: int
+    matched_terms: list[str]
+
+
+class RunbookSearchResult(BaseModel):
+    """
+    Bounded runbook retrieval response.
+    """
+
+    query: RunbookQuery
+    matches: list[RunbookMatch]
+    total_matches: int
+
+
 class KnowledgeArtifact(BaseModel):
     """
     Future architecture / operational knowledge object.
