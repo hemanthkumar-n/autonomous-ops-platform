@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from app.investigation.autonomous_loop import EvidenceCollectionResult
 from app.investigation.evidence_planner import EvidenceRequest
-from app.investigation.models import AffectedResource, InvestigationCase
+from app.investigation.models import InvestigationCase
 from app.schemas.evidence import EvidenceItem
 
 
@@ -29,7 +29,6 @@ def normalize_linux_investigation(
     findings: list,
     evidence_gaps: list[str],
     structured: dict[str, object] | None = None,
-    resources: list[AffectedResource] | None = None,
 ) -> EvidenceCollectionResult:
     evidence: list[EvidenceItem] = []
     finding_ids: list[str] = []
@@ -89,6 +88,7 @@ def normalize_linux_investigation(
     notes = [
         f"linux_{domain}_primary_diagnosis={primary_diagnosis}",
         f"linux_{domain}_source_confidence={confidence}",
+        f"linux_{domain}_hostname={hostname}",
     ]
     if evidence_gaps:
         notes.append(f"linux_{domain}_evidence_gaps={len(evidence_gaps)}")
@@ -99,8 +99,5 @@ def normalize_linux_investigation(
         supporting_evidence=supporting,
         supporting_reasons=reasons,
         resolved_gap_ids=resolved,
-        affected_resources=resources or [
-            AffectedResource(domain="linux", kind="host", name=hostname)
-        ],
         notes=notes,
     )
