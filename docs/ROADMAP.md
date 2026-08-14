@@ -9,8 +9,17 @@ so the project remains honest and easy to explain.
 ## Current Baseline
 
 ```text
-Current release: v0.36.0
+Current release: v0.37.0
 Status: implemented and pushed
+```
+
+v0.37.0 closes stale feature branches and ports the useful safe catalog runner:
+
+```text
+old branch ideas
+  -> reviewed against current main
+  -> safe catalog executor
+  -> aop catalog list/search/run
 ```
 
 v0.36.0 adds bounded pattern context to RCA prompts and Linux summaries:
@@ -184,7 +193,7 @@ panic clues, `df`/`du` mismatch, inode exhaustion, deleted-open files,
 read-only remounts, LVM expansion mismatch, container runtime disk pressure,
 and Kubernetes symptoms that require Linux node correlation.
 
-## Next: v0.37
+## Next: v0.38
 
 Purpose:
 

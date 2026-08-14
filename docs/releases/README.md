@@ -10,6 +10,7 @@ unfinished.
 
 | Release | Focus | Reference |
 |---|---|---|
+| `v0.37.0` | Safe catalog runner and branch closure | [`v0.37-safe-catalog-runner-branch-closure.md`](v0.37-safe-catalog-runner-branch-closure.md) |
 | `v0.36.0` | Pattern context in RCA and Linux summaries | [`v0.36-pattern-context-rca-linux-summaries.md`](v0.36-pattern-context-rca-linux-summaries.md) |
 | `v0.35.0` | Pattern-aware investigation output | [`v0.35-pattern-aware-investigation-output.md`](v0.35-pattern-aware-investigation-output.md) |
 | `v0.34.0` | Incident pattern intelligence | [`v0.34-incident-pattern-intelligence.md`](v0.34-incident-pattern-intelligence.md) |

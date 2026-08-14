@@ -56,12 +56,12 @@ Remediation is advisory and non-destructive.
 
 ## Current Baseline
 
-- Version: `0.36.0`
+- Version: `0.37.0`
 - Branch: `main`
 - Remote baseline: `origin/main`
 - Python: `3.11+`
 - CLI entry point: `aop`
-- Tests: two hundred nine offline regression tests passing
+- Tests: two hundred fourteen offline regression tests passing
 - Real Ollama generation and 768-dimensional embeddings verified
 - Full live demo still requires Kubernetes and Prometheus to be running
 
@@ -82,6 +82,20 @@ Semantic-memory failure degrades to exact structured memory. Missing memory
 does not block analysis from current evidence.
 
 ## Latest Release Memory
+
+v0.37.0 closes the two old remote feature branches safely:
+
+```text
+old feature branches
+  -> inspect unique work
+  -> port safe catalog runner idea
+  -> keep current main as source of truth
+```
+
+`origin/feature/investigation-core-v022` is already absorbed into the current
+enterprise investigation core. `origin/feature/aop-cli-transition` is
+superseded by the current CLI, but its guarded troubleshooting runner idea is
+now available through `aop catalog`.
 
 v0.36.0 adds bounded pattern context to RCA prompts and Linux summaries:
 

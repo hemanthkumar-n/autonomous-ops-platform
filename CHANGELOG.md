@@ -4,6 +4,35 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.37.0 - Safe Catalog Runner And Branch Closure
+
+Date: 2026-08-14
+
+### Added
+
+- `aop catalog` CLI for listing, searching, and safely running known
+  troubleshooting catalog commands
+- bounded, shell-free troubleshooting catalog executor
+- skip guards for commands with placeholders, root-only reads, and careful
+  production scans
+- tests for catalog execution, placeholder skipping, careful-read skipping, and
+  CLI output
+
+### Branch Review
+
+- `origin/feature/investigation-core-v022` is already absorbed into current
+  `main` through the enterprise investigation core and follow-up fixes.
+- `origin/feature/aop-cli-transition` is superseded by current AOP CLI work;
+  its useful guarded-runner idea was ported into the current catalog design.
+
+### Safety
+
+- No troubleshooting catalog command runs automatically.
+- Execution remains opt-in, read-only, bounded, and shell-free.
+- Commands needing live incident values are skipped instead of guessed.
+
+---
+
 ## v0.36.0 - Pattern Context RCA And Linux Summaries
 
 Date: 2026-08-14

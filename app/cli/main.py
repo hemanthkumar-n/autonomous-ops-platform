@@ -3,6 +3,7 @@ from __future__ import annotations
 import click
 
 from app.cli.ai import ai
+from app.cli.catalog import catalog
 from app.cli.health import health
 from app.cli.investigate import investigate
 from app.cli.kubernetes import kubernetes
@@ -18,7 +19,7 @@ from app.cli.remediate import memory
     }
 )
 @click.version_option(
-    version="0.36.0",
+    version="0.37.0",
     prog_name="aop",
 )
 def main() -> None:
@@ -29,6 +30,7 @@ def main() -> None:
 
 main.add_command(health)
 main.add_command(ai)
+main.add_command(catalog)
 main.add_command(precheck)
 main.add_command(investigate)
 main.add_command(memory)

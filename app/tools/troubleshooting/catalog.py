@@ -375,3 +375,38 @@ def list_categories(domain: CommandDomain | None = None) -> list[str]:
             if domain is None or command.domain == domain
         }
     )
+
+
+def get_command(key: str) -> TroubleshootingCommand:
+    """
+    Return a troubleshooting command by stable key.
+    """
+
+    for command in ALL_TROUBLESHOOTING_COMMANDS:
+        if command.key == key:
+            return command
+
+    raise KeyError(f"unknown troubleshooting command: {key}")
+
+
+def search_commands(query: str) -> list[dict]:
+    """
+    Search command metadata by key, category, command text, and guidance.
+    """
+
+    needle = query.lower()
+    results = []
+    for command in ALL_TROUBLESHOOTING_COMMANDS:
+        haystack = " ".join(
+            (
+                command.key,
+                command.domain,
+                command.category,
+                command.command,
+                command.description,
+                command.agent_hint,
+            )
+        ).lower()
+        if needle in haystack:
+            results.append(command.to_dict())
+    return results
