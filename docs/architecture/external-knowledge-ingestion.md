@@ -27,6 +27,10 @@ version-specific workarounds and reviewed for safety.
 
 Only `guidance_reviewed` content may become trusted runbook context.
 
+The first `guidance_reviewed` records are the source-backed CoreDNS OOM/DNS
+outage and conntrack exhaustion reviews added in v0.40. Their historical
+mutation examples remain outside reusable guidance.
+
 ## Required Provenance
 
 Each external record needs:

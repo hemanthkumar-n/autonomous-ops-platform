@@ -9,6 +9,13 @@ from app.memory.runbooks.retrieval import (
     format_runbook_context_for_prompt,
     search_runbooks,
 )
+from app.memory.runbooks.reviewed import (
+    get_review,
+    load_review_catalog,
+    review_queue,
+    reviewed_guidance_chunks,
+    search_reviews,
+)
 
 __all__ = [
     "RUNBOOK_CHUNKS",
@@ -16,7 +23,12 @@ __all__ = [
     "format_runbook_context_for_prompt",
     "list_runbook_chunks",
     "load_external_catalog",
+    "load_review_catalog",
     "parse_k8s_af_html",
+    "get_review",
+    "review_queue",
+    "reviewed_guidance_chunks",
     "search_runbooks",
     "search_external_stories",
+    "search_reviews",
 ]

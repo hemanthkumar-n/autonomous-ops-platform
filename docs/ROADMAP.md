@@ -9,8 +9,18 @@ so the project remains honest and easy to explain.
 ## Current Baseline
 
 ```text
-Current release: v0.39.0
+Current release: v0.40.0
 Status: implemented and pushed
+```
+
+v0.40.0 adds source-backed reviewed DNS and conntrack guidance:
+
+```text
+historical story
+  -> source review
+  -> facts versus reusable checks
+  -> risky actions excluded
+  -> bounded RAG
 ```
 
 v0.39.0 adds external Kubernetes failure-story metadata:
@@ -154,6 +164,8 @@ aop runbooks list
 aop runbooks search --domain kubernetes --incident-type MemoryExhaustion --text "OOMKilled cgroup memory limit"
 aop runbooks sources
 aop runbooks stories search --technology CoreDNS --text "DNS OOM outage"
+aop runbooks review queue
+aop runbooks review show review-k8s-dns-coredns-oom-zalando-2019
 ```
 
 The human-readable Linux ladder is maintained in
@@ -216,22 +228,23 @@ panic clues, `df`/`du` mismatch, inode exhaustion, deleted-open files,
 read-only remounts, LVM expansion mismatch, container runtime disk pressure,
 and Kubernetes symptoms that require Linux node correlation.
 
-## Next: v0.40
+## Next: v0.41
 
 Purpose:
 
 ```text
-Review selected external incident sources into attributed reusable knowledge.
+Build one bounded retrieval pipeline across all current knowledge sources.
 ```
 
 Target outcomes:
 
-- original-source review state transitions
-- explicit reported-fact versus AOP-inference fields
-- Kubernetes version, cloud provider, and architecture applicability
-- reusable checks separated from historical workarounds
-- reviewer identity and review timestamp
-- only reviewed guidance eligible for bounded RAG
+- live incident evidence references
+- internal runbook matches
+- external guidance-reviewed matches
+- historical incident memory and recurring patterns
+- source attribution on every retrieved item
+- token-budget allocation by evidence class
+- deterministic fallback when semantic retrieval is unavailable
 - no automatic remediation
 
 Reference:

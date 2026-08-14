@@ -10,6 +10,7 @@ unfinished.
 
 | Release | Focus | Reference |
 |---|---|---|
+| `v0.40.0` | Source-reviewed DNS and conntrack guidance | [`v0.40-source-reviewed-dns-conntrack-guidance.md`](v0.40-source-reviewed-dns-conntrack-guidance.md) |
 | `v0.39.0` | k8s.af external knowledge import | [`v0.39-k8s-af-external-knowledge-import.md`](v0.39-k8s-af-external-knowledge-import.md) |
 | `v0.38.0` | Runbook RAG retrieval foundation | [`v0.38-runbook-rag-retrieval-foundation.md`](v0.38-runbook-rag-retrieval-foundation.md) |
 | `v0.37.0` | Safe catalog runner and branch closure | [`v0.37-safe-catalog-runner-branch-closure.md`](v0.37-safe-catalog-runner-branch-closure.md) |

@@ -20,6 +20,12 @@ from app.memory.runbooks.retrieval import (
     format_runbook_context_for_prompt,
     search_runbooks,
 )
+from app.memory.runbooks.reviewed import (
+    get_review,
+    load_review_catalog,
+    review_queue,
+    search_reviews,
+)
 from app.schemas.memory import RunbookQuery
 
 
@@ -179,6 +185,121 @@ def search_stories(
         click.echo(f"  impact: {story.impact}")
         click.echo(f"  source: {story.canonical_url}")
         click.echo(f"  review_state: {story.review_state}")
+
+
+@runbooks.group("review")
+def review() -> None:
+    """
+    Inspect source-backed knowledge review state and guidance.
+    """
+
+
+@review.command("queue")
+@click.option("--limit", type=int, default=20, show_default=True)
+@click.option("--json", "as_json", is_flag=True)
+def review_queue_command(limit: int, as_json: bool) -> None:
+    """
+    List imported stories that still require original-source review.
+    """
+
+    pending = review_queue()
+    payload = {
+        "pending_count": len(pending),
+        "reviewed_count": load_review_catalog().review_count,
+        "items": pending[: max(limit, 0)],
+    }
+    if as_json:
+        _echo_json(payload)
+        return
+
+    click.echo("AOP external knowledge review queue")
+    click.echo(f"pending_count: {payload['pending_count']}")
+    click.echo(f"reviewed_count: {payload['reviewed_count']}")
+    for item in payload["items"]:
+        click.echo()
+        click.echo(f"- {item['story_id']}: {item['title']}")
+        click.echo(f"  involved: {', '.join(item['technologies'])}")
+        click.echo(f"  source: {item['canonical_url']}")
+
+
+@review.command("show")
+@click.argument("review_or_story_id")
+@click.option("--json", "as_json", is_flag=True)
+def show_review(review_or_story_id: str, as_json: bool) -> None:
+    """
+    Show reported facts, reusable checks, and historical-risk boundaries.
+    """
+
+    try:
+        item = get_review(review_or_story_id)
+    except KeyError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if as_json:
+        _echo_json(item)
+        return
+
+    click.echo(item.source_title)
+    click.echo(f"review_id: {item.review_id}")
+    click.echo(f"story_id: {item.story_id}")
+    click.echo(f"review_state: {item.review_state}")
+    click.echo(f"source: {item.source_url}")
+    click.echo()
+    click.echo("Reported root cause")
+    click.echo(item.reported_root_cause)
+    click.echo()
+    click.echo("Reusable checks")
+    for check in item.reusable_checks:
+        click.echo(f"- {check}")
+    click.echo()
+    click.echo("Safe read-only commands")
+    for command in item.safe_commands:
+        click.echo(f"- {command}")
+    click.echo()
+    click.echo("Risky or historical actions")
+    for action in item.risky_or_historical_actions:
+        click.echo(f"- {action}")
+    click.echo()
+    click.echo(f"boundary: {item.safety_boundary}")
+
+
+@review.command("search")
+@click.option("--text", required=True)
+@click.option(
+    "--state",
+    "review_state",
+    default="guidance_reviewed",
+    show_default=True,
+)
+@click.option("--limit", type=int, default=10, show_default=True)
+@click.option("--json", "as_json", is_flag=True)
+def search_reviewed(
+    text: str,
+    review_state: str,
+    limit: int,
+    as_json: bool,
+) -> None:
+    """
+    Search reviewed source-backed knowledge.
+    """
+
+    matches = search_reviews(
+        text,
+        review_state=review_state,
+        limit=limit,
+    )
+    if as_json:
+        _echo_json([item.model_dump() for item in matches])
+        return
+
+    click.echo("AOP reviewed external knowledge")
+    click.echo(f"matches: {len(matches)}")
+    for item in matches:
+        click.echo()
+        click.echo(f"- {item.review_id}: {item.source_title}")
+        click.echo(f"  state: {item.review_state}")
+        click.echo(f"  root_cause: {item.reported_root_cause}")
+        click.echo(f"  source: {item.source_url}")
 
 
 @runbooks.command("list")

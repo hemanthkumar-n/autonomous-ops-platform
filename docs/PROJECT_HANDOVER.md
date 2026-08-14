@@ -36,10 +36,10 @@ Do not treat empty modules or directory names as implemented capabilities.
 ## Verified Baseline
 
 ```text
-Release: 0.39.0
+Release: 0.40.0
 Branch: main
 Remote: origin/main
-Offline tests: 224 passing
+Offline tests: 231 passing
 CLI entry point: aop
 Python: 3.11+
 ```
@@ -57,7 +57,7 @@ git status --short --branch
 Expected version:
 
 ```text
-aop, version 0.39.0
+aop, version 0.40.0
 ```
 
 ## What AOP Is

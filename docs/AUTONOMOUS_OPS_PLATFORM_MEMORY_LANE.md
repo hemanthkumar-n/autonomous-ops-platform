@@ -56,12 +56,12 @@ Remediation is advisory and non-destructive.
 
 ## Current Baseline
 
-- Version: `0.39.0`
+- Version: `0.40.0`
 - Branch: `main`
 - Remote baseline: `origin/main`
 - Python: `3.11+`
 - CLI entry point: `aop`
-- Tests: two hundred twenty-four offline regression tests passing
+- Tests: two hundred thirty-one offline regression tests passing
 - Real Ollama generation and 768-dimensional embeddings verified
 - Full live demo still requires Kubernetes and Prometheus to be running
 
@@ -82,6 +82,19 @@ Semantic-memory failure degrades to exact structured memory. Missing memory
 does not block analysis from current evidence.
 
 ## Latest Release Memory
+
+v0.40.0 moves two external stories into reviewed guidance:
+
+```text
+original source
+  -> reported facts and historical mitigation
+  -> reusable read-only checks
+  -> risky actions excluded
+  -> bounded RAG eligibility
+```
+
+The reviewed cases cover CoreDNS OOM/DNS outage and Linux conntrack
+exhaustion. Fifty-seven imported stories remain metadata-only.
 
 v0.39.0 adds provenance-first external Kubernetes incident metadata:
 

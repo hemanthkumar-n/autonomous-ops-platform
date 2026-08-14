@@ -10,7 +10,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-blue" alt="Python 3.11+" />
-  <img src="https://img.shields.io/badge/AOP-v0.39.0-success" alt="AOP v0.39.0" />
+  <img src="https://img.shields.io/badge/AOP-v0.40.0-success" alt="AOP v0.40.0" />
   <img src="https://img.shields.io/badge/Kubernetes-SRE%20Shortcuts-326CE5" alt="Kubernetes SRE Shortcuts" />
   <img src="https://img.shields.io/badge/Observability-Prometheus-red" alt="Prometheus" />
   <img src="https://img.shields.io/badge/LLM-Ollama-green" alt="Ollama" />
@@ -107,7 +107,7 @@ release exists.
 Current version:
 
 ```text
-AOP v0.39.0
+AOP v0.40.0
 ```
 
 The implemented and tested paths currently cover Kubernetes incident
@@ -130,12 +130,14 @@ investigation output, bounded pattern context in RCA prompts, Linux summary
 recurrence hints, and a safe troubleshooting catalog runner ported from the
 old AOP CLI transition branch, plus the first bounded runbook/RAG retrieval
 foundation for trusted investigation context and a provenance-first import of
-59 public Kubernetes failure-story links from k8s.af.
+59 public Kubernetes failure-story links from k8s.af, with the first two
+source-backed DNS/conntrack reviews eligible for bounded RAG.
 
 ### Release Memory
 
 | Release | What it proves | Human reference |
 |---|---|---|
+| `v0.40.0` | AOP can separate reported incident facts, reusable checks, and risky historical actions before external knowledge enters RAG | [`docs/releases/v0.40-source-reviewed-dns-conntrack-guidance.md`](docs/releases/v0.40-source-reviewed-dns-conntrack-guidance.md) |
 | `v0.39.0` | AOP can import and search attributed Kubernetes failure-story metadata without treating it as verified remediation | [`docs/releases/v0.39-k8s-af-external-knowledge-import.md`](docs/releases/v0.39-k8s-af-external-knowledge-import.md) |
 | `v0.38.0` | AOP can retrieve trusted runbook snippets and feed bounded RAG context into RCA prompts | [`docs/releases/v0.38-runbook-rag-retrieval-foundation.md`](docs/releases/v0.38-runbook-rag-retrieval-foundation.md) |
 | `v0.37.0` | AOP can safely inspect and run known catalog commands while closing stale feature branches | [`docs/releases/v0.37-safe-catalog-runner-branch-closure.md`](docs/releases/v0.37-safe-catalog-runner-branch-closure.md) |
@@ -176,6 +178,8 @@ foundation for trusted investigation context and a provenance-first import of
 - metadata-only k8s.af importer with 59 attributed historical Kubernetes
   failure stories
 - external story search by symptom text and involved technology
+- external knowledge review queue and source-backed review details
+- reviewed CoreDNS OOM/DNS and conntrack exhaustion guidance in bounded RAG
 - native `aop linux` health and diagnostic commands
 - bounded, shell-free Linux command execution with JSON output
 - CPU, memory, disk, network, process, service, log, kernel, boot, and security
@@ -246,7 +250,7 @@ foundation for trusted investigation context and a provenance-first import of
 - bounded incident-pattern context in Kubernetes RCA prompts
 - bounded runbook/RAG context in Kubernetes RCA prompts
 - Linux investigation summary recurrence hints
-- two hundred twenty-four offline regression tests
+- two hundred thirty-one offline regression tests
 
 ### Not Yet Implemented
 
@@ -954,7 +958,7 @@ python -m unittest discover -s tests -v
 Current baseline:
 
 ```text
-224 tests passing
+231 tests passing
 ```
 
 The tests cover:

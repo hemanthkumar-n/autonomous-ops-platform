@@ -4,6 +4,30 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.40.0 - Source-Reviewed DNS And Conntrack Guidance
+
+Date: 2026-08-14
+
+### Added
+
+- source-backed external knowledge review contracts
+- reviewed CoreDNS OOM/DNS outage and Linux conntrack exhaustion knowledge
+- explicit separation of reported symptoms, root cause, mitigations, reusable
+  checks, applicability, and risky historical actions
+- `aop runbooks review queue`, `show`, and `search`
+- guidance-reviewed external knowledge in bounded RAG retrieval
+- tests for source linkage, queue state, RAG ranking, CLI review output, and
+  exclusion of mutation examples from safe guidance
+
+### Safety
+
+- Only `guidance_reviewed` records enter bounded RAG.
+- Historical resource values and privileged sysctl mutation remain excluded
+  from reusable guidance.
+- Reviewed source knowledge remains a clue, not proof for the current cluster.
+
+---
+
 ## v0.39.0 - External Kubernetes Failure Story Import
 
 Date: 2026-08-14

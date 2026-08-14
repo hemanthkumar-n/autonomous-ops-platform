@@ -253,6 +253,46 @@ class ExternalStoryMatch(BaseModel):
     matched_terms: list[str]
 
 
+class ExternalKnowledgeReview(BaseModel):
+    """
+    Source-backed review that separates reported facts from reusable guidance.
+    """
+
+    review_id: str
+    story_id: str
+    source_url: str
+    source_title: str
+    review_state: str
+    reviewed_at: datetime
+    reviewer: str
+    domains: list[str]
+    incident_types: list[str]
+    keywords: list[str]
+    reported_symptoms: list[str]
+    reported_root_cause: str
+    contributing_factors: list[str]
+    reported_mitigations: list[str]
+    reusable_checks: list[str]
+    safe_commands: list[str]
+    risky_or_historical_actions: list[str]
+    applicability: list[str]
+    source_notes: list[str]
+    safety_boundary: str = (
+        "Source-backed guidance is still a clue, not proof. Verify against "
+        "the current cluster, Kubernetes version, cloud, and Linux evidence."
+    )
+
+
+class ExternalKnowledgeReviewCatalog(BaseModel):
+    """
+    Reviewed external knowledge eligible for bounded retrieval.
+    """
+
+    schema_version: str = "1"
+    review_count: int
+    reviews: list[ExternalKnowledgeReview]
+
+
 class KnowledgeArtifact(BaseModel):
     """
     Future architecture / operational knowledge object.

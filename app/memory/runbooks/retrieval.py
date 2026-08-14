@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 
 from app.memory.runbooks.catalog import RUNBOOK_CHUNKS
+from app.memory.runbooks.reviewed import reviewed_guidance_chunks
 from app.schemas.memory import (
     RunbookMatch,
     RunbookQuery,
@@ -34,7 +35,8 @@ def search_runbooks(query: RunbookQuery) -> RunbookSearchResult:
     query_terms = _terms(query.text, query.incident_type, query.domain)
     matches: list[RunbookMatch] = []
 
-    for chunk in RUNBOOK_CHUNKS:
+    searchable_chunks = (*RUNBOOK_CHUNKS, *reviewed_guidance_chunks())
+    for chunk in searchable_chunks:
         score = 0
         matched_terms: set[str] = set()
 

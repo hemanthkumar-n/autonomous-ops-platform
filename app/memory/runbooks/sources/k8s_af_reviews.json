@@ -1,0 +1,150 @@
+{
+  "schema_version": "1",
+  "review_count": 2,
+  "reviews": [
+    {
+      "review_id": "review-k8s-dns-coredns-oom-zalando-2019",
+      "story_id": "k8s-af-9d90f871f00c4013",
+      "source_url": "https://github.com/zalando-incubator/kubernetes-on-aws/blob/dev/docs/postmortems/jan-2019-dns-outage.md",
+      "source_title": "Total DNS outage in Kubernetes cluster",
+      "review_state": "guidance_reviewed",
+      "reviewed_at": "2026-08-14T00:00:00Z",
+      "reviewer": "AOP source-backed project review",
+      "domains": [
+        "kubernetes.networking",
+        "linux.memory",
+        "linux.network"
+      ],
+      "incident_types": [
+        "DNSFailure",
+        "CoreDNSOOM",
+        "MemoryExhaustion"
+      ],
+      "keywords": [
+        "coredns",
+        "dns",
+        "oomkilled",
+        "ndots:5",
+        "retries",
+        "memory limit",
+        "monitoring blast radius"
+      ],
+      "reported_symptoms": [
+        "Downstream calls timed out and application retries increased request volume.",
+        "CoreDNS memory usage spiked and all CoreDNS pods repeatedly OOMKilled.",
+        "Cluster DNS became unavailable and in-cluster monitoring also failed."
+      ],
+      "reported_root_cause": "A retry-driven DNS query spike exhausted a very small CoreDNS memory limit, after which repeated OOM kills produced a cluster-wide DNS outage.",
+      "contributing_factors": [
+        "The application did not cache DNS lookups.",
+        "Default ndots:5 behavior multiplied queries for external names.",
+        "Short-lived HTTP connections increased DNS lookup frequency.",
+        "CoreDNS had a 100Mi memory limit based on historical rather than spike usage.",
+        "Most monitoring depended on the same cluster DNS failure domain."
+      ],
+      "reported_mitigations": [
+        "The incident team increased CoreDNS memory requests and limits to recover service.",
+        "The postmortem proposed more resilient node-local DNS and external alerting."
+      ],
+      "reusable_checks": [
+        "Correlate DNS timeout growth with CoreDNS request rate, memory, restarts, and OOM termination reasons.",
+        "Inspect pod resolv.conf and ndots behavior before assuming the upstream DNS server is the only cause.",
+        "Check whether retries, connection-pool lifetime, or missing application DNS caching amplify query volume.",
+        "Verify that DNS and control-plane alerts have an out-of-cluster notification path.",
+        "Separate CoreDNS container-limit OOM from node-wide Linux memory pressure."
+      ],
+      "safe_commands": [
+        "kubectl get pods -n kube-system -l k8s-app=kube-dns -o wide",
+        "kubectl describe pod <coredns-pod> -n kube-system",
+        "kubectl logs <coredns-pod> -n kube-system --previous --tail=100",
+        "kubectl exec <pod> -n <namespace> -- cat /etc/resolv.conf",
+        "aop investigate linux memory"
+      ],
+      "risky_or_historical_actions": [
+        "Do not copy the historical 2000Mi CoreDNS limit without measuring the current workload and cluster.",
+        "Do not deploy a new DNS architecture during an incident without compatibility, rollback, and blast-radius review."
+      ],
+      "applicability": [
+        "The incident occurred in 2019 and its exact versions and DNS topology are historical.",
+        "The evidence pattern remains useful for CoreDNS OOM, retry storms, ndots amplification, and monitoring dependency failures.",
+        "Current Kubernetes DNS, NodeLocal DNSCache, runtime, and cloud-provider behavior must be verified."
+      ],
+      "source_notes": [
+        "The source explicitly separates the outage timeline, contributing factors, lessons, and action items.",
+        "Reported facts are paraphrased; AOP does not copy the full postmortem."
+      ]
+    },
+    {
+      "review_id": "review-k8s-linux-conntrack-loveholidays-2020",
+      "story_id": "k8s-af-ed6ee8cc4ae3478d",
+      "source_url": "https://deploy.live/blog/kubernetes-networking-problems-due-to-the-conntrack/",
+      "source_title": "Kubernetes Networking Problems Due to the Conntrack",
+      "review_state": "guidance_reviewed",
+      "reviewed_at": "2026-08-14T00:00:00Z",
+      "reviewer": "AOP source-backed project review",
+      "domains": [
+        "kubernetes.networking",
+        "linux.network",
+        "cloud.gcp"
+      ],
+      "incident_types": [
+        "ConntrackExhaustion",
+        "ConnectionReset",
+        "NetworkTimeout"
+      ],
+      "keywords": [
+        "conntrack",
+        "nf_conntrack_max",
+        "connection reset",
+        "timeout",
+        "haproxy",
+        "gke",
+        "node sizing"
+      ],
+      "reported_symptoms": [
+        "A high-load aggregation service developed connectivity failures and elevated errors.",
+        "HAProxy connection reset errors increased.",
+        "Affected nodes approached their conntrack entry limits."
+      ],
+      "reported_root_cause": "Node conntrack tables became exhausted after node RAM was reduced while downstream sharding increased the number of tracked connections.",
+      "contributing_factors": [
+        "The workload sustained high request volume with large connection fan-out.",
+        "Nodes were resized to half the previous RAM.",
+        "Downstream sharding doubled the connections that needed tracking."
+      ],
+      "reported_mitigations": [
+        "The service was scheduled onto nodes with more RAM.",
+        "The number of aggregation pods per node was limited.",
+        "Conntrack utilization monitoring and alerting were added."
+      ],
+      "reusable_checks": [
+        "Compare current conntrack entries with the configured maximum on each affected node.",
+        "Correlate resets and timeouts with node placement, request rate, connection fan-out, and recent node resizing.",
+        "Check conntrack insert failures and table-full kernel messages before changing limits.",
+        "Review pod density and connection-heavy workload concentration per node.",
+        "Treat conntrack tuning as a capacity and memory decision, not a universal fix."
+      ],
+      "safe_commands": [
+        "sysctl net.netfilter.nf_conntrack_count net.netfilter.nf_conntrack_max",
+        "conntrack -S",
+        "journalctl -k --no-pager -g 'conntrack|table full'",
+        "aop investigate linux network",
+        "kubectl get pods -A -o wide"
+      ],
+      "risky_or_historical_actions": [
+        "Do not copy a historical nf_conntrack_max value without measuring node memory and current kernel behavior.",
+        "Do not let arbitrary application init containers or competing DaemonSets mutate node conntrack sysctls.",
+        "Privileged sysctl mutation requires change control, rollback, and node-memory impact review."
+      ],
+      "applicability": [
+        "The source describes GKE behavior observed in 2020 and references Kubernetes 1.15-era changes.",
+        "Current managed-cluster defaults, kernel counters, kube-proxy mode, CNI, and node sizing must be verified.",
+        "The evidence pattern remains useful for high connection fan-out, resets, intermittent timeouts, and node-local saturation."
+      ],
+      "source_notes": [
+        "The source provides observed symptoms, conntrack metrics, immediate mitigation, and explicit cautions about sysctl mutation.",
+        "Reported facts are paraphrased; AOP does not copy the full article."
+      ]
+    }
+  ]
+}
