@@ -21,7 +21,7 @@ from app.cli.runbooks import runbooks
     }
 )
 @click.version_option(
-    version="0.41.0",
+    version="0.42.0",
     prog_name="aop",
 )
 def main() -> None:

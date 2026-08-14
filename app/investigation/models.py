@@ -99,6 +99,20 @@ class InvestigationDecision(BaseModel):
     blocked_by_gaps: list[str] = Field(default_factory=list)
 
 
+class RootCauseCandidate(BaseModel):
+    """Evidence-backed RCA candidate; distinct from a confirmed root cause."""
+
+    hypothesis_id: str
+    statement: str
+    confidence: float = Field(ge=0.0, le=1.0)
+    supporting_evidence_ids: list[str] = Field(default_factory=list)
+    contradicting_evidence_ids: list[str] = Field(default_factory=list)
+    why: list[str] = Field(default_factory=list)
+    why_not: list[str] = Field(default_factory=list)
+    validation_state: Literal["candidate", "validated", "rejected"] = "candidate"
+    created_at: datetime = Field(default_factory=utc_now)
+
+
 class InvestigationCase(BaseModel):
     """Canonical incident state shared by collectors, memory, AI, reports and UI."""
 
@@ -118,6 +132,7 @@ class InvestigationCase(BaseModel):
     historical_matches: list[HistoricalMatch] = Field(default_factory=list)
     correlations: list[str] = Field(default_factory=list)
     decision: InvestigationDecision | None = None
+    rca_candidate: RootCauseCandidate | None = None
     root_cause: str | None = None
     recommendations: list[str] = Field(default_factory=list)
     resolution: ResolutionRecord | None = None
