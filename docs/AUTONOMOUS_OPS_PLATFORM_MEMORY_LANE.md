@@ -56,12 +56,12 @@ Remediation is advisory and non-destructive.
 
 ## Current Baseline
 
-- Version: `0.35.0`
+- Version: `0.36.0`
 - Branch: `main`
 - Remote baseline: `origin/main`
 - Python: `3.11+`
 - CLI entry point: `aop`
-- Tests: two hundred eight offline regression tests passing
+- Tests: two hundred nine offline regression tests passing
 - Real Ollama generation and 768-dimensional embeddings verified
 - Full live demo still requires Kubernetes and Prometheus to be running
 
@@ -82,6 +82,18 @@ Semantic-memory failure degrades to exact structured memory. Missing memory
 does not block analysis from current evidence.
 
 ## Latest Release Memory
+
+v0.36.0 adds bounded pattern context to RCA prompts and Linux summaries:
+
+```text
+pattern_guidance
+  -> bounded prompt context
+  -> RCA sees recurrence without raw memory dump
+  -> Linux summaries show exact recurrence hints
+```
+
+The context remains deterministic and bounded. Historical recurrence is still
+a clue, not proof.
 
 v0.35.0 wired pattern intelligence into Kubernetes investigation output:
 

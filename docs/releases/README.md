@@ -10,6 +10,7 @@ unfinished.
 
 | Release | Focus | Reference |
 |---|---|---|
+| `v0.36.0` | Pattern context in RCA and Linux summaries | [`v0.36-pattern-context-rca-linux-summaries.md`](v0.36-pattern-context-rca-linux-summaries.md) |
 | `v0.35.0` | Pattern-aware investigation output | [`v0.35-pattern-aware-investigation-output.md`](v0.35-pattern-aware-investigation-output.md) |
 | `v0.34.0` | Incident pattern intelligence | [`v0.34-incident-pattern-intelligence.md`](v0.34-incident-pattern-intelligence.md) |
 | `v0.33.0` | Enterprise platform narrative restoration | [`v0.33-enterprise-platform-narrative.md`](v0.33-enterprise-platform-narrative.md) |

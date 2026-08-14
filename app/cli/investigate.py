@@ -209,6 +209,30 @@ def _print_summary(workflow, saved_path: str | None) -> None:
         click.echo(f"Memory record: {saved_path}")
 
 
+def _print_linux_pattern_hint(domain: str, incident_type: str) -> None:
+    from app.memory.incident_patterns.patterns import find_linux_pattern_hint
+
+    pattern = find_linux_pattern_hint(
+        domain=domain,
+        incident_type=incident_type,
+    )
+
+    click.echo()
+    click.echo("Linux pattern memory")
+    if pattern is None:
+        click.echo("- recurrence: no exact historical pattern found")
+        click.echo("- boundary: Historical recurrence is a clue, not proof.")
+        return
+
+    click.echo(f"- fingerprint: {pattern.fingerprint}")
+    click.echo(
+        f"- recurrence: {pattern.occurrence_count} previous occurrence(s)"
+    )
+    click.echo(f"- latest: {pattern.latest_timestamp.isoformat()}")
+    click.echo(f"- resources: {', '.join(pattern.resources)}")
+    click.echo("- boundary: Historical recurrence is a clue, not proof.")
+
+
 @click.group()
 def investigate() -> None:
     """
@@ -361,6 +385,11 @@ def investigate_linux_disk(
         for gap in investigation.evidence_gaps:
             click.echo(f"- {gap}")
 
+    _print_linux_pattern_hint(
+        domain="linux.disk",
+        incident_type=investigation.primary_diagnosis,
+    )
+
     if saved_path:
         click.echo()
         click.echo(f"Memory record: {saved_path}")
@@ -451,6 +480,11 @@ def investigate_linux_boot(
         click.echo("Evidence gaps")
         for gap in investigation.evidence_gaps:
             click.echo(f"- {gap}")
+
+    _print_linux_pattern_hint(
+        domain="linux.boot_kernel",
+        incident_type=investigation.primary_diagnosis,
+    )
 
     if saved_path:
         click.echo()
@@ -569,6 +603,11 @@ def investigate_linux_memory(
         click.echo("Evidence gaps")
         for gap in investigation.evidence_gaps:
             click.echo(f"- {gap}")
+
+    _print_linux_pattern_hint(
+        domain="linux.memory",
+        incident_type=investigation.primary_diagnosis,
+    )
 
     if saved_path:
         click.echo()
@@ -713,6 +752,11 @@ def investigate_linux_host(
         click.echo("Evidence gaps")
         for gap in investigation.evidence_gaps:
             click.echo(f"- {gap}")
+
+    _print_linux_pattern_hint(
+        domain="linux.host",
+        incident_type=investigation.primary_diagnosis,
+    )
 
     if saved_path:
         click.echo()
@@ -950,6 +994,11 @@ def investigate_linux_cpu(
         for gap in investigation.evidence_gaps:
             click.echo(f"- {gap}")
 
+    _print_linux_pattern_hint(
+        domain="linux.cpu",
+        incident_type=investigation.primary_diagnosis,
+    )
+
     if saved_path:
         click.echo()
         click.echo(f"Memory record: {saved_path}")
@@ -1036,6 +1085,11 @@ def investigate_linux_network(
         click.echo("Evidence gaps")
         for gap in investigation.evidence_gaps:
             click.echo(f"- {gap}")
+
+    _print_linux_pattern_hint(
+        domain="linux.network",
+        incident_type=investigation.primary_diagnosis,
+    )
 
     if saved_path:
         click.echo()
@@ -1125,6 +1179,11 @@ def investigate_linux_service(
         click.echo("Evidence gaps")
         for gap in investigation.evidence_gaps:
             click.echo(f"- {gap}")
+
+    _print_linux_pattern_hint(
+        domain="linux.service",
+        incident_type=investigation.primary_diagnosis,
+    )
 
     if saved_path:
         click.echo()

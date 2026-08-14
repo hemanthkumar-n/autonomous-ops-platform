@@ -9,6 +9,7 @@ from app.orchestration.incident_workflow import (
 from app.schemas.ai import RCAResponse, RemediationResponse
 from app.schemas.classification import IncidentClassification
 from app.schemas.incident import ContainerState, IncidentContext
+from app.schemas.memory import IncidentPatternGuidance
 
 
 class IncidentWorkflowTests(unittest.TestCase):
@@ -77,7 +78,14 @@ class IncidentWorkflowTests(unittest.TestCase):
         classify.return_value = [classification]
         generate_rca.return_value = rca
         generate_remediations.return_value = [remediation]
-        find_patterns.return_value = []
+        pattern = IncidentPatternGuidance(
+            pod_name="checkout",
+            namespace="payments",
+            container="app",
+            incident_type="MemoryExhaustion",
+            fingerprint="kubernetes:payments:checkout:memoryexhaustion:oomkilled",
+        )
+        find_patterns.return_value = [pattern]
         llm_client_class.return_value = Mock()
 
         workflow, saved_path = run_incident_workflow(
@@ -115,6 +123,12 @@ class IncidentWorkflowTests(unittest.TestCase):
         find_patterns.assert_called_once_with(
             incidents=[incident],
             classifications=[classification],
+        )
+        generate_rca.assert_called_once_with(
+            incident=incident,
+            classification=classification,
+            llm_client=llm_client_class.return_value,
+            pattern_guidance=pattern,
         )
 
 

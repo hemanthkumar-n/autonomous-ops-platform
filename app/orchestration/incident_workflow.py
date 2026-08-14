@@ -126,21 +126,34 @@ def run_incident_workflow(
         len(classifications),
     )
 
+    pattern_guidance = find_kubernetes_pattern_guidance(
+        incidents=incidents,
+        classifications=classifications,
+    )
+
     llm_client = LLMClient()
 
     try:
         rca_results = []
 
-        for incident, classification in zip(
-            incidents,
-            classifications,
-            strict=False,
+        for index, (incident, classification) in enumerate(
+            zip(
+                incidents,
+                classifications,
+                strict=False,
+            )
         ):
+            pattern = (
+                pattern_guidance[index]
+                if index < len(pattern_guidance)
+                else None
+            )
             rca_results.append(
                 generate_rca(
                     incident=incident,
                     classification=classification,
                     llm_client=llm_client,
+                    pattern_guidance=pattern,
                 )
             )
 
@@ -167,11 +180,6 @@ def run_incident_workflow(
         incidents=incidents,
         classifications=classifications,
     )
-    pattern_guidance = find_kubernetes_pattern_guidance(
-        incidents=incidents,
-        classifications=classifications,
-    )
-
     workflow_execution = WorkflowExecutionResponse(
         incident_context=incidents,
         classified_incidents=classifications,

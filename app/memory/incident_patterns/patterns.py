@@ -291,6 +291,65 @@ def find_kubernetes_pattern_guidance(
     return guidance
 
 
+def format_pattern_guidance_for_prompt(
+    guidance: IncidentPatternGuidance | None,
+    *,
+    max_patterns: int = 1,
+    max_resources: int = 3,
+) -> str:
+    """
+    Render bounded pattern context for an LLM prompt.
+    """
+
+    if guidance is None:
+        return "No pattern guidance available."
+
+    lines = [
+        f"Fingerprint: {guidance.fingerprint}",
+        f"Boundary: {guidance.evidence_note}",
+    ]
+
+    if not guidance.patterns:
+        lines.append("Exact historical recurrence: none found.")
+        return "\n".join(lines)
+
+    for pattern in guidance.patterns[:max_patterns]:
+        resources = ", ".join(pattern.resources[:max_resources])
+        lines.extend(
+            [
+                f"Exact historical recurrence: {pattern.occurrence_count} previous occurrence(s)",
+                f"Latest recurrence timestamp: {pattern.latest_timestamp.isoformat()}",
+                f"Historical resources: {resources or 'unknown'}",
+                f"Historical severities: {', '.join(pattern.severities)}",
+            ]
+        )
+
+    return "\n".join(lines)
+
+
+def find_linux_pattern_hint(
+    *,
+    domain: str,
+    incident_type: str,
+    min_count: int = 1,
+) -> IncidentPatternSummary | None:
+    """
+    Find the strongest exact Linux recurrence hint for a domain and diagnosis.
+    """
+
+    report = find_incident_patterns(
+        min_count=min_count,
+        limit=1,
+        domain=domain,
+        incident_type=incident_type,
+    )
+
+    if not report.patterns:
+        return None
+
+    return report.patterns[0]
+
+
 def _matches_filters(
     occurrence: IncidentPatternOccurrence,
     *,

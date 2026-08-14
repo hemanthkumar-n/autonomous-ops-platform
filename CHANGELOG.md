@@ -4,6 +4,25 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.36.0 - Pattern Context RCA And Linux Summaries
+
+Date: 2026-08-14
+
+### Added
+
+- bounded incident-pattern context in Kubernetes RCA prompts
+- Linux recurrence hints in summary output for disk, memory, CPU, network,
+  service, boot/kernel, and host investigations
+- tests for prompt context, workflow RCA wiring, and Linux summary rendering
+
+### Safety
+
+- Pattern memory is summarized before entering prompts.
+- Historical recurrence remains a clue, not proof.
+- Linux JSON investigation contracts remain stable.
+
+---
+
 ## v0.35.0 - Pattern-Aware Investigation Output
 
 Date: 2026-08-14

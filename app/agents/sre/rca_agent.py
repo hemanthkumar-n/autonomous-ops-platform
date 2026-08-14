@@ -6,6 +6,9 @@ from app.agents.sre.incident_classifier import classify_incident
 from app.config.logging_config import get_logger
 from app.llm.client import LLMClient
 from app.memory.fingerprints.signature import extract_failure_reason
+from app.memory.incident_patterns.patterns import (
+    format_pattern_guidance_for_prompt,
+)
 from app.memory.retrieval.hybrid_search import (
     hybrid_incident_search,
 )
@@ -15,7 +18,7 @@ from app.prompts.shared.cross_domain import (
 from app.schemas.ai import RCAResponse
 from app.schemas.classification import IncidentClassification
 from app.schemas.incident import IncidentContext
-from app.schemas.memory import MemoryQuery
+from app.schemas.memory import IncidentPatternGuidance, MemoryQuery
 from app.tools.kubernetes.incident_context import (
     collect_incident_context,
 )
@@ -67,6 +70,7 @@ def build_historical_context(
 def build_rca_prompt(
     incident: IncidentContext,
     classification: IncidentClassification,
+    pattern_guidance: IncidentPatternGuidance | None = None,
 ) -> str:
     """
     Build RCA analysis prompt.
@@ -80,6 +84,7 @@ def build_rca_prompt(
     )
 
     historical_guidance = ""
+    pattern_context = format_pattern_guidance_for_prompt(pattern_guidance)
 
     if has_history:
         historical_guidance = """
@@ -87,11 +92,13 @@ Historical reasoning responsibilities:
 4. Compare against similar historical incidents
 5. Detect recurrence patterns
 6. Highlight recurring operational risks
+7. Treat exact pattern recurrence as a clue, not proof
 """
     else:
         historical_guidance = """
 Historical reasoning responsibilities:
 4. No historical incidents available. Base analysis only on current runtime evidence.
+5. Still review exact pattern memory if present, but do not infer missing facts.
 """
 
     return f"""
@@ -119,8 +126,8 @@ Primary responsibilities:
 
 Operational responsibilities:
 
-7. Recommend ownership team
-8. Suggest preventive engineering actions
+8. Recommend ownership team
+9. Suggest preventive engineering actions
 
 Important telemetry note:
 Prometheus metrics represent point-in-time observations and may not reflect historical peak resource usage before failure.
@@ -145,12 +152,16 @@ Incident Context:
 
 Historical Operational Memory:
 {historical_context}
+
+Bounded Incident Pattern Memory:
+{pattern_context}
 """
 
 def generate_rca(
     incident: IncidentContext,
     classification: IncidentClassification,
     llm_client: LLMClient | None = None,
+    pattern_guidance: IncidentPatternGuidance | None = None,
 ) -> RCAResponse:
     """
     Generate memory-aware RCA.
@@ -162,6 +173,7 @@ def generate_rca(
     prompt = build_rca_prompt(
         incident=incident,
         classification=classification,
+        pattern_guidance=pattern_guidance,
     )
 
     try:

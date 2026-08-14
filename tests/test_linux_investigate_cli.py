@@ -286,8 +286,13 @@ class LinuxInvestigateCLITests(unittest.TestCase):
     @patch(
         "app.orchestration.linux_disk_workflow.run_linux_disk_workflow"
     )
+    @patch(
+        "app.memory.incident_patterns.patterns.find_linux_pattern_hint",
+        return_value=None,
+    )
     def test_summary_renders_diagnosis_and_memory(
         self,
+        _pattern_hint,
         run_workflow,
     ) -> None:
         run_workflow.return_value = (_investigation(), "memory.json")
@@ -383,6 +388,8 @@ class LinuxInvestigateCLITests(unittest.TestCase):
         self.assertIn("MemAvailable: 6.2%", result.output)
         self.assertIn("Swap activity: si=20 so=0", result.output)
         self.assertIn("Why:", result.output)
+        self.assertIn("Linux pattern memory", result.output)
+        self.assertIn("clue, not proof", result.output)
         self.assertIn("memory.json", result.output)
 
     @patch(

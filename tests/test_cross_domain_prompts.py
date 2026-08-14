@@ -11,6 +11,10 @@ from app.prompts.shared.cross_domain import (
 )
 from app.schemas.classification import IncidentClassification
 from app.schemas.incident import ContainerState, IncidentContext
+from app.schemas.memory import (
+    IncidentPatternGuidance,
+    IncidentPatternSummary,
+)
 
 
 def _incident() -> IncidentContext:
@@ -76,6 +80,44 @@ class CrossDomainPromptTests(unittest.TestCase):
             KUBERNETES_LINUX_CORRELATION_POLICY,
             prompt,
         )
+
+    @patch(
+        "app.agents.sre.rca_agent.build_historical_context",
+        return_value=("No history.", False),
+    )
+    def test_rca_prompt_includes_bounded_pattern_memory(
+        self,
+        _history,
+    ) -> None:
+        prompt = build_rca_prompt(
+            _incident(),
+            _classification(),
+            pattern_guidance=IncidentPatternGuidance(
+                pod_name="checkout",
+                namespace="payments",
+                container="checkout",
+                incident_type="MemoryExhaustion",
+                fingerprint="kubernetes:payments:checkout:memoryexhaustion:oomkilled",
+                patterns=[
+                    IncidentPatternSummary(
+                        fingerprint=(
+                            "kubernetes:payments:checkout:memoryexhaustion:oomkilled"
+                        ),
+                        domain="kubernetes",
+                        incident_type="MemoryExhaustion",
+                        occurrence_count=3,
+                        latest_timestamp="2026-08-14T00:00:00Z",
+                        severities=["critical"],
+                        resources=["payments/checkout"],
+                        occurrences=[],
+                    )
+                ],
+            ),
+        )
+
+        self.assertIn("Bounded Incident Pattern Memory", prompt)
+        self.assertIn("3 previous occurrence", prompt)
+        self.assertIn("clue, not proof", prompt)
 
     def test_combined_analysis_prompt_includes_policy(self) -> None:
         prompt = build_prompt(

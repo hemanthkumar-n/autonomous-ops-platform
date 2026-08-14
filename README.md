@@ -10,7 +10,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-blue" alt="Python 3.11+" />
-  <img src="https://img.shields.io/badge/AOP-v0.35.0-success" alt="AOP v0.35.0" />
+  <img src="https://img.shields.io/badge/AOP-v0.36.0-success" alt="AOP v0.36.0" />
   <img src="https://img.shields.io/badge/Kubernetes-SRE%20Shortcuts-326CE5" alt="Kubernetes SRE Shortcuts" />
   <img src="https://img.shields.io/badge/Observability-Prometheus-red" alt="Prometheus" />
   <img src="https://img.shields.io/badge/LLM-Ollama-green" alt="Ollama" />
@@ -107,7 +107,7 @@ release exists.
 Current version:
 
 ```text
-AOP v0.35.0
+AOP v0.36.0
 ```
 
 The implemented and tested paths currently cover Kubernetes incident
@@ -126,12 +126,14 @@ canonical investigation case model, provider-neutral LLM routing with optional
 Kimi/Moonshot configuration, deterministic AI token-budget/model-tier
 planning, restored enterprise platform roadmap/narrative docs, and the first
 Incident Pattern Intelligence recurrence lookup wired into Kubernetes
-investigation output.
+investigation output, bounded pattern context in RCA prompts, and Linux
+summary recurrence hints.
 
 ### Release Memory
 
 | Release | What it proves | Human reference |
 |---|---|---|
+| `v0.36.0` | AOP can feed bounded recurrence context into RCA prompts and show Linux recurrence hints | [`docs/releases/v0.36-pattern-context-rca-linux-summaries.md`](docs/releases/v0.36-pattern-context-rca-linux-summaries.md) |
 | `v0.35.0` | AOP can surface exact historical recurrence hints inside Kubernetes investigation output | [`docs/releases/v0.35-pattern-aware-investigation-output.md`](docs/releases/v0.35-pattern-aware-investigation-output.md) |
 | `v0.34.0` | AOP can detect recurring Kubernetes and Linux incident patterns from structured memory | [`docs/releases/v0.34-incident-pattern-intelligence.md`](docs/releases/v0.34-incident-pattern-intelligence.md) |
 | `v0.33.0` | AOP has a clear enterprise platform narrative and incident-pattern intelligence roadmap | [`docs/releases/v0.33-enterprise-platform-narrative.md`](docs/releases/v0.33-enterprise-platform-narrative.md) |
@@ -229,7 +231,9 @@ investigation output.
   memory patterns
 - `aop memory patterns` recurrence lookup
 - pattern-aware Kubernetes investigation summary, JSON, and Markdown output
-- two hundred eight offline regression tests
+- bounded incident-pattern context in Kubernetes RCA prompts
+- Linux investigation summary recurrence hints
+- two hundred nine offline regression tests
 
 ### Not Yet Implemented
 
@@ -937,7 +941,7 @@ python -m unittest discover -s tests -v
 Current baseline:
 
 ```text
-208 tests passing
+209 tests passing
 ```
 
 The tests cover:

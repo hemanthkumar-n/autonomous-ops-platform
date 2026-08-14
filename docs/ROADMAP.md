@@ -9,8 +9,17 @@ so the project remains honest and easy to explain.
 ## Current Baseline
 
 ```text
-Current release: v0.35.0
+Current release: v0.36.0
 Status: implemented and pushed
+```
+
+v0.36.0 adds bounded pattern context to RCA prompts and Linux summaries:
+
+```text
+exact recurrence
+  -> bounded pattern summary
+  -> RCA prompt context
+  -> Linux CLI recurrence hints
 ```
 
 v0.35.0 wires pattern intelligence into Kubernetes investigation output:
@@ -175,21 +184,23 @@ panic clues, `df`/`du` mismatch, inode exhaustion, deleted-open files,
 read-only remounts, LVM expansion mismatch, container runtime disk pressure,
 and Kubernetes symptoms that require Linux node correlation.
 
-## Next: v0.36
+## Next: v0.37
 
 Purpose:
 
 ```text
-Connect bounded pattern summaries into RCA prompt context and Linux summaries.
+Build the first runbook/RAG retrieval foundation.
 ```
 
 Target outcomes:
 
-- show Linux recurrence hints during Linux investigation summaries
-- feed bounded pattern summaries into AI RCA prompts
+- source-controlled runbook chunk model
+- runbook retrieval by incident type and domain
+- bounded runbook context for future RCA prompts
 - preserve token-budget policy before model calls
+- avoid dumping full runbooks into prompts
 - no automatic remediation
-- similarity treated as a clue, not proof
+- runbook match treated as guidance, not proof
 
 Reference:
 
