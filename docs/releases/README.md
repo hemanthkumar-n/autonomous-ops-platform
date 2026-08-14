@@ -10,6 +10,7 @@ unfinished.
 
 | Release | Focus | Reference |
 |---|---|---|
+| `v0.34.0` | Incident pattern intelligence | [`v0.34-incident-pattern-intelligence.md`](v0.34-incident-pattern-intelligence.md) |
 | `v0.33.0` | Enterprise platform narrative restoration | [`v0.33-enterprise-platform-narrative.md`](v0.33-enterprise-platform-narrative.md) |
 | `v0.32.0` | AI token budget and model tier policy | [`v0.32-ai-token-budget-model-policy.md`](v0.32-ai-token-budget-model-policy.md) |
 | `v0.31.0` | LLM provider routing | [`v0.31-llm-provider-routing.md`](v0.31-llm-provider-routing.md) |

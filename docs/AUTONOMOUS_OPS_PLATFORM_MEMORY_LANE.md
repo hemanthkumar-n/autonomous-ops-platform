@@ -56,12 +56,12 @@ Remediation is advisory and non-destructive.
 
 ## Current Baseline
 
-- Version: `0.33.0`
+- Version: `0.34.0`
 - Branch: `main`
 - Remote baseline: `origin/main`
 - Python: `3.11+`
 - CLI entry point: `aop`
-- Tests: two hundred one offline regression tests passing
+- Tests: two hundred seven offline regression tests passing
 - Real Ollama generation and 768-dimensional embeddings verified
 - Full live demo still requires Kubernetes and Prometheus to be running
 
@@ -82,6 +82,19 @@ Semantic-memory failure degrades to exact structured memory. Missing memory
 does not block analysis from current evidence.
 
 ## Latest Release Memory
+
+v0.34.0 added the first Incident Pattern Intelligence implementation:
+
+```text
+structured memory
+  -> deterministic fingerprint
+  -> grouped occurrences
+  -> recurring pattern report
+  -> aop memory patterns
+```
+
+This does not use AI similarity yet. It is deterministic recurrence detection
+over local structured Kubernetes and Linux memory.
 
 v0.33.0 restored the enterprise platform narrative:
 

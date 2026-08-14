@@ -10,7 +10,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-blue" alt="Python 3.11+" />
-  <img src="https://img.shields.io/badge/AOP-v0.33.0-success" alt="AOP v0.33.0" />
+  <img src="https://img.shields.io/badge/AOP-v0.34.0-success" alt="AOP v0.34.0" />
   <img src="https://img.shields.io/badge/Kubernetes-SRE%20Shortcuts-326CE5" alt="Kubernetes SRE Shortcuts" />
   <img src="https://img.shields.io/badge/Observability-Prometheus-red" alt="Prometheus" />
   <img src="https://img.shields.io/badge/LLM-Ollama-green" alt="Ollama" />
@@ -107,7 +107,7 @@ release exists.
 Current version:
 
 ```text
-AOP v0.33.0
+AOP v0.34.0
 ```
 
 The implemented and tested paths currently cover Kubernetes incident
@@ -124,12 +124,14 @@ evidence/dashboard contracts, Kubernetes node-to-Linux evidence planning,
 container runtime troubleshooting planning, the first enterprise-grade
 canonical investigation case model, provider-neutral LLM routing with optional
 Kimi/Moonshot configuration, deterministic AI token-budget/model-tier
-planning, and restored enterprise platform roadmap/narrative docs.
+planning, restored enterprise platform roadmap/narrative docs, and the first
+Incident Pattern Intelligence recurrence lookup.
 
 ### Release Memory
 
 | Release | What it proves | Human reference |
 |---|---|---|
+| `v0.34.0` | AOP can detect recurring Kubernetes and Linux incident patterns from structured memory | [`docs/releases/v0.34-incident-pattern-intelligence.md`](docs/releases/v0.34-incident-pattern-intelligence.md) |
 | `v0.33.0` | AOP has a clear enterprise platform narrative and incident-pattern intelligence roadmap | [`docs/releases/v0.33-enterprise-platform-narrative.md`](docs/releases/v0.33-enterprise-platform-narrative.md) |
 | `v0.32.0` | AOP can estimate evidence tokens and choose a light, standard, deep, or local reasoning tier before spending model calls | [`docs/releases/v0.32-ai-token-budget-model-policy.md`](docs/releases/v0.32-ai-token-budget-model-policy.md) |
 | `v0.31.0` | AOP can route reasoning through a provider boundary instead of hardcoding one LLM backend | [`docs/releases/v0.31-llm-provider-routing.md`](docs/releases/v0.31-llm-provider-routing.md) |
@@ -221,7 +223,10 @@ planning, and restored enterprise platform roadmap/narrative docs.
 - optional Kimi/Moonshot provider configuration
 - deterministic AI token-budget and model-tier planning
 - `aop ai budget` zero-cost estimation command
-- two hundred one offline regression tests
+- deterministic incident fingerprints for recurring Kubernetes and Linux
+  memory patterns
+- `aop memory patterns` recurrence lookup
+- two hundred seven offline regression tests
 
 ### Not Yet Implemented
 
@@ -552,6 +557,8 @@ Search structured operational memory:
 ```bash
 aop memory search --namespace payments
 aop memory search --incident-type MemoryExhaustion
+aop memory patterns --min-count 2
+aop memory patterns --domain linux.disk --format json
 ```
 
 ---
@@ -927,7 +934,7 @@ python -m unittest discover -s tests -v
 Current baseline:
 
 ```text
-201 tests passing
+207 tests passing
 ```
 
 The tests cover:

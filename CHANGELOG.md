@@ -4,6 +4,27 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.34.0 - Incident Pattern Intelligence
+
+Date: 2026-08-14
+
+### Added
+
+- deterministic incident pattern schemas for recurring memory analysis
+- Kubernetes and Linux pattern fingerprint builders
+- structured-memory recurrence lookup across Kubernetes and Linux incident
+  history files
+- `aop memory patterns` CLI command with summary and JSON output
+- focused tests for fingerprints, recurrence filtering, and CLI output
+
+### Safety
+
+- Pattern matching is deterministic recurrence detection only.
+- Historical similarity is treated as a clue, not proof of root cause.
+- No remediation or infrastructure mutation is introduced.
+
+---
+
 ## v0.33.0 - Enterprise Platform Narrative Restoration
 
 Date: 2026-08-14

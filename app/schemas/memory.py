@@ -86,6 +86,47 @@ class MemorySearchResult(BaseModel):
     total_matches: int
 
 
+class IncidentPatternOccurrence(BaseModel):
+    """
+    One historical incident occurrence that belongs to a pattern.
+    """
+
+    incident_id: str
+    timestamp: datetime
+    domain: str
+    resource: str
+    incident_type: str
+    severity: str
+    summary: str
+    source_file: str
+
+
+class IncidentPatternSummary(BaseModel):
+    """
+    Grouped incident recurrence summary.
+    """
+
+    fingerprint: str
+    domain: str
+    incident_type: str
+    occurrence_count: int
+    latest_timestamp: datetime
+    severities: list[str]
+    resources: list[str]
+    occurrences: list[IncidentPatternOccurrence]
+
+
+class IncidentPatternReport(BaseModel):
+    """
+    Pattern intelligence response contract.
+    """
+
+    patterns: list[IncidentPatternSummary]
+    total_patterns: int
+    total_occurrences: int
+    min_count: int
+
+
 class RunbookMemory(BaseModel):
     """
     Future runbook knowledge contract.

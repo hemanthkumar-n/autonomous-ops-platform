@@ -9,8 +9,17 @@ so the project remains honest and easy to explain.
 ## Current Baseline
 
 ```text
-Current release: v0.33.0
+Current release: v0.34.0
 Status: implemented and pushed
+```
+
+v0.34.0 adds the first Incident Pattern Intelligence implementation:
+
+```text
+structured memory
+  -> deterministic fingerprint
+  -> grouped occurrences
+  -> recurring pattern report
 ```
 
 v0.33.0 restores the enterprise platform narrative:
@@ -157,21 +166,20 @@ panic clues, `df`/`du` mismatch, inode exhaustion, deleted-open files,
 read-only remounts, LVM expansion mismatch, container runtime disk pressure,
 and Kubernetes symptoms that require Linux node correlation.
 
-## Next: v0.34
+## Next: v0.35
 
 Purpose:
 
 ```text
-Build the first Incident Pattern Intelligence implementation.
+Connect incident patterns into investigation output and RCA context.
 ```
 
 Target outcomes:
 
-- deterministic incident fingerprint model
-- Kubernetes incident fingerprint generation
-- Linux investigation fingerprint generation
-- structured-memory recurrence lookup
-- `aop memory patterns` or equivalent pattern visibility
+- show similar recurring patterns during Kubernetes investigation
+- show Linux recurrence hints during Linux investigation summaries
+- include pattern evidence in Markdown reports
+- feed bounded pattern summaries into AI RCA prompts
 - no automatic remediation
 - similarity treated as a clue, not proof
 

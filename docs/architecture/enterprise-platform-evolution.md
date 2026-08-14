@@ -1,7 +1,7 @@
 # Enterprise Platform Evolution
 
 This document restores the original enterprise platform direction while
-aligning it with the current AOP v0.33 implementation.
+aligning it with the current AOP implementation.
 
 AOP is not intended to remain a command collection. The CLI is the first
 operator surface for a larger operational intelligence platform.
