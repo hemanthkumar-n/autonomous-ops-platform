@@ -13,7 +13,9 @@ Long-term product direction is preserved in:
 
 ```text
 docs/AOP_PRODUCT_VISION.md
+docs/architecture/enterprise-platform-evolution.md
 docs/ROADMAP.md
+docs/roadmap/incident-pattern-intelligence.md
 docs/linux/LINUX_INVESTIGATION_LADDER.md
 ```
 
@@ -54,7 +56,7 @@ Remediation is advisory and non-destructive.
 
 ## Current Baseline
 
-- Version: `0.32.0`
+- Version: `0.33.0`
 - Branch: `main`
 - Remote baseline: `origin/main`
 - Python: `3.11+`
@@ -80,6 +82,19 @@ Semantic-memory failure degrades to exact structured memory. Missing memory
 does not block analysis from current evidence.
 
 ## Latest Release Memory
+
+v0.33.0 restored the enterprise platform narrative:
+
+```text
+Reactive Operations
+  -> AI-Assisted Incident Response
+  -> Operational Learning Platform
+  -> Autonomous Operational Intelligence
+  -> Safe Self-Healing Platform Engineering
+```
+
+It also added the Incident Pattern Intelligence roadmap for fingerprints,
+recurrence detection, clustering, and pattern-aware RCA.
 
 v0.32.0 added AI token-budget and model-tier planning:
 

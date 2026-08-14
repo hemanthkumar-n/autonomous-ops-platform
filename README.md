@@ -10,7 +10,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-blue" alt="Python 3.11+" />
-  <img src="https://img.shields.io/badge/AOP-v0.32.0-success" alt="AOP v0.32.0" />
+  <img src="https://img.shields.io/badge/AOP-v0.33.0-success" alt="AOP v0.33.0" />
   <img src="https://img.shields.io/badge/Kubernetes-SRE%20Shortcuts-326CE5" alt="Kubernetes SRE Shortcuts" />
   <img src="https://img.shields.io/badge/Observability-Prometheus-red" alt="Prometheus" />
   <img src="https://img.shields.io/badge/LLM-Ollama-green" alt="Ollama" />
@@ -62,6 +62,33 @@ Observe
 The durable cross-domain product direction is documented in
 [`docs/AOP_PRODUCT_VISION.md`](docs/AOP_PRODUCT_VISION.md).
 
+The enterprise platform evolution is documented in
+[`docs/architecture/enterprise-platform-evolution.md`](docs/architecture/enterprise-platform-evolution.md).
+
+## Platform Evolution
+
+AOP is being built as a staged platform, not as a one-off CLI.
+
+```text
+Reactive Operations
+  -> AI-Assisted Incident Response
+  -> Operational Learning Platform
+  -> Autonomous Operational Intelligence
+  -> Safe Self-Healing Platform Engineering
+```
+
+The current implementation proves the early platform core:
+
+- deterministic Linux and Kubernetes evidence collection
+- operational memory
+- provider abstraction
+- token-budget and model-tier planning
+- safe, read-only investigation workflows
+
+The next intelligence milestone is Incident Pattern Intelligence: detecting
+recurrence, clustering related failures, and explaining what previous
+incidents and runbooks can teach the current investigation.
+
 The dashboard and observability strategy is documented in
 [`docs/architecture/observability-dashboard-strategy.md`](docs/architecture/observability-dashboard-strategy.md).
 AOP will use Prometheus and Grafana where useful, but will keep its own
@@ -80,7 +107,7 @@ release exists.
 Current version:
 
 ```text
-AOP v0.32.0
+AOP v0.33.0
 ```
 
 The implemented and tested paths currently cover Kubernetes incident
@@ -96,13 +123,14 @@ scenario plans, host-level Linux correlation, and provider-neutral
 evidence/dashboard contracts, Kubernetes node-to-Linux evidence planning,
 container runtime troubleshooting planning, the first enterprise-grade
 canonical investigation case model, provider-neutral LLM routing with optional
-Kimi/Moonshot configuration, and deterministic AI token-budget/model-tier
-planning.
+Kimi/Moonshot configuration, deterministic AI token-budget/model-tier
+planning, and restored enterprise platform roadmap/narrative docs.
 
 ### Release Memory
 
 | Release | What it proves | Human reference |
 |---|---|---|
+| `v0.33.0` | AOP has a clear enterprise platform narrative and incident-pattern intelligence roadmap | [`docs/releases/v0.33-enterprise-platform-narrative.md`](docs/releases/v0.33-enterprise-platform-narrative.md) |
 | `v0.32.0` | AOP can estimate evidence tokens and choose a light, standard, deep, or local reasoning tier before spending model calls | [`docs/releases/v0.32-ai-token-budget-model-policy.md`](docs/releases/v0.32-ai-token-budget-model-policy.md) |
 | `v0.31.0` | AOP can route reasoning through a provider boundary instead of hardcoding one LLM backend | [`docs/releases/v0.31-llm-provider-routing.md`](docs/releases/v0.31-llm-provider-routing.md) |
 | `v0.30.0` | AOP has a canonical investigation case model for enterprise-grade agent reasoning | [`docs/releases/v0.30-enterprise-investigation-core.md`](docs/releases/v0.30-enterprise-investigation-core.md) |
@@ -531,41 +559,40 @@ aop memory search --incident-type MemoryExhaustion
 ## Incident Workflow
 
 ```text
-Kubernetes Cluster
-       |
-       v
-Incident Context Collection
-  - pod lifecycle
-  - container state
-  - termination history
-  - restart counts
-  - resource requests and limits
-  - logs and events
-       |
-       +-------------------+
-       |                   |
-       v                   v
-Prometheus Metrics    Deterministic Rules
-       |                   |
-       +---------+---------+
-                 |
-                 v
-       Enriched Incident Context
-                 |
-                 v
-       Primary Classification
-                 |
-                 v
-       Hybrid Memory Retrieval
-        - exact JSON memory
-        - semantic Chroma memory
-                 |
-                 v
-       Ollama RCA and Guidance
-                 |
-                 v
-       Structured Persistence
-        + Semantic Indexing
+Linux Hosts       Kubernetes Clusters       AWS / Cloud Future
+    |                    |                         |
+    v                    v                         v
+Read-Only Evidence   Runtime Evidence       Cloud Evidence
+    |                    |                         |
+    +----------+---------+-----------+-------------+
+               |
+               v
+       Unified Evidence Model
+               |
+               v
+ Deterministic Detection And Correlation
+               |
+               v
+      Canonical InvestigationCase
+               |
+      +--------+--------+
+      |                 |
+      v                 v
+Structured Memory   Semantic / RAG Memory
+      |                 |
+      +--------+--------+
+               |
+               v
+     Token-Budget And Model Policy
+               |
+               v
+     AI-Assisted RCA And Guidance
+               |
+               v
+ CLI + UI + Slack/Teams + Ticket Systems
+               |
+               v
+ Human Approval, Audit, Validation, Learning
 ```
 
 ---
@@ -697,6 +724,22 @@ Equivalent abstractions exist for embeddings and vector stores.
 - no destructive execution
 - escalation when confidence is limited
 - future consequential actions require policy and human approval
+
+### Memory-First Intelligence
+
+AOP should learn from organizational history:
+
+```text
+current evidence
+  + previous incidents
+  + runbooks
+  + semantic similarity
+  + deterministic findings
+  + AI reasoning
+```
+
+Historical similarity is a clue, not proof. AOP must still identify missing
+evidence and contradictions.
 
 ---
 
@@ -947,7 +990,9 @@ Live Kubernetes and Prometheus validation remains a separate environment test.
 | [`docs/PROJECT_HANDOVER.md`](docs/PROJECT_HANDOVER.md) | Verified baseline, implementation boundaries, engineering rules, and next work |
 | [`docs/ROADMAP.md`](docs/ROADMAP.md) | Current release state and planned next direction |
 | [`docs/AOP_PRODUCT_VISION.md`](docs/AOP_PRODUCT_VISION.md) | Linux, Kubernetes, AWS, UI, Slack/Teams, and onboarding vision |
+| [`docs/architecture/enterprise-platform-evolution.md`](docs/architecture/enterprise-platform-evolution.md) | Restored enterprise platform evolution, architecture, and integration direction |
 | [`docs/architecture/observability-dashboard-strategy.md`](docs/architecture/observability-dashboard-strategy.md) | Observability, dashboard, alert-signal, and future provider strategy |
+| [`docs/roadmap/incident-pattern-intelligence.md`](docs/roadmap/incident-pattern-intelligence.md) | Incident fingerprinting, recurrence detection, and pattern-aware RCA roadmap |
 | [`docs/AUTONOMOUS_OPS_PLATFORM_MEMORY_LANE.md`](docs/AUTONOMOUS_OPS_PLATFORM_MEMORY_LANE.md) | Compact current implementation memory |
 | [`docs/releases/`](docs/releases/) | Human-readable release notes for future team members and AI handoffs |
 | [`docs/KUBERNETES_CLI.md`](docs/KUBERNETES_CLI.md) | Kubernetes shortcut reference |

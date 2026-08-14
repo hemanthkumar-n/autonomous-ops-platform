@@ -9,8 +9,28 @@ so the project remains honest and easy to explain.
 ## Current Baseline
 
 ```text
-Current release: v0.32.0
+Current release: v0.33.0
 Status: implemented and pushed
+```
+
+v0.33.0 restores the enterprise platform narrative:
+
+```text
+Reactive Operations
+  -> AI-Assisted Incident Response
+  -> Operational Learning Platform
+  -> Autonomous Operational Intelligence
+  -> Safe Self-Healing Platform Engineering
+```
+
+It also adds the Incident Pattern Intelligence roadmap:
+
+```text
+fingerprints
+  -> recurrence detection
+  -> similarity clustering
+  -> pattern-aware RCA
+  -> trend visibility
 ```
 
 v0.32.0 adds AI token-budget and model-tier planning:
@@ -137,23 +157,65 @@ panic clues, `df`/`du` mismatch, inode exhaustion, deleted-open files,
 read-only remounts, LVM expansion mismatch, container runtime disk pressure,
 and Kubernetes symptoms that require Linux node correlation.
 
-## Next: v0.31
+## Next: v0.34
 
 Purpose:
 
 ```text
-Adapt current AOP domain outputs into enterprise InvestigationCase records.
+Build the first Incident Pattern Intelligence implementation.
 ```
 
 Target outcomes:
 
-- Linux host correlation case adapter
-- Linux runtime planner case adapter
-- Kubernetes node-to-Linux case adapter
-- shared case JSON output for future UI and memory
+- deterministic incident fingerprint model
+- Kubernetes incident fingerprint generation
+- Linux investigation fingerprint generation
+- structured-memory recurrence lookup
+- `aop memory patterns` or equivalent pattern visibility
 - no automatic remediation
-- cloud volume follow-up guidance without mutating storage
-- keep AI RCA grounded in deterministic evidence and explicit gaps
+- similarity treated as a clue, not proof
+
+Reference:
+
+```text
+docs/roadmap/incident-pattern-intelligence.md
+```
+
+## Strategic Phases
+
+### Phase 5: Incident Pattern Intelligence
+
+- incident fingerprints
+- recurrence tracking
+- incident clustering
+- pattern-aware RCA
+- trend awareness
+
+### Phase 6: Agentic Orchestration
+
+- planner agents
+- execution-preparation agents
+- approval waits
+- guarded retries
+- LangGraph, AutoGen, or similar only when branching/resumability requires it
+
+### Phase 7: Shared Organizational Intelligence
+
+- runbook intelligence
+- multi-agent memory
+- team/service ownership context
+- previous fix outcome learning
+- ticket and chat history as governed context
+
+### Phase 8: Enterprise Platform Evolution
+
+- FastAPI service layer
+- operator UI
+- authentication and RBAC
+- audit workflows
+- approval systems
+- multi-tenant/company onboarding
+- portable enterprise deployment
 
 ## Later Roadmap
 

@@ -15,13 +15,17 @@ Read next:
 3. `docs/ROADMAP.md` for current release state and planned next releases.
 4. `docs/AOP_PRODUCT_VISION.md` for the durable Linux, Kubernetes, AWS, UI,
    Slack/Teams, and company-onboarding direction.
-5. `docs/architecture/observability-dashboard-strategy.md` before adding
+5. `docs/architecture/enterprise-platform-evolution.md` for the restored
+   enterprise platform narrative and long-term integration direction.
+6. `docs/architecture/observability-dashboard-strategy.md` before adding
    dashboards, graphing, alert processing, telemetry contracts, or LLM
    providers.
-6. `docs/releases/` for release-by-release human context.
-7. `docs/linux/LINUX_INVESTIGATION_LADDER.md` for the current Linux
+7. `docs/roadmap/incident-pattern-intelligence.md` before building recurrence,
+   fingerprinting, clustering, or pattern-aware RCA.
+8. `docs/releases/` for release-by-release human context.
+9. `docs/linux/LINUX_INVESTIGATION_LADDER.md` for the current Linux
    troubleshooting order.
-8. `docs/LINUX_CLI.md` and
+10. `docs/LINUX_CLI.md` and
    `app/memory/knowledgebase/linux_troubleshooting_command_catalog.md` before
    extending Linux diagnostics.
 
@@ -30,7 +34,7 @@ Do not treat empty modules or directory names as implemented capabilities.
 ## Verified Baseline
 
 ```text
-Release: 0.32.0
+Release: 0.33.0
 Branch: main
 Remote: origin/main
 Offline tests: 201 passing
@@ -51,7 +55,7 @@ git status --short --branch
 Expected version:
 
 ```text
-aop, version 0.32.0
+aop, version 0.33.0
 ```
 
 ## What AOP Is
@@ -84,6 +88,8 @@ execute a large list of commands.
 - Ollama RCA and remediation guidance
 - provider-neutral LLM routing with optional Kimi/Moonshot configuration
 - deterministic AI token-budget and model-tier planning
+- restored enterprise platform narrative and incident-pattern intelligence
+  roadmap
 - JSON incident persistence, Chroma semantic memory, and exact-memory fallback
 - Markdown and JSON reports
 - provider-neutral evidence, alert, metric, timeline, and dashboard contracts

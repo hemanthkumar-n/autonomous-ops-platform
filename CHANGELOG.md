@@ -4,6 +4,28 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.33.0 - Enterprise Platform Narrative Restoration
+
+Date: 2026-08-14
+
+### Added
+
+- restored enterprise platform evolution narrative from the early project
+  README
+- enterprise architecture direction document
+- Incident Pattern Intelligence roadmap for fingerprints, recurrence,
+  clustering, and pattern-aware RCA
+- v0.33 release memory for future contributors and AI handoffs
+
+### Changed
+
+- README now presents AOP as an enterprise SRE intelligence platform before it
+  lists the command surface
+- roadmap now points to v0.34 Incident Pattern Intelligence instead of the old
+  v0.31 adapter plan
+
+---
+
 ## v0.32.0 - AI Token Budget And Model Tier Policy
 
 Date: 2026-08-14
