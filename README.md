@@ -10,7 +10,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.11+-blue" alt="Python 3.11+" />
-  <img src="https://img.shields.io/badge/AOP-v0.40.0-success" alt="AOP v0.40.0" />
+  <img src="https://img.shields.io/badge/AOP-v0.41.0-success" alt="AOP v0.41.0" />
   <img src="https://img.shields.io/badge/Kubernetes-SRE%20Shortcuts-326CE5" alt="Kubernetes SRE Shortcuts" />
   <img src="https://img.shields.io/badge/Observability-Prometheus-red" alt="Prometheus" />
   <img src="https://img.shields.io/badge/LLM-Ollama-green" alt="Ollama" />
@@ -85,8 +85,9 @@ The current implementation proves the early platform core:
 - token-budget and model-tier planning
 - safe, read-only investigation workflows
 
-The current intelligence milestone is bounded runbook/RAG retrieval: matching
-trusted operational snippets to an incident without dumping full documents into
+The current intelligence milestone is unified bounded retrieval: internal
+runbooks, source-reviewed guidance, incident history, and recurring patterns
+share one provenance-bearing interface without dumping full documents into
 prompts.
 
 The dashboard and observability strategy is documented in
@@ -107,7 +108,7 @@ release exists.
 Current version:
 
 ```text
-AOP v0.40.0
+AOP v0.41.0
 ```
 
 The implemented and tested paths currently cover Kubernetes incident
@@ -131,12 +132,15 @@ recurrence hints, and a safe troubleshooting catalog runner ported from the
 old AOP CLI transition branch, plus the first bounded runbook/RAG retrieval
 foundation for trusted investigation context and a provenance-first import of
 59 public Kubernetes failure-story links from k8s.af, with the first two
-source-backed DNS/conntrack reviews eligible for bounded RAG.
+source-backed DNS/conntrack reviews eligible for bounded RAG, plus one unified
+retrieval pipeline and `aop knowledge search` interface across current
+operational knowledge sources.
 
 ### Release Memory
 
 | Release | What it proves | Human reference |
 |---|---|---|
+| `v0.41.0` | AOP can retrieve runbooks, reviewed guidance, exact incidents, recurring patterns, and optional semantic memory through one attributed interface | [`docs/releases/v0.41-unified-operational-knowledge-retrieval.md`](docs/releases/v0.41-unified-operational-knowledge-retrieval.md) |
 | `v0.40.0` | AOP can separate reported incident facts, reusable checks, and risky historical actions before external knowledge enters RAG | [`docs/releases/v0.40-source-reviewed-dns-conntrack-guidance.md`](docs/releases/v0.40-source-reviewed-dns-conntrack-guidance.md) |
 | `v0.39.0` | AOP can import and search attributed Kubernetes failure-story metadata without treating it as verified remediation | [`docs/releases/v0.39-k8s-af-external-knowledge-import.md`](docs/releases/v0.39-k8s-af-external-knowledge-import.md) |
 | `v0.38.0` | AOP can retrieve trusted runbook snippets and feed bounded RAG context into RCA prompts | [`docs/releases/v0.38-runbook-rag-retrieval-foundation.md`](docs/releases/v0.38-runbook-rag-retrieval-foundation.md) |
@@ -249,8 +253,9 @@ source-backed DNS/conntrack reviews eligible for bounded RAG.
 - pattern-aware Kubernetes investigation summary, JSON, and Markdown output
 - bounded incident-pattern context in Kubernetes RCA prompts
 - bounded runbook/RAG context in Kubernetes RCA prompts
+- unified `aop knowledge search` retrieval with source and trust attribution
 - Linux investigation summary recurrence hints
-- two hundred thirty-one offline regression tests
+- two hundred thirty-eight offline regression tests
 
 ### Not Yet Implemented
 
@@ -958,7 +963,7 @@ python -m unittest discover -s tests -v
 Current baseline:
 
 ```text
-231 tests passing
+238 tests passing
 ```
 
 The tests cover:

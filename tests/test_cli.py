@@ -12,7 +12,7 @@ class CLITests(unittest.TestCase):
         result = CliRunner().invoke(main, ["--version"])
 
         self.assertEqual(result.exit_code, 0)
-        self.assertIn("aop, version 0.40.0", result.output)
+        self.assertIn("aop, version 0.41.0", result.output)
 
     def test_exposes_showcase_commands(self) -> None:
         result = CliRunner().invoke(main, ["--help"])
@@ -23,6 +23,7 @@ class CLITests(unittest.TestCase):
         self.assertIn("catalog", result.output)
         self.assertIn("health", result.output)
         self.assertIn("runbooks", result.output)
+        self.assertIn("knowledge", result.output)
         self.assertIn("kb", result.output)
         self.assertIn("memory", result.output)
 

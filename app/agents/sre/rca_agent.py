@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import json
-
 from app.agents.sre.incident_classifier import classify_incident
 from app.config.logging_config import get_logger
 from app.llm.client import LLMClient
@@ -9,12 +7,9 @@ from app.memory.fingerprints.signature import extract_failure_reason
 from app.memory.incident_patterns.patterns import (
     format_pattern_guidance_for_prompt,
 )
-from app.memory.retrieval.hybrid_search import (
-    hybrid_incident_search,
-)
-from app.memory.runbooks.retrieval import (
-    format_runbook_context_for_prompt,
-    search_runbooks,
+from app.memory.retrieval.knowledge import (
+    format_knowledge_context_for_prompt,
+    retrieve_knowledge,
 )
 from app.prompts.shared.cross_domain import (
     KUBERNETES_LINUX_CORRELATION_POLICY,
@@ -24,8 +19,7 @@ from app.schemas.classification import IncidentClassification
 from app.schemas.incident import IncidentContext
 from app.schemas.memory import (
     IncidentPatternGuidance,
-    MemoryQuery,
-    RunbookQuery,
+    KnowledgeQuery,
 )
 from app.tools.kubernetes.incident_context import (
     collect_incident_context,
@@ -34,45 +28,49 @@ from app.tools.kubernetes.incident_context import (
 logger = get_logger(__name__)
 
 
-def build_historical_context(
+def build_knowledge_context(
     classification: IncidentClassification,
     incident: IncidentContext,
 ) -> tuple[str, bool]:
     """
-    Retrieve hybrid operational memory context.
+    Retrieve one bounded context across guidance and operational memory.
     """
 
-    query = MemoryQuery(
+    query = KnowledgeQuery(
+        domain="kubernetes",
         incident_type=classification.incident_type,
+        text=(
+            f"{incident.phase} {classification.container_state} "
+            f"{classification.incident_type} {incident.model_dump_json()}"
+        ),
         namespace=incident.namespace,
         workload_name=incident.pod_name,
         failure_reason=extract_failure_reason(incident),
         severity=classification.severity,
+        evidence_references=[
+            f"kubernetes://{incident.namespace}/pod/{incident.pod_name}"
+        ],
         limit=3,
     )
-
-    results = hybrid_incident_search(
-        query
-    )
-
-    has_history = (
-        results["exact_match_count"] > 0
-        or results["semantic_match_count"] > 0
-    )
-
-    if not has_history:
-        return (
-            "No relevant historical incidents found.",
-            False,
+    result = retrieve_knowledge(query)
+    has_history = any(
+        (
+            source.startswith("incident_memory")
+            or source == "incident_pattern"
         )
-
-    return (
-        json.dumps(
-            results,
-            indent=2,
-        ),
-        True,
+        and count > 0
+        for source, count in result.source_counts.items()
     )
+    return format_knowledge_context_for_prompt(result), has_history
+
+
+def build_historical_context(
+    classification: IncidentClassification,
+    incident: IncidentContext,
+) -> tuple[str, bool]:
+    """Compatibility wrapper for callers using the previous helper name."""
+
+    return build_knowledge_context(classification, incident)
 
 
 def build_rca_prompt(
@@ -85,7 +83,7 @@ def build_rca_prompt(
     """
 
     historical_context, has_history = (
-        build_historical_context(
+        build_knowledge_context(
             classification=classification,
             incident=incident,
         )
@@ -93,19 +91,6 @@ def build_rca_prompt(
 
     historical_guidance = ""
     pattern_context = format_pattern_guidance_for_prompt(pattern_guidance)
-    runbook_result = search_runbooks(
-        RunbookQuery(
-            domain="kubernetes",
-            incident_type=classification.incident_type,
-            text=(
-                f"{incident.phase} {classification.container_state} "
-                f"{classification.incident_type} "
-                f"{incident.model_dump_json()}"
-            ),
-            limit=2,
-        )
-    )
-    runbook_context = format_runbook_context_for_prompt(runbook_result)
 
     if has_history:
         historical_guidance = """
@@ -173,14 +158,11 @@ Incident Classification:
 Incident Context:
 {incident.model_dump_json(indent=2)}
 
-Historical Operational Memory:
-{historical_context}
-
 Bounded Incident Pattern Memory:
 {pattern_context}
 
-Bounded Runbook/RAG Context:
-{runbook_context}
+Bounded Runbook/RAG Context (Unified Knowledge Retrieval):
+{historical_context}
 """
 
 def generate_rca(

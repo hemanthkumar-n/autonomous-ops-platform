@@ -10,6 +10,7 @@ unfinished.
 
 | Release | Focus | Reference |
 |---|---|---|
+| `v0.41.0` | Unified operational knowledge retrieval | [`v0.41-unified-operational-knowledge-retrieval.md`](v0.41-unified-operational-knowledge-retrieval.md) |
 | `v0.40.0` | Source-reviewed DNS and conntrack guidance | [`v0.40-source-reviewed-dns-conntrack-guidance.md`](v0.40-source-reviewed-dns-conntrack-guidance.md) |
 | `v0.39.0` | k8s.af external knowledge import | [`v0.39-k8s-af-external-knowledge-import.md`](v0.39-k8s-af-external-knowledge-import.md) |
 | `v0.38.0` | Runbook RAG retrieval foundation | [`v0.38-runbook-rag-retrieval-foundation.md`](v0.38-runbook-rag-retrieval-foundation.md) |

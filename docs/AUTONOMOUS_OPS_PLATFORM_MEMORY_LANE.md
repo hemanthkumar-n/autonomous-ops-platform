@@ -56,12 +56,12 @@ Remediation is advisory and non-destructive.
 
 ## Current Baseline
 
-- Version: `0.40.0`
+- Version: `0.41.0`
 - Branch: `main`
 - Remote baseline: `origin/main`
 - Python: `3.11+`
 - CLI entry point: `aop`
-- Tests: two hundred thirty-one offline regression tests passing
+- Tests: two hundred thirty-eight offline regression tests passing
 - Real Ollama generation and 768-dimensional embeddings verified
 - Full live demo still requires Kubernetes and Prometheus to be running
 
@@ -82,6 +82,19 @@ Semantic-memory failure degrades to exact structured memory. Missing memory
 does not block analysis from current evidence.
 
 ## Latest Release Memory
+
+v0.41.0 introduces one source-aware retrieval boundary:
+
+```text
+internal runbooks + reviewed external guidance + exact history + patterns
+  -> KnowledgeRetrievalResult
+  -> bounded CLI/JSON/prompt output
+  -> Kubernetes RCA context
+```
+
+Semantic history is opt-in and may degrade without blocking deterministic
+retrieval. Every item carries source type, trust level, source attribution,
+score, and a safety boundary.
 
 v0.40.0 moves two external stories into reviewed guidance:
 

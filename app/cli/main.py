@@ -6,6 +6,7 @@ from app.cli.ai import ai
 from app.cli.catalog import catalog
 from app.cli.health import health
 from app.cli.investigate import investigate
+from app.cli.knowledge import knowledge
 from app.cli.kubernetes import kubernetes
 from app.cli.linux import linux
 from app.cli.expert import kx, lx
@@ -20,7 +21,7 @@ from app.cli.runbooks import runbooks
     }
 )
 @click.version_option(
-    version="0.40.0",
+    version="0.41.0",
     prog_name="aop",
 )
 def main() -> None:
@@ -34,6 +35,7 @@ main.add_command(ai)
 main.add_command(catalog)
 main.add_command(precheck)
 main.add_command(investigate)
+main.add_command(knowledge)
 main.add_command(memory)
 main.add_command(runbooks)
 main.add_command(kubernetes)

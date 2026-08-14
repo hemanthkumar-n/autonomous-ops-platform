@@ -4,6 +4,31 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.41.0 - Unified Operational Knowledge Retrieval
+
+Date: 2026-08-14
+
+### Added
+
+- one typed query and result contract across AOP operational knowledge
+- normalized provenance for internal runbooks, reviewed external guidance,
+  exact incident memory, recurring patterns, and optional semantic memory
+- `aop knowledge search` summary, JSON, and bounded prompt output
+- live evidence references and source attribution on retrieved items
+- deterministic offline-first behavior with explicit semantic degradation
+- unified knowledge context in Kubernetes RCA prompts
+- tests for provenance, exact history, recurrence, prompt bounds, CLI output,
+  and semantic fallback
+
+### Safety
+
+- Semantic retrieval is opt-in and never blocks deterministic retrieval.
+- Historical incidents and recurring patterns remain clues, not proof.
+- Retrieved commands remain advisory; this release adds no remote execution or
+  infrastructure mutation.
+
+---
+
 ## v0.40.0 - Source-Reviewed DNS And Conntrack Guidance
 
 Date: 2026-08-14

@@ -36,10 +36,10 @@ Do not treat empty modules or directory names as implemented capabilities.
 ## Verified Baseline
 
 ```text
-Release: 0.40.0
+Release: 0.41.0
 Branch: main
 Remote: origin/main
-Offline tests: 231 passing
+Offline tests: 238 passing
 CLI entry point: aop
 Python: 3.11+
 ```
@@ -57,7 +57,7 @@ git status --short --branch
 Expected version:
 
 ```text
-aop, version 0.40.0
+aop, version 0.41.0
 ```
 
 ## What AOP Is
@@ -98,6 +98,10 @@ execute a large list of commands.
 - bounded pattern summaries in Kubernetes RCA prompt context
 - Linux investigation summary recurrence hints
 - JSON incident persistence, Chroma semantic memory, and exact-memory fallback
+- unified, source-attributed operational knowledge retrieval through
+  `aop knowledge search`
+- Kubernetes RCA prompt integration for internal runbooks, reviewed external
+  guidance, exact incident memory, and recurring patterns
 - Markdown and JSON reports
 - provider-neutral evidence, alert, metric, timeline, and dashboard contracts
 

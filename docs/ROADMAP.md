@@ -9,8 +9,17 @@ so the project remains honest and easy to explain.
 ## Current Baseline
 
 ```text
-Current release: v0.40.0
+Current release: v0.41.0
 Status: implemented and pushed
+```
+
+v0.41.0 unifies current operational knowledge retrieval:
+
+```text
+runbooks + reviewed guidance + exact incidents + recurring patterns
+  -> normalized provenance and ranking
+  -> optional semantic similarity
+  -> bounded CLI and RCA context
 ```
 
 v0.40.0 adds source-backed reviewed DNS and conntrack guidance:
@@ -228,24 +237,23 @@ panic clues, `df`/`du` mismatch, inode exhaustion, deleted-open files,
 read-only remounts, LVM expansion mismatch, container runtime disk pressure,
 and Kubernetes symptoms that require Linux node correlation.
 
-## Next: v0.41
+## Next: v0.42
 
 Purpose:
 
 ```text
-Build one bounded retrieval pipeline across all current knowledge sources.
+Adopt the unified pipeline across remaining reasoning agents and allocate
+prompt budget by source class.
 ```
 
 Target outcomes:
 
-- live incident evidence references
-- internal runbook matches
-- external guidance-reviewed matches
-- historical incident memory and recurring patterns
-- source attribution on every retrieved item
-- token-budget allocation by evidence class
-- deterministic fallback when semantic retrieval is unavailable
-- no automatic remediation
+- migrate incident-analysis and remediation consumers from legacy hybrid search
+- allocate bounded prompt items across guidance, recurrence, and similarity
+- prevent one noisy source class from consuming the entire context budget
+- expose retrieval diagnostics for future UI and evaluation pipelines
+- preserve deterministic fallback when semantic retrieval is unavailable
+- add no automatic remediation
 
 Reference:
 

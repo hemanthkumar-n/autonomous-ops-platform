@@ -206,6 +206,49 @@ class RunbookSearchResult(BaseModel):
     total_matches: int
 
 
+class KnowledgeQuery(BaseModel):
+    """One query contract across trusted guidance and incident memory."""
+
+    domain: Optional[str] = None
+    incident_type: Optional[str] = None
+    text: str = ""
+    namespace: Optional[str] = None
+    workload_name: Optional[str] = None
+    failure_reason: Optional[str] = None
+    severity: Optional[str] = None
+    evidence_references: list[str] = []
+    limit: int = 5
+
+
+class KnowledgeMatch(BaseModel):
+    """Normalized retrieval item with explicit provenance and trust."""
+
+    knowledge_id: str
+    title: str
+    source_type: str
+    trust_level: str
+    domain: str
+    incident_type: Optional[str] = None
+    summary: str
+    guidance: list[str] = []
+    commands: list[str] = []
+    source: Optional[str] = None
+    score: int
+    matched_terms: list[str] = []
+    safety_boundary: str
+
+
+class KnowledgeRetrievalResult(BaseModel):
+    """Bounded, source-aware response from the unified retrieval pipeline."""
+
+    query: KnowledgeQuery
+    matches: list[KnowledgeMatch]
+    total_matches: int
+    source_counts: dict[str, int]
+    unavailable_sources: list[str] = []
+    semantic_attempted: bool = False
+
+
 class ExternalKnowledgeStory(BaseModel):
     """
     Provenance-first metadata for an externally published incident story.
