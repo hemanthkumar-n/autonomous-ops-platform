@@ -135,13 +135,15 @@ foundation for trusted investigation context and a provenance-first import of
 source-backed DNS/conntrack reviews eligible for bounded RAG, plus one unified
 retrieval pipeline and `aop knowledge search` interface across current
 operational knowledge sources. RCA, incident analysis, and remediation now use
-that shared path with source-class prompt allocation diagnostics.
+that shared path with source-class prompt allocation diagnostics. A bounded
+autonomous investigation loop can also plan missing evidence, call explicitly
+registered read-only collectors, and stop at an unconfirmed RCA candidate.
 
 ### Release Memory
 
 | Release | What it proves | Human reference |
 |---|---|---|
-| `v0.42.0` | AOP can reserve prompt capacity by knowledge class and use one retrieval adapter across its reasoning agents | [`docs/releases/v0.42-source-class-prompt-budgets-agent-adoption.md`](docs/releases/v0.42-source-class-prompt-budgets-agent-adoption.md) |
+| `v0.42.0` | AOP can reserve prompt capacity by knowledge class and run a bounded read-only evidence loop that stops at an explicit RCA candidate | [`source budgets`](docs/releases/v0.42-source-class-prompt-budgets-agent-adoption.md), [`autonomous loop`](docs/releases/v0.42-autonomous-investigation-loop.md) |
 | `v0.41.0` | AOP can retrieve runbooks, reviewed guidance, exact incidents, recurring patterns, and optional semantic memory through one attributed interface | [`docs/releases/v0.41-unified-operational-knowledge-retrieval.md`](docs/releases/v0.41-unified-operational-knowledge-retrieval.md) |
 | `v0.40.0` | AOP can separate reported incident facts, reusable checks, and risky historical actions before external knowledge enters RAG | [`docs/releases/v0.40-source-reviewed-dns-conntrack-guidance.md`](docs/releases/v0.40-source-reviewed-dns-conntrack-guidance.md) |
 | `v0.39.0` | AOP can import and search attributed Kubernetes failure-story metadata without treating it as verified remediation | [`docs/releases/v0.39-k8s-af-external-knowledge-import.md`](docs/releases/v0.39-k8s-af-external-knowledge-import.md) |
@@ -256,8 +258,10 @@ that shared path with source-class prompt allocation diagnostics.
 - bounded incident-pattern context in Kubernetes RCA prompts
 - bounded runbook/RAG context in Kubernetes RCA prompts
 - unified `aop knowledge search` retrieval with source and trust attribution
+- bounded autonomous investigation loop with registered read-only collectors,
+  evidence-gap planning, attempt/step budgets, and RCA candidate semantics
 - Linux investigation summary recurrence hints
-- two hundred forty-one offline regression tests
+- two hundred forty-eight offline regression tests
 
 ### Not Yet Implemented
 
@@ -965,7 +969,7 @@ python -m unittest discover -s tests -v
 Current baseline:
 
 ```text
-241 tests passing
+248 tests passing
 ```
 
 The tests cover:

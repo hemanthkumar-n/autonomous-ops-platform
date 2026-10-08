@@ -107,6 +107,7 @@ def main() -> None:
     print(f"case: {result.case.id}")
     print(f"stop_reason: {result.stop_reason}")
     print(f"requests_executed: {result.total_requests_executed}")
+    print(f"requests_attempted: {result.total_requests_attempted}")
     print(f"evidence_added: {result.total_evidence_added}")
     print(f"steps: {len(result.steps)}")
     print()

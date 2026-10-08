@@ -61,7 +61,7 @@ Remediation is advisory and non-destructive.
 - Remote baseline: `origin/main`
 - Python: `3.11+`
 - CLI entry point: `aop`
-- Tests: two hundred forty-one offline regression tests passing
+- Tests: two hundred forty-eight offline regression tests passing
 - Real Ollama generation and 768-dimensional embeddings verified
 - Full live demo still requires Kubernetes and Prometheus to be running
 
@@ -96,6 +96,19 @@ incident + classification
 
 Unused class slots are filled by ranked remaining matches. Token diagnostics
 are deterministic estimates for context planning, not provider billing counts.
+
+The same release adds the first bounded autonomous investigation loop:
+
+```text
+InvestigationCase -> evidence gaps -> bounded read-only plan
+  -> registered collector -> normalized evidence
+  -> confidence re-evaluation -> RCA candidate or safe stop
+```
+
+Linux memory is the first registered live collector. Attempts and successful
+executions are counted separately, mismatched collector responses are rejected,
+and `root_cause` remains unset until a later validation or human-confirmation
+stage.
 
 v0.41.0 introduces one source-aware retrieval boundary:
 

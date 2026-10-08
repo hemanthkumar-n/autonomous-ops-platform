@@ -14,7 +14,7 @@ Status: implemented and pushed
 ```
 
 v0.42.0 adds source-class prompt budgets and completes reasoning-agent
-adoption:
+adoption while introducing the first bounded autonomous evidence loop:
 
 ```text
 trusted guidance + historical context + optional semantic similarity
@@ -22,6 +22,10 @@ trusted guidance + historical context + optional semantic similarity
   -> fill unused slots by rank
   -> prompt-selection diagnostics
   -> RCA + analysis + remediation
+
+InvestigationCase -> evidence gaps -> registered read-only collector
+  -> normalized evidence -> confidence re-evaluation
+  -> explicit RCA candidate or bounded safe stop
 ```
 
 v0.41.0 unifies current operational knowledge retrieval:
@@ -253,17 +257,19 @@ and Kubernetes symptoms that require Linux node correlation.
 Purpose:
 
 ```text
-Build a source-controlled retrieval evaluation set before expanding providers
-or changing ranking behavior.
+Expand the registered collector model and add evaluation gates before changing
+ranking or enabling broader autonomous evidence collection.
 ```
 
 Target outcomes:
 
+- add Linux CPU, disk, and network registered collectors
+- add Kubernetes read-only and Prometheus collector adapters
 - define golden Linux and Kubernetes retrieval queries
 - assert expected top sources and minimum source-class coverage
 - assert unsafe or unreviewed guidance never enters prompt context
 - measure deterministic prompt-size and token-estimate bounds
-- produce machine-readable evaluation output for future CI and dashboards
+- evaluate autonomous stop reasons, collector failures, and evidence contracts
 - preserve advisory-only behavior and deterministic fallback
 
 Reference:

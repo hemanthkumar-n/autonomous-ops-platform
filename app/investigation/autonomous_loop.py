@@ -45,6 +45,7 @@ class InvestigationLoopResult(BaseModel):
     steps: list[InvestigationStep] = Field(default_factory=list)
     stop_reason: str
     total_requests_executed: int = 0
+    total_requests_attempted: int = 0
     total_evidence_added: int = 0
 
 
@@ -201,6 +202,7 @@ class AutonomousInvestigationLoop:
         steps: list[InvestigationStep],
         stop_reason: str,
         total_requests: int,
+        total_attempts: int,
         total_evidence: int,
     ) -> InvestigationLoopResult:
         sync_rca_candidate(case)
@@ -209,6 +211,7 @@ class AutonomousInvestigationLoop:
             steps=steps,
             stop_reason=stop_reason,
             total_requests_executed=total_requests,
+            total_requests_attempted=total_attempts,
             total_evidence_added=total_evidence,
         )
 
@@ -217,6 +220,7 @@ class AutonomousInvestigationLoop:
         steps: list[InvestigationStep] = []
         total_evidence = 0
         total_requests = 0
+        total_attempts = 0
 
         initial = self.orchestrator.evaluate(case)
         if initial.state in {"rca_candidate", "resolved"}:
@@ -225,6 +229,7 @@ class AutonomousInvestigationLoop:
                 steps=steps,
                 stop_reason=initial.state,
                 total_requests=0,
+                total_attempts=0,
                 total_evidence=0,
             )
 
@@ -242,11 +247,12 @@ class AutonomousInvestigationLoop:
                     steps=steps,
                     stop_reason=plan.stop_reason,
                     total_requests=total_requests,
+                    total_attempts=total_attempts,
                     total_evidence=total_evidence,
                 )
 
             for request in plan.requests:
-                if total_requests >= self.policy.max_total_requests:
+                if total_attempts >= self.policy.max_total_requests:
                     step.skipped_request_ids.append(request.id)
                     continue
                 if not request.read_only:
@@ -276,6 +282,7 @@ class AutonomousInvestigationLoop:
                     continue
 
                 try:
+                    total_attempts += 1
                     result = collector(request, case)
                 except Exception as exc:
                     step.skipped_request_ids.append(request.id)
@@ -293,9 +300,32 @@ class AutonomousInvestigationLoop:
                             steps=steps,
                             stop_reason="collector_error",
                             total_requests=total_requests,
+                            total_attempts=total_attempts,
                             total_evidence=total_evidence,
                         )
                     continue
+
+                if result.request_id != request.id:
+                    step.skipped_request_ids.append(request.id)
+                    case.audit_timeline.append(
+                        AuditEvent(
+                            action="collector_contract_error",
+                            summary=(
+                                f"Collector returned request_id={result.request_id} "
+                                f"for planned request {request.id}; evidence was rejected."
+                            ),
+                            metadata={"request_id": request.id},
+                        )
+                    )
+                    steps.append(step)
+                    return self._finish(
+                        case=case,
+                        steps=steps,
+                        stop_reason="collector_contract_error",
+                        total_requests=total_requests,
+                        total_attempts=total_attempts,
+                        total_evidence=total_evidence,
+                    )
 
                 completed.add(request.id)
                 step.executed_request_ids.append(request.id)
@@ -315,15 +345,17 @@ class AutonomousInvestigationLoop:
                     steps=steps,
                     stop_reason=decision.state,
                     total_requests=total_requests,
+                    total_attempts=total_attempts,
                     total_evidence=total_evidence,
                 )
 
-            if total_requests >= self.policy.max_total_requests:
+            if total_attempts >= self.policy.max_total_requests:
                 return self._finish(
                     case=case,
                     steps=steps,
                     stop_reason="request_budget_exhausted",
                     total_requests=total_requests,
+                    total_attempts=total_attempts,
                     total_evidence=total_evidence,
                 )
 
@@ -333,6 +365,7 @@ class AutonomousInvestigationLoop:
                     steps=steps,
                     stop_reason="no_registered_safe_collector",
                     total_requests=total_requests,
+                    total_attempts=total_attempts,
                     total_evidence=total_evidence,
                 )
 
@@ -341,5 +374,6 @@ class AutonomousInvestigationLoop:
             steps=steps,
             stop_reason="step_budget_exhausted",
             total_requests=total_requests,
+            total_attempts=total_attempts,
             total_evidence=total_evidence,
         )

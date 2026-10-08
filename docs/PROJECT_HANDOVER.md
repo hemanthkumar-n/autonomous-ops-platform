@@ -39,7 +39,7 @@ Do not treat empty modules or directory names as implemented capabilities.
 Release: 0.42.0
 Branch: main
 Remote: origin/main
-Offline tests: 241 passing
+Offline tests: 248 passing
 CLI entry point: aop
 Python: 3.11+
 ```
@@ -105,6 +105,11 @@ execute a large list of commands.
 - source-class prompt budgets and retrieval diagnostics
 - shared unified retrieval adapter across RCA, incident analysis, and
   remediation
+- bounded autonomous investigation loop with explicit read-only collector
+  registration, evidence-gap planning, and request/step budgets
+- Linux memory collector adapter with persistence disabled during autonomous
+  evidence collection
+- explicit RCA candidate distinct from confirmed root cause
 - Markdown and JSON reports
 - provider-neutral evidence, alert, metric, timeline, and dashboard contracts
 

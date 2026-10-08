@@ -17,6 +17,14 @@ Date: 2026-10-09
 - shared Kubernetes incident-to-knowledge adapter for reasoning agents
 - unified retrieval adoption in RCA, incident-analysis, and remediation agents
 - CLI retrieval diagnostics for future UI and evaluation consumers
+- bounded autonomous evidence-planning loop over the canonical investigation
+  case
+- registered read-only collector boundary with Linux memory as the first live
+  collector adapter
+- explicit RCA candidate contract, why/why-not reasoning, request/step budgets,
+  and audit events
+- separate attempted and successful collector counters
+- collector request-ID validation before evidence is accepted
 - tests for source diversity, diagnostics, and migrated agent consumers
 
 ### Safety
@@ -28,6 +36,8 @@ Date: 2026-10-09
   billing measurements
 - no SSH, service restart, Kubernetes mutation, or autonomous remediation was
   added
+- autonomous collection can call only explicitly registered read-only
+  collectors; root cause remains unconfirmed until later validation
 
 ---
 

@@ -189,8 +189,59 @@ class AutonomousInvestigationLoopTests(unittest.TestCase):
             policy=InvestigationLoopPolicy(max_steps=3, max_total_requests=1),
         ).run(case)
         self.assertEqual(result.stop_reason, "request_budget_exhausted")
+        self.assertEqual(result.total_requests_attempted, 1)
+        self.assertEqual(result.total_requests_executed, 1)
         self.assertEqual(result.case.decision.state, "collect_more_evidence")
         self.assertIsNone(result.case.rca_candidate)
+
+    def test_failed_collector_attempt_consumes_request_budget(self) -> None:
+        def failing_collector(request, current_case):
+            del request, current_case
+            raise RuntimeError("collector unavailable")
+
+        result = AutonomousInvestigationLoop(
+            collectors={"linux_memory": failing_collector},
+            policy=InvestigationLoopPolicy(
+                max_steps=3,
+                max_total_requests=1,
+                stop_on_collector_error=True,
+            ),
+        ).run(self._case_with_gap())
+
+        self.assertEqual(result.stop_reason, "collector_error")
+        self.assertEqual(result.total_requests_attempted, 1)
+        self.assertEqual(result.total_requests_executed, 0)
+
+    def test_mismatched_collector_request_id_rejects_evidence(self) -> None:
+        def mismatched_collector(request, current_case):
+            del request, current_case
+            return EvidenceCollectionResult(
+                request_id="different-request",
+                evidence=[
+                    EvidenceItem(
+                        id="untrusted-evidence",
+                        domain="linux",
+                        source="test",
+                        title="Mismatched evidence",
+                        summary="This must not enter the case.",
+                    )
+                ],
+            )
+
+        result = AutonomousInvestigationLoop(
+            collectors={"linux_memory": mismatched_collector}
+        ).run(self._case_with_gap())
+
+        self.assertEqual(result.stop_reason, "collector_contract_error")
+        self.assertEqual(result.total_requests_attempted, 1)
+        self.assertEqual(result.total_requests_executed, 0)
+        self.assertFalse(result.case.evidence)
+        self.assertTrue(
+            any(
+                event.action == "collector_contract_error"
+                for event in result.case.audit_timeline
+            )
+        )
 
 
 if __name__ == "__main__":
