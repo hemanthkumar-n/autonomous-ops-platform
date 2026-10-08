@@ -77,6 +77,10 @@ def search(
     click.echo(f"returned_matches: {len(result.matches)}")
     click.echo(f"source_counts: {result.source_counts}")
     click.echo(f"semantic_attempted: {result.semantic_attempted}")
+    diagnostics = result.prompt_selection.diagnostics
+    click.echo(f"prompt_class_budgets: {diagnostics.class_budgets}")
+    click.echo(f"prompt_selected_counts: {diagnostics.selected_counts}")
+    click.echo(f"prompt_estimated_tokens: {diagnostics.estimated_tokens}")
     if result.unavailable_sources:
         click.echo(f"unavailable_sources: {', '.join(result.unavailable_sources)}")
     click.echo("boundary: Retrieved knowledge is not proof; verify live evidence.")

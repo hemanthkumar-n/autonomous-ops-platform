@@ -10,6 +10,7 @@ unfinished.
 
 | Release | Focus | Reference |
 |---|---|---|
+| `v0.42.0` | Source-class prompt budgets and reasoning-agent adoption | [`v0.42-source-class-prompt-budgets-agent-adoption.md`](v0.42-source-class-prompt-budgets-agent-adoption.md) |
 | `v0.41.0` | Unified operational knowledge retrieval | [`v0.41-unified-operational-knowledge-retrieval.md`](v0.41-unified-operational-knowledge-retrieval.md) |
 | `v0.40.0` | Source-reviewed DNS and conntrack guidance | [`v0.40-source-reviewed-dns-conntrack-guidance.md`](v0.40-source-reviewed-dns-conntrack-guidance.md) |
 | `v0.39.0` | k8s.af external knowledge import | [`v0.39-k8s-af-external-knowledge-import.md`](v0.39-k8s-af-external-knowledge-import.md) |

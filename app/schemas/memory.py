@@ -238,6 +238,23 @@ class KnowledgeMatch(BaseModel):
     safety_boundary: str
 
 
+class KnowledgePromptDiagnostics(BaseModel):
+    """Explain how bounded prompt context was selected."""
+
+    max_items: int
+    class_budgets: dict[str, int]
+    available_counts: dict[str, int]
+    selected_counts: dict[str, int]
+    estimated_tokens: int
+
+
+class KnowledgePromptSelection(BaseModel):
+    """Selected knowledge and diagnostics for one bounded prompt block."""
+
+    matches: list[KnowledgeMatch]
+    diagnostics: KnowledgePromptDiagnostics
+
+
 class KnowledgeRetrievalResult(BaseModel):
     """Bounded, source-aware response from the unified retrieval pipeline."""
 
@@ -247,6 +264,7 @@ class KnowledgeRetrievalResult(BaseModel):
     source_counts: dict[str, int]
     unavailable_sources: list[str] = []
     semantic_attempted: bool = False
+    prompt_selection: KnowledgePromptSelection
 
 
 class ExternalKnowledgeStory(BaseModel):

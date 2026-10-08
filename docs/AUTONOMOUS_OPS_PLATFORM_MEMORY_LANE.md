@@ -56,12 +56,12 @@ Remediation is advisory and non-destructive.
 
 ## Current Baseline
 
-- Version: `0.41.0`
+- Version: `0.42.0`
 - Branch: `main`
 - Remote baseline: `origin/main`
 - Python: `3.11+`
 - CLI entry point: `aop`
-- Tests: two hundred thirty-eight offline regression tests passing
+- Tests: two hundred forty-one offline regression tests passing
 - Real Ollama generation and 768-dimensional embeddings verified
 - Full live demo still requires Kubernetes and Prometheus to be running
 
@@ -82,6 +82,20 @@ Semantic-memory failure degrades to exact structured memory. Missing memory
 does not block analysis from current evidence.
 
 ## Latest Release Memory
+
+v0.42.0 makes unified retrieval the shared reasoning-agent path:
+
+```text
+incident + classification
+  -> shared KnowledgeQuery adapter
+  -> trusted guidance: 2 reserved items
+  -> exact/recurring history: 1 reserved item
+  -> optional semantic similarity: 1 reserved item
+  -> bounded context + allocation diagnostics
+```
+
+Unused class slots are filled by ranked remaining matches. Token diagnostics
+are deterministic estimates for context planning, not provider billing counts.
 
 v0.41.0 introduces one source-aware retrieval boundary:
 

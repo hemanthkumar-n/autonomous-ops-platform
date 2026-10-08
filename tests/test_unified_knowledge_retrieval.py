@@ -17,6 +17,7 @@ from app.schemas.memory import (
     IncidentPatternReport,
     IncidentPatternSummary,
     KnowledgeQuery,
+    KnowledgeMatch,
     MemoryQuery,
     MemorySearchResult,
 )
@@ -214,6 +215,56 @@ class UnifiedKnowledgeRetrievalTests(unittest.TestCase):
         self.assertIn("AOP unified knowledge retrieval", result.output)
         self.assertIn("provenance:", result.output)
         self.assertIn("semantic_attempted: False", result.output)
+        self.assertIn("prompt_selected_counts:", result.output)
+        self.assertIn("prompt_estimated_tokens:", result.output)
+
+    @patch("app.memory.retrieval.knowledge._semantic_memory_matches")
+    @patch("app.memory.retrieval.knowledge._pattern_matches")
+    @patch("app.memory.retrieval.knowledge._exact_memory_matches")
+    @patch("app.memory.retrieval.knowledge._runbook_matches")
+    def test_prompt_allocation_prevents_one_source_class_from_crowding_others(
+        self,
+        runbooks,
+        exact_memory,
+        patterns,
+        semantic_memory,
+    ) -> None:
+        def match(identifier: str, source_type: str, score: int) -> KnowledgeMatch:
+            return KnowledgeMatch(
+                knowledge_id=identifier,
+                title=identifier,
+                source_type=source_type,
+                trust_level="test",
+                domain="kubernetes",
+                incident_type="OOMKilled",
+                summary=f"Summary for {identifier}",
+                score=score,
+                safety_boundary="Verify against current evidence.",
+            )
+
+        runbooks.return_value = [
+            match(f"guide-{index}", "internal_runbook", 20 - index)
+            for index in range(5)
+        ]
+        exact_memory.return_value = [
+            match("history-1", "incident_memory_exact", 8)
+        ]
+        patterns.return_value = []
+        semantic_memory.return_value = (
+            [match("semantic-1", "incident_memory_semantic", 4)],
+            [],
+        )
+
+        result = retrieve_knowledge(
+            KnowledgeQuery(incident_type="OOMKilled", limit=4),
+            include_semantic=True,
+        )
+        diagnostics = result.prompt_selection.diagnostics
+
+        self.assertEqual(diagnostics.selected_counts["trusted_guidance"], 2)
+        self.assertEqual(diagnostics.selected_counts["historical_context"], 1)
+        self.assertEqual(diagnostics.selected_counts["semantic_similarity"], 1)
+        self.assertGreater(diagnostics.estimated_tokens, 0)
 
 
 if __name__ == "__main__":

@@ -121,7 +121,10 @@ class CrossDomainPromptTests(unittest.TestCase):
 
     @patch(
         "app.agents.sre.rca_agent.build_historical_context",
-        return_value=("No history.", False),
+        return_value=(
+            "Kubernetes OOMKilled guidance, not proof.",
+            False,
+        ),
     )
     def test_rca_prompt_includes_bounded_runbook_context(
         self,

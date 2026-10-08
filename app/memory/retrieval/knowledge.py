@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+from app.llm.token_budget import estimate_tokens
 from app.memory.incident_patterns.patterns import find_incident_patterns
 from app.memory.retrieval.search import search_incident_memory
 from app.memory.retrieval.semantic_search import search_similar_incidents
 from app.memory.runbooks.retrieval import search_runbooks
 from app.schemas.memory import (
     KnowledgeMatch,
+    KnowledgePromptDiagnostics,
+    KnowledgePromptSelection,
     KnowledgeQuery,
     KnowledgeRetrievalResult,
     MemoryQuery,
@@ -20,6 +23,27 @@ SOURCE_PRIORITY = {
     "incident_pattern": 2,
     "incident_memory_semantic": 1,
 }
+
+SOURCE_CLASS = {
+    "internal_runbook": "trusted_guidance",
+    "reviewed_external": "trusted_guidance",
+    "incident_memory_exact": "historical_context",
+    "incident_pattern": "historical_context",
+    "incident_memory_semantic": "semantic_similarity",
+}
+
+DEFAULT_CLASS_BUDGETS = {
+    "trusted_guidance": 2,
+    "historical_context": 1,
+    "semantic_similarity": 1,
+}
+
+PROMPT_CLASS_ORDER = (
+    "trusted_guidance",
+    "historical_context",
+    "semantic_similarity",
+    "unclassified",
+)
 
 
 def _memory_query(query: KnowledgeQuery) -> MemoryQuery:
@@ -200,6 +224,98 @@ def _semantic_memory_matches(
     return matches, []
 
 
+def _prompt_estimate(matches: list[KnowledgeMatch]) -> int:
+    text = "\n".join(
+        "\n".join(
+            [
+                match.title,
+                match.summary,
+                *match.guidance,
+                *match.commands,
+                match.safety_boundary,
+            ]
+        )
+        for match in matches
+    )
+    return estimate_tokens(text)
+
+
+def _select_prompt_matches(
+    matches: list[KnowledgeMatch],
+    *,
+    max_items: int,
+    class_budgets: dict[str, int],
+) -> KnowledgePromptSelection:
+    bounded_max = max(max_items, 0)
+    available_counts = {name: 0 for name in PROMPT_CLASS_ORDER}
+    for match in matches:
+        source_class = SOURCE_CLASS.get(match.source_type, "unclassified")
+        available_counts[source_class] = available_counts.get(source_class, 0) + 1
+
+    selected: list[KnowledgeMatch] = []
+    selected_keys: set[tuple[str, str]] = set()
+    selected_counts = {name: 0 for name in PROMPT_CLASS_ORDER}
+
+    for source_class in PROMPT_CLASS_ORDER:
+        budget = max(class_budgets.get(source_class, 0), 0)
+        candidates = [
+            match
+            for match in matches
+            if SOURCE_CLASS.get(match.source_type, "unclassified")
+            == source_class
+        ]
+        for match in candidates[:budget]:
+            if len(selected) >= bounded_max:
+                break
+            key = (match.source_type, match.knowledge_id)
+            selected.append(match)
+            selected_keys.add(key)
+            selected_counts[source_class] += 1
+
+    for match in matches:
+        if len(selected) >= bounded_max:
+            break
+        key = (match.source_type, match.knowledge_id)
+        if key in selected_keys:
+            continue
+        source_class = SOURCE_CLASS.get(match.source_type, "unclassified")
+        selected.append(match)
+        selected_keys.add(key)
+        selected_counts[source_class] = selected_counts.get(source_class, 0) + 1
+
+    return KnowledgePromptSelection(
+        matches=selected,
+        diagnostics=KnowledgePromptDiagnostics(
+            max_items=bounded_max,
+            class_budgets=class_budgets,
+            available_counts=available_counts,
+            selected_counts=selected_counts,
+            estimated_tokens=_prompt_estimate(selected),
+        ),
+    )
+
+
+def select_knowledge_for_prompt(
+    result: KnowledgeRetrievalResult,
+    *,
+    max_items: int = 4,
+    class_budgets: dict[str, int] | None = None,
+) -> KnowledgePromptSelection:
+    """Select diverse prompt context and expose allocation diagnostics."""
+
+    if (
+        class_budgets is None
+        and max_items == result.prompt_selection.diagnostics.max_items
+    ):
+        return result.prompt_selection
+
+    return _select_prompt_matches(
+        result.matches,
+        max_items=max_items,
+        class_budgets=dict(class_budgets or DEFAULT_CLASS_BUDGETS),
+    )
+
+
 def retrieve_knowledge(
     query: KnowledgeQuery,
     *,
@@ -230,6 +346,11 @@ def retrieve_knowledge(
         source_counts[match.source_type] = source_counts.get(match.source_type, 0) + 1
 
     bounded = matches[: max(query.limit, 0)]
+    prompt_selection = _select_prompt_matches(
+        matches,
+        max_items=min(4, max(query.limit, 0)),
+        class_budgets=dict(DEFAULT_CLASS_BUDGETS),
+    )
     return KnowledgeRetrievalResult(
         query=query,
         matches=bounded,
@@ -237,13 +358,14 @@ def retrieve_knowledge(
         source_counts=source_counts,
         unavailable_sources=unavailable_sources,
         semantic_attempted=include_semantic,
+        prompt_selection=prompt_selection,
     )
 
 
 def format_knowledge_context_for_prompt(
     result: KnowledgeRetrievalResult,
     *,
-    max_items: int = 3,
+    max_items: int = 4,
     max_guidance_items: int = 3,
     max_commands: int = 2,
 ) -> str:
@@ -252,12 +374,16 @@ def format_knowledge_context_for_prompt(
     if not result.matches:
         return "No trusted knowledge matched. Do not invent operational guidance."
 
+    selection = select_knowledge_for_prompt(result, max_items=max_items)
+    diagnostics = selection.diagnostics
     lines = [
         "Retrieved knowledge is guidance or historical context, not proof. "
         "Verify every conclusion against live evidence.",
         f"Evidence references: {', '.join(result.query.evidence_references) or 'none supplied'}",
+        f"Prompt allocation: {diagnostics.selected_counts}; "
+        f"estimated_tokens: {diagnostics.estimated_tokens}",
     ]
-    for index, match in enumerate(result.matches[:max_items], start=1):
+    for index, match in enumerate(selection.matches, start=1):
         lines.extend(
             [
                 f"{index}. {match.title}",

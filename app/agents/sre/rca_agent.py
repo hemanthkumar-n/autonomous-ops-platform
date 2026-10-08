@@ -3,13 +3,9 @@ from __future__ import annotations
 from app.agents.sre.incident_classifier import classify_incident
 from app.config.logging_config import get_logger
 from app.llm.client import LLMClient
-from app.memory.fingerprints.signature import extract_failure_reason
+from app.agents.sre.knowledge_context import retrieve_incident_knowledge_context
 from app.memory.incident_patterns.patterns import (
     format_pattern_guidance_for_prompt,
-)
-from app.memory.retrieval.knowledge import (
-    format_knowledge_context_for_prompt,
-    retrieve_knowledge,
 )
 from app.prompts.shared.cross_domain import (
     KUBERNETES_LINUX_CORRELATION_POLICY,
@@ -17,10 +13,7 @@ from app.prompts.shared.cross_domain import (
 from app.schemas.ai import RCAResponse
 from app.schemas.classification import IncidentClassification
 from app.schemas.incident import IncidentContext
-from app.schemas.memory import (
-    IncidentPatternGuidance,
-    KnowledgeQuery,
-)
+from app.schemas.memory import IncidentPatternGuidance
 from app.tools.kubernetes.incident_context import (
     collect_incident_context,
 )
@@ -36,32 +29,11 @@ def build_knowledge_context(
     Retrieve one bounded context across guidance and operational memory.
     """
 
-    query = KnowledgeQuery(
-        domain="kubernetes",
-        incident_type=classification.incident_type,
-        text=(
-            f"{incident.phase} {classification.container_state} "
-            f"{classification.incident_type} {incident.model_dump_json()}"
-        ),
-        namespace=incident.namespace,
-        workload_name=incident.pod_name,
-        failure_reason=extract_failure_reason(incident),
-        severity=classification.severity,
-        evidence_references=[
-            f"kubernetes://{incident.namespace}/pod/{incident.pod_name}"
-        ],
-        limit=3,
+    context, has_history, _result = retrieve_incident_knowledge_context(
+        incident,
+        classification,
     )
-    result = retrieve_knowledge(query)
-    has_history = any(
-        (
-            source.startswith("incident_memory")
-            or source == "incident_pattern"
-        )
-        and count > 0
-        for source, count in result.source_counts.items()
-    )
-    return format_knowledge_context_for_prompt(result), has_history
+    return context, has_history
 
 
 def build_historical_context(
@@ -83,7 +55,7 @@ def build_rca_prompt(
     """
 
     historical_context, has_history = (
-        build_knowledge_context(
+        build_historical_context(
             classification=classification,
             incident=incident,
         )

@@ -3,20 +3,16 @@ from __future__ import annotations
 import json
 
 from app.agents.sre.incident_classifier import classify_incident
+from app.agents.sre.knowledge_context import retrieve_incident_knowledge_context
 from app.agents.sre.rca_agent import generate_rca
 from app.config.logging_config import get_logger
 from app.llm.client import LLMClient
-from app.memory.fingerprints.signature import extract_failure_reason
-from app.memory.retrieval.hybrid_search import (
-    hybrid_incident_search,
-)
 from app.prompts.shared.cross_domain import (
     KUBERNETES_LINUX_CORRELATION_POLICY,
 )
 from app.schemas.ai import RemediationResponse
 from app.schemas.classification import IncidentClassification
 from app.schemas.incident import IncidentContext
-from app.schemas.memory import MemoryQuery
 from app.tools.kubernetes.incident_context import (
     collect_incident_context,
 )
@@ -29,40 +25,14 @@ def build_historical_context(
     incident: IncidentContext,
 ) -> tuple[str, bool]:
     """
-    Retrieve hybrid operational memory context.
+    Retrieve bounded operational knowledge through the shared pipeline.
     """
 
-    query = MemoryQuery(
-        incident_type=classification.incident_type,
-        namespace=incident.namespace,
-        workload_name=incident.pod_name,
-        failure_reason=extract_failure_reason(incident),
-        severity=classification.severity,
-        limit=3,
+    context, has_history, _result = retrieve_incident_knowledge_context(
+        incident,
+        classification,
     )
-
-    results = hybrid_incident_search(
-        query
-    )
-
-    has_history = (
-        results["exact_match_count"] > 0
-        or results["semantic_match_count"] > 0
-    )
-
-    if not has_history:
-        return (
-            "No relevant historical incidents found.",
-            False,
-        )
-
-    return (
-        json.dumps(
-            results,
-            indent=2,
-        ),
-        True,
-    )
+    return context, has_history
 
 
 def build_remediation_prompt(
@@ -144,7 +114,7 @@ Incident Context:
 Root Cause Analysis:
 {rca}
 
-Historical Operational Memory:
+Unified Knowledge Context:
 {historical_context}
 """
 

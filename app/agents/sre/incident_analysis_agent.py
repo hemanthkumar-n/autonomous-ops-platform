@@ -5,15 +5,14 @@ import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from app.agents.sre.incident_classifier import classify_incident
+from app.agents.sre.knowledge_context import retrieve_incident_knowledge_context
 from app.config.logging_config import get_logger
 from app.llm.client import LLMClient
-from app.memory.retrieval.hybrid_search import hybrid_incident_search
 from app.prompts.shared.cross_domain import (
     KUBERNETES_LINUX_CORRELATION_POLICY,
 )
 from app.schemas.classification import IncidentClassification
 from app.schemas.incident import IncidentContext
-from app.schemas.memory import MemoryQuery
 from app.tools.kubernetes.incident_context import collect_incident_context
 
 logger = get_logger(__name__)
@@ -39,43 +38,13 @@ def build_historical_context(
     incident: IncidentContext,
 ) -> str:
     """
-    Retrieve relevant historical operational memory.
+    Retrieve bounded operational knowledge through the shared pipeline.
     """
-    failure_reason = None
-
-    if incident.container_states:
-        first = incident.container_states[0]
-
-        if (
-            first.last_termination
-            and isinstance(first.last_termination, dict)
-        ):
-            failure_reason = first.last_termination.get(
-                "reason"
-            )
-
-    query = MemoryQuery(
-        incident_type=classification.incident_type,
-        namespace=incident.namespace,
-        workload_name=incident.pod_name,
-        failure_reason=failure_reason,
-        severity=classification.severity,
-        limit=3,
+    context, _has_history, _result = retrieve_incident_knowledge_context(
+        incident,
+        classification,
     )
-
-    results = hybrid_incident_search(query)
-
-    if (
-        results["exact_match_count"] == 0
-        and results["semantic_match_count"] == 0
-    ):
-        return "No historical incidents found."
-
-    return json.dumps(
-        results,
-        indent=2,
-        default=str,
-    )
+    return context
 
 
 def build_incident_summary(
@@ -154,7 +123,7 @@ Classification:
 Incident:
 {json.dumps(summary, indent=2, default=str)}
 
-Historical Context:
+Unified Knowledge Context:
 {history}
 """
 

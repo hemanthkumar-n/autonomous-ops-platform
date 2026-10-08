@@ -9,8 +9,19 @@ so the project remains honest and easy to explain.
 ## Current Baseline
 
 ```text
-Current release: v0.41.0
+Current release: v0.42.0
 Status: implemented and pushed
+```
+
+v0.42.0 adds source-class prompt budgets and completes reasoning-agent
+adoption:
+
+```text
+trusted guidance + historical context + optional semantic similarity
+  -> reserved class capacity
+  -> fill unused slots by rank
+  -> prompt-selection diagnostics
+  -> RCA + analysis + remediation
 ```
 
 v0.41.0 unifies current operational knowledge retrieval:
@@ -237,23 +248,23 @@ panic clues, `df`/`du` mismatch, inode exhaustion, deleted-open files,
 read-only remounts, LVM expansion mismatch, container runtime disk pressure,
 and Kubernetes symptoms that require Linux node correlation.
 
-## Next: v0.42
+## Next: v0.43
 
 Purpose:
 
 ```text
-Adopt the unified pipeline across remaining reasoning agents and allocate
-prompt budget by source class.
+Build a source-controlled retrieval evaluation set before expanding providers
+or changing ranking behavior.
 ```
 
 Target outcomes:
 
-- migrate incident-analysis and remediation consumers from legacy hybrid search
-- allocate bounded prompt items across guidance, recurrence, and similarity
-- prevent one noisy source class from consuming the entire context budget
-- expose retrieval diagnostics for future UI and evaluation pipelines
-- preserve deterministic fallback when semantic retrieval is unavailable
-- add no automatic remediation
+- define golden Linux and Kubernetes retrieval queries
+- assert expected top sources and minimum source-class coverage
+- assert unsafe or unreviewed guidance never enters prompt context
+- measure deterministic prompt-size and token-estimate bounds
+- produce machine-readable evaluation output for future CI and dashboards
+- preserve advisory-only behavior and deterministic fallback
 
 Reference:
 

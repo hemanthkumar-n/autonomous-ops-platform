@@ -4,6 +4,33 @@ All notable changes to Autonomous Ops Platform will be documented here.
 
 ---
 
+## v0.42.0 - Source-Class Prompt Budgets And Agent Adoption
+
+Date: 2026-10-09
+
+### Added
+
+- source-class prompt allocation across trusted guidance, exact/recurring
+  history, and optional semantic similarity
+- typed prompt-selection diagnostics with available counts, selected counts,
+  class budgets, and deterministic token estimates
+- shared Kubernetes incident-to-knowledge adapter for reasoning agents
+- unified retrieval adoption in RCA, incident-analysis, and remediation agents
+- CLI retrieval diagnostics for future UI and evaluation consumers
+- tests for source diversity, diagnostics, and migrated agent consumers
+
+### Safety
+
+- semantic retrieval remains opt-in and does not silently add model calls
+- unused source-class slots may be filled by ranked results, but available
+  lower-volume classes receive their reserved slots first
+- token counts are deterministic estimates for prompt planning, not provider
+  billing measurements
+- no SSH, service restart, Kubernetes mutation, or autonomous remediation was
+  added
+
+---
+
 ## v0.41.0 - Unified Operational Knowledge Retrieval
 
 Date: 2026-08-14
