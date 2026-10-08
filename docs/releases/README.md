@@ -8,6 +8,10 @@ unfinished.
 
 ## Releases
 
+v0.43 is in progress. The first slice is documented in
+[`v0.43-linux-cpu-collector.md`](v0.43-linux-cpu-collector.md); the current
+published release remains v0.42.0.
+
 | Release | Focus | Reference |
 |---|---|---|
 | `v0.42.0` | Source-class prompt budgets, reasoning-agent adoption, and bounded autonomous evidence collection | [`source budgets`](v0.42-source-class-prompt-budgets-agent-adoption.md), [`autonomous loop`](v0.42-autonomous-investigation-loop.md) |

@@ -138,6 +138,8 @@ operational knowledge sources. RCA, incident analysis, and remediation now use
 that shared path with source-class prompt allocation diagnostics. A bounded
 autonomous investigation loop can also plan missing evidence, call explicitly
 registered read-only collectors, and stop at an unconfirmed RCA candidate.
+The first v0.43 slice adds Linux CPU evidence to that loop; see the
+[`v0.43 CPU collector work note`](docs/releases/v0.43-linux-cpu-collector.md).
 
 ### Release Memory
 

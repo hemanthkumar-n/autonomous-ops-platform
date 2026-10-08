@@ -1,6 +1,6 @@
 # AOP Roadmap
 
-Updated: 2026-08-08
+Updated: 2026-10-09
 
 This roadmap is the public project direction for future contributors, ChatGPT
 handoffs, and Codex sessions. It separates implemented work from planned work
@@ -253,6 +253,11 @@ read-only remounts, LVM expansion mismatch, container runtime disk pressure,
 and Kubernetes symptoms that require Linux node correlation.
 
 ## Next: v0.43
+
+In progress: the Linux CPU registered collector now feeds load, CPU time,
+pressure, and deterministic findings into the bounded investigation case.
+Disk, network, Kubernetes, Prometheus, and golden evaluation sets remain open.
+See [the CPU collector work note](releases/v0.43-linux-cpu-collector.md).
 
 Purpose:
 
